@@ -401,6 +401,7 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Compile Include="UserData.cs" />
     <Compile Include="ThemeManager.cs" />
+
     <Compile Include="CustomControls\ModernButton.cs">
       <SubType>Component</SubType>
     </Compile>

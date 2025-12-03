@@ -51,6 +51,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
+        // Optimization: Reduce flicker
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED
+                return cp;
+            }
+        }
+
         private void DtChiTiet_ColumnChanged(object sender, DataColumnChangeEventArgs e)
         {
             // Recalculate Total Amount whenever SL or DONGIA changes

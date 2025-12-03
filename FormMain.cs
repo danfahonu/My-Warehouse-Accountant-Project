@@ -18,6 +18,17 @@ namespace DoAnLapTrinhQuanLy
             this.UpdateStyles();
         }
 
+        // Optimization: Reduce flicker
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED
+                return cp;
+            }
+        }
+
         private void FrmMain_Load(object sender, EventArgs e)
         {
             // Áp dụng giao diện hiện đại

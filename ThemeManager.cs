@@ -112,6 +112,10 @@ namespace DoAnLapTrinhQuanLy
                     StyleDataGridView(dgv);
                     break;
 
+                case TableLayoutPanel tlp:
+                    ThemeControlExtensions.SetDoubleBuffered(tlp, true); // Force Double Buffering for TableLayoutPanels
+                    break;
+
                 case Panel p:
                     // Skip ModernPanel as it has its own Gradient logic
                     if (p is DoAnLapTrinhQuanLy.CustomControls.ModernPanel)
@@ -126,6 +130,7 @@ namespace DoAnLapTrinhQuanLy
                     {
                         p.BackColor = PrimaryColor;
                     }
+                    ThemeControlExtensions.SetDoubleBuffered(p, true); // Force Double Buffering for Panels
                     break;
 
                 case MenuStrip menu:
@@ -152,6 +157,7 @@ namespace DoAnLapTrinhQuanLy
 
         private static void StyleDataGridView(DataGridView dgv)
         {
+            ThemeControlExtensions.SetDoubleBuffered(dgv, true); // Force Double Buffering via Extension
             dgv.BackgroundColor = PrimaryColor;
             dgv.BorderStyle = BorderStyle.None;
             dgv.EnableHeadersVisualStyles = false;
@@ -190,6 +196,18 @@ namespace DoAnLapTrinhQuanLy
             public override Color ImageMarginGradientBegin => Color.FromArgb(27, 27, 28);
             public override Color ImageMarginGradientMiddle => Color.FromArgb(27, 27, 28);
             public override Color ImageMarginGradientEnd => Color.FromArgb(27, 27, 28);
+        }
+    }
+    public static class ThemeControlExtensions
+    {
+        public static void SetDoubleBuffered(this Control c, bool value)
+        {
+            // Use Reflection to access the protected 'DoubleBuffered' property
+            System.Reflection.PropertyInfo pi = typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (pi != null)
+            {
+                pi.SetValue(c, value, null);
+            }
         }
     }
 }

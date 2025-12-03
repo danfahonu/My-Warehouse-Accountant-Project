@@ -15,10 +15,10 @@ namespace DoAnLapTrinhQuanLy.CustomControls
         public ModernPanel()
         {
             this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.ResizeRedraw, true); // Optimization
             this.BackColor = Color.White;
             this.ForeColor = Color.Black;
             this.Size = new Size(350, 200);
-            this.Resize += (s, e) => { this.Invalidate(); };
         }
 
         public int BorderRadius
@@ -79,20 +79,20 @@ namespace DoAnLapTrinhQuanLy.CustomControls
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Gradient
-            LinearGradientBrush brushArtan = new LinearGradientBrush(this.ClientRectangle, this.GradientTopColor, this.GradientBottomColor, this.GradientAngle);
-            Graphics graphics = e.Graphics;
-            graphics.FillRectangle(brushArtan, this.ClientRectangle);
+            using (LinearGradientBrush brushArtan = new LinearGradientBrush(this.ClientRectangle, this.GradientTopColor, this.GradientBottomColor, this.GradientAngle))
+            {
+                e.Graphics.FillRectangle(brushArtan, this.ClientRectangle);
+            }
 
             // BorderRadius
             RectangleF rectF = new RectangleF(0, 0, this.Width, this.Height);
             if (_borderRadius > 2)
             {
-                using (GraphicsPath path = GetFigurePath(rectF, _borderRadius))
-                using (Pen pen = new Pen(this.Parent.BackColor, 2))
-                {
-                    this.Region = new Region(path);
-                    e.Graphics.DrawPath(pen, path);
-                }
+                using GraphicsPath path = GetFigurePath(rectF, _borderRadius);
+                using Pen pen = new Pen(this.Parent.BackColor, 2);
+
+                this.Region = new Region(path);
+                e.Graphics.DrawPath(pen, path);
             }
             else
             {

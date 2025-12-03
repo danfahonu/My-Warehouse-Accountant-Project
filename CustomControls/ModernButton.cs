@@ -33,6 +33,7 @@ namespace DoAnLapTrinhQuanLy.CustomControls
         public ModernButton()
         {
             this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.ResizeRedraw, true); // Optimization
             this.FlatStyle = FlatStyle.Flat;
             this.FlatAppearance.BorderSize = 0;
             this.Size = new Size(150, 40);
@@ -63,20 +64,19 @@ namespace DoAnLapTrinhQuanLy.CustomControls
 
             if (BorderRadius > 2) // Rounded button
             {
-                using (GraphicsPath pathSurface = GetFigurePath(rectSurface, BorderRadius))
-                using (GraphicsPath pathBorder = GetFigurePath(rectBorder, BorderRadius - 1F))
-                using (Pen penSurface = new Pen(this.Parent.BackColor, 2))
-                using (Pen penBorder = new Pen(BorderColor, 1.6F))
+                using GraphicsPath pathSurface = GetFigurePath(rectSurface, BorderRadius);
+                using GraphicsPath pathBorder = GetFigurePath(rectBorder, BorderRadius - 1F);
+                using Pen penSurface = new Pen(this.Parent.BackColor, 2);
+                using Pen penBorder = new Pen(BorderColor, 1.6F);
+
+                penBorder.Alignment = PenAlignment.Inset;
+                this.Region = new Region(pathSurface);
+                // Draw surface border for HD result
+                pevent.Graphics.DrawPath(penSurface, pathSurface);
+                // Draw control border
+                if (this.FlatAppearance.BorderSize >= 1)
                 {
-                    penBorder.Alignment = PenAlignment.Inset;
-                    this.Region = new Region(pathSurface);
-                    // Draw surface border for HD result
-                    pevent.Graphics.DrawPath(penSurface, pathSurface);
-                    // Draw control border
-                    if (this.FlatAppearance.BorderSize >= 1)
-                    {
-                        pevent.Graphics.DrawPath(penBorder, pathBorder);
-                    }
+                    pevent.Graphics.DrawPath(penBorder, pathBorder);
                 }
             }
             else // Normal button
@@ -84,11 +84,9 @@ namespace DoAnLapTrinhQuanLy.CustomControls
                 this.Region = new Region(rectSurface);
                 if (this.FlatAppearance.BorderSize >= 1)
                 {
-                    using (Pen penBorder = new Pen(BorderColor, 1F))
-                    {
-                        penBorder.Alignment = PenAlignment.Inset;
-                        pevent.Graphics.DrawRectangle(penBorder, 0, 0, this.Width - 1, this.Height - 1);
-                    }
+                    using Pen penBorder = new Pen(BorderColor, 1F);
+                    penBorder.Alignment = PenAlignment.Inset;
+                    pevent.Graphics.DrawRectangle(penBorder, 0, 0, this.Width - 1, this.Height - 1);
                 }
             }
         }
