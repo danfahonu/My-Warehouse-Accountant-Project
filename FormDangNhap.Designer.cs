@@ -18,12 +18,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.txtTaiKhoan = new System.Windows.Forms.TextBox();
-            this.txtMatKhau = new System.Windows.Forms.TextBox();
+            this.txtTaiKhoan = new DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox();
+            this.txtMatKhau = new DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.btnDangNhap = new System.Windows.Forms.Button();
-            this.btnThoat = new System.Windows.Forms.Button();
+            this.btnDangNhap = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
+            this.btnThoat = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
             this.chkShowPassword = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
@@ -40,20 +40,43 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             // txtTaiKhoan
             // 
+            this.txtTaiKhoan.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(22)))), ((int)(((byte)(38)))));
+            this.txtTaiKhoan.BorderColor = System.Drawing.Color.MediumSlateBlue;
+            this.txtTaiKhoan.BorderFocusColor = System.Drawing.Color.HotPink;
+            this.txtTaiKhoan.BorderSize = 2;
             this.txtTaiKhoan.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.txtTaiKhoan.ForeColor = System.Drawing.Color.Gainsboro;
             this.txtTaiKhoan.Location = new System.Drawing.Point(50, 115);
+            this.txtTaiKhoan.Multiline = false;
             this.txtTaiKhoan.Name = "txtTaiKhoan";
-            this.txtTaiKhoan.Size = new System.Drawing.Size(320, 29);
+            this.txtTaiKhoan.Padding = new System.Windows.Forms.Padding(7);
+            this.txtTaiKhoan.PasswordChar = false;
+            this.txtTaiKhoan.PlaceholderColor = System.Drawing.Color.DarkGray;
+            this.txtTaiKhoan.PlaceholderText = "Nhập tài khoản...";
+            this.txtTaiKhoan.Size = new System.Drawing.Size(320, 36);
             this.txtTaiKhoan.TabIndex = 1;
+            this.txtTaiKhoan.Texts = "";
+            this.txtTaiKhoan.UnderlinedStyle = true;
             // 
             // txtMatKhau
             // 
+            this.txtMatKhau.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(22)))), ((int)(((byte)(38)))));
+            this.txtMatKhau.BorderColor = System.Drawing.Color.MediumSlateBlue;
+            this.txtMatKhau.BorderFocusColor = System.Drawing.Color.HotPink;
+            this.txtMatKhau.BorderSize = 2;
             this.txtMatKhau.Font = new System.Drawing.Font("Segoe UI", 12F);
+            this.txtMatKhau.ForeColor = System.Drawing.Color.Gainsboro;
             this.txtMatKhau.Location = new System.Drawing.Point(50, 185);
+            this.txtMatKhau.Multiline = false;
             this.txtMatKhau.Name = "txtMatKhau";
-            this.txtMatKhau.PasswordChar = '●';
-            this.txtMatKhau.Size = new System.Drawing.Size(320, 29);
+            this.txtMatKhau.Padding = new System.Windows.Forms.Padding(7);
+            this.txtMatKhau.PasswordChar = true;
+            this.txtMatKhau.PlaceholderColor = System.Drawing.Color.DarkGray;
+            this.txtMatKhau.PlaceholderText = "Nhập mật khẩu...";
+            this.txtMatKhau.Size = new System.Drawing.Size(320, 36);
             this.txtMatKhau.TabIndex = 2;
+            this.txtMatKhau.Texts = "";
+            this.txtMatKhau.UnderlinedStyle = true;
             // 
             // label2
             // 
@@ -79,11 +102,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             // btnDangNhap
             // 
-            this.btnDangNhap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(157)))), ((int)(((byte)(170)))), ((int)(((byte)(242)))));
+            this.btnDangNhap.BackColor = System.Drawing.Color.MediumSlateBlue;
+            this.btnDangNhap.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnDangNhap.BorderRadius = 20;
             this.btnDangNhap.FlatAppearance.BorderSize = 0;
             this.btnDangNhap.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDangNhap.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.btnDangNhap.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.btnDangNhap.ForeColor = System.Drawing.Color.White;
             this.btnDangNhap.Location = new System.Drawing.Point(50, 270);
             this.btnDangNhap.Name = "btnDangNhap";
             this.btnDangNhap.Size = new System.Drawing.Size(320, 40);
@@ -95,6 +120,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // btnThoat
             // 
             this.btnThoat.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.btnThoat.BorderColor = System.Drawing.Color.PaleVioletRed;
+            this.btnThoat.BorderRadius = 10;
             this.btnThoat.FlatAppearance.BorderSize = 0;
             this.btnThoat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnThoat.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -146,12 +173,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtTaiKhoan;
-        private System.Windows.Forms.TextBox txtMatKhau;
+        private DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox txtTaiKhoan;
+        private DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox txtMatKhau;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button btnDangNhap;
-        private System.Windows.Forms.Button btnThoat;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnDangNhap;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnThoat;
         private System.Windows.Forms.CheckBox chkShowPassword;
     }
 }

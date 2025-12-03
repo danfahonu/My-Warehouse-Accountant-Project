@@ -14,24 +14,45 @@ namespace DoAnLapTrinhQuanLy
         public static Color GridLineColor = ColorTranslator.FromHtml("#3e3e42"); // Grid Lines
         public static Color TextBoxBackground = ColorTranslator.FromHtml("#333333"); // TextBox Background
 
-        // Compatibility aliases (if needed by existing code, though we should update them)
-        public static Color Primary => SecondaryColor; // Map old Primary (Headers) to new Secondary
+        // Semantic Colors
+        public static Color SuccessColor = ColorTranslator.FromHtml("#2ecc71"); // Green
+        public static Color WarningColor = ColorTranslator.FromHtml("#f39c12"); // Orange
+        public static Color DangerColor = ColorTranslator.FromHtml("#e74c3c"); // Red
+
+        // Compatibility Aliases (DO NOT REMOVE)
+        public static Color LightText => TextColor;
+        public static Color Primary => SecondaryColor;
         public static Color Accent => AccentColor;
         public static Color Background => PrimaryColor;
-        public static Color LightText => TextColor;
 
         public static Font BaseFont = new Font("Segoe UI", 10F, FontStyle.Regular);
         public static Font HeaderFont = new Font("Segoe UI", 12F, FontStyle.Bold);
 
         public static void Apply(Form f)
         {
-            f.BackColor = PrimaryColor;
-            f.ForeColor = TextColor;
-            f.Font = BaseFont;
+            if (f == null) return;
 
-            foreach (Control c in f.Controls)
+            f.SuspendLayout();
+            try
             {
-                ApplyRecursive(c);
+                f.BackColor = PrimaryColor;
+                f.ForeColor = TextColor;
+                f.Font = BaseFont;
+
+                // Use a queue or stack for iterative traversal instead of recursion if stack depth is a concern,
+                // but recursion is fine for UI trees. 
+                // Optimization: Only traverse if HasChildren is true.
+                if (f.HasChildren)
+                {
+                    foreach (Control c in f.Controls)
+                    {
+                        ApplyRecursive(c);
+                    }
+                }
+            }
+            finally
+            {
+                f.ResumeLayout();
             }
         }
 
@@ -39,56 +60,87 @@ namespace DoAnLapTrinhQuanLy
         {
             // 1. Base Text Styling
             c.ForeColor = TextColor;
-            if (c is Label || c is CheckBox || c is RadioButton || c is GroupBox)
+
+            // Optimization: Check type once and switch or use pattern matching
+            switch (c)
             {
-                c.BackColor = Color.Transparent; // Let parent color show through
+                case Label _:
+                case CheckBox _:
+                case RadioButton _:
+                case GroupBox _:
+                    c.BackColor = Color.Transparent;
+                    break;
+
+                case DoAnLapTrinhQuanLy.CustomControls.ModernButton mBtn:
+                    mBtn.BackColor = AccentColor;
+                    mBtn.ForeColor = Color.White;
+                    mBtn.BorderColor = Color.PaleVioletRed;
+                    break;
+
+                case DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox mTxt:
+                    mTxt.BackColor = TextBoxBackground;
+                    mTxt.ForeColor = TextColor;
+                    mTxt.BorderColor = SecondaryColor;
+                    mTxt.BorderFocusColor = AccentColor;
+                    mTxt.PlaceholderColor = Color.Gray;
+                    break;
+
+                case DoAnLapTrinhQuanLy.CustomControls.DarkTabControl dTab:
+                    dTab.BackColor = PrimaryColor;
+                    dTab.ForeColor = TextColor;
+                    break;
+
+                case Button btn:
+                    // Standard Button (if not ModernButton)
+                    btn.FlatStyle = FlatStyle.Flat;
+                    btn.BackColor = AccentColor;
+                    btn.ForeColor = Color.White;
+                    btn.FlatAppearance.BorderSize = 0;
+                    btn.Cursor = Cursors.Hand;
+                    btn.Font = new Font(BaseFont, FontStyle.Bold);
+                    break;
+
+                case TextBox _:
+                case ComboBox _:
+                case DateTimePicker _:
+                case NumericUpDown _:
+                    c.BackColor = TextBoxBackground;
+                    c.ForeColor = TextColor;
+                    break;
+
+                case DataGridView dgv:
+                    StyleDataGridView(dgv);
+                    break;
+
+                case Panel p:
+                    // Skip ModernPanel as it has its own Gradient logic
+                    if (p is DoAnLapTrinhQuanLy.CustomControls.ModernPanel)
+                    {
+                        // Do nothing
+                    }
+                    else if (p.Name.Contains("Header") || p.Name.Contains("Top") || p.Dock == DockStyle.Top)
+                    {
+                        p.BackColor = SecondaryColor;
+                    }
+                    else
+                    {
+                        p.BackColor = PrimaryColor;
+                    }
+                    break;
+
+                case MenuStrip menu:
+                    menu.BackColor = SecondaryColor;
+                    menu.ForeColor = TextColor;
+                    menu.Renderer = new ToolStripProfessionalRenderer(new DarkThemeColorTable());
+                    break;
+
+                case StatusStrip status:
+                    status.BackColor = AccentColor;
+                    status.ForeColor = Color.White;
+                    break;
             }
 
-            // 2. Specific Control Styling
-            if (c is Button btn)
-            {
-                btn.FlatStyle = FlatStyle.Flat;
-                btn.BackColor = AccentColor;
-                btn.ForeColor = Color.White; // Buttons always white text on blue
-                btn.FlatAppearance.BorderSize = 0;
-                btn.Cursor = Cursors.Hand;
-                btn.Font = new Font(BaseFont, FontStyle.Bold);
-            }
-            else if (c is TextBox || c is ComboBox || c is DateTimePicker || c is NumericUpDown)
-            {
-                c.BackColor = TextBoxBackground;
-                c.ForeColor = TextColor;
-                // Note: Border style for standard controls is hard to change without custom painting, 
-                // but setting BackColor helps.
-            }
-            else if (c is DataGridView dgv)
-            {
-                StyleDataGridView(dgv);
-            }
-            else if (c is Panel p)
-            {
-                if (p.Name.Contains("Header") || p.Name.Contains("Top") || p.Dock == DockStyle.Top)
-                {
-                    p.BackColor = SecondaryColor;
-                }
-                else
-                {
-                    p.BackColor = PrimaryColor;
-                }
-            }
-            else if (c is MenuStrip menu)
-            {
-                menu.BackColor = SecondaryColor;
-                menu.ForeColor = TextColor;
-                menu.Renderer = new ToolStripProfessionalRenderer(new DarkThemeColorTable());
-            }
-            else if (c is StatusStrip status)
-            {
-                status.BackColor = AccentColor;
-                status.ForeColor = Color.White;
-            }
-
-            // 3. Recursive Call
+            // 2. Recursive Call
             if (c.HasChildren)
             {
                 foreach (Control child in c.Controls)
@@ -110,18 +162,20 @@ namespace DoAnLapTrinhQuanLy
             dgv.ColumnHeadersDefaultCellStyle.ForeColor = TextColor;
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font(BaseFont, FontStyle.Bold);
             dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dgv.ColumnHeadersHeight = 35;
+            dgv.ColumnHeadersHeight = 40;
 
             // Rows
             dgv.DefaultCellStyle.BackColor = PrimaryColor;
             dgv.DefaultCellStyle.ForeColor = TextColor;
-            dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(62, 62, 66); // VS Selection Gray
+            dgv.DefaultCellStyle.SelectionBackColor = AccentColor;
             dgv.DefaultCellStyle.SelectionForeColor = Color.White;
             dgv.DefaultCellStyle.Padding = new Padding(4);
 
             dgv.RowHeadersVisible = false;
-            dgv.RowTemplate.Height = 30;
-            dgv.AlternatingRowsDefaultCellStyle.BackColor = PrimaryColor; // No zebra or subtle zebra
+            dgv.RowTemplate.Height = 35;
+
+            // Alternating Rows
+            dgv.AlternatingRowsDefaultCellStyle.BackColor = SecondaryColor;
         }
 
         // Helper class for MenuStrip coloring

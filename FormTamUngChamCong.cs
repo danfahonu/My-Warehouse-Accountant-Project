@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Transactions;
 using DoAnLapTrinhQuanLy.Data;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
@@ -15,6 +16,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void FormTamUngChamCong_Load(object sender, EventArgs e)
         {
+            ThemeManager.Apply(this);
             LoadComboBoxNhanVien();
             numThang.Value = DateTime.Now.Month;
             numNam.Value = DateTime.Now.Year;
@@ -137,67 +139,71 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
             try
             {
-                bool daLuu = false;
-                // Xử lý lưu Chấm công
-                if (numNgayCong.Value > 0)
+                using (TransactionScope scope = new TransactionScope())
                 {
-                    object existingId = DbHelper.Scalar(@"
-                        SELECT ID FROM BANGCHAMCONG 
-                        WHERE MANV = @MaNV AND THANG = @Thang AND NAM = @Nam",
-                        DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
-                        DbHelper.Param("@Thang", numThang.Value),
-                        DbHelper.Param("@Nam", numNam.Value)
-                    );
+                    bool daLuu = false;
+                    // Xử lý lưu Chấm công
+                    if (numNgayCong.Value > 0)
+                    {
+                        object existingId = DbHelper.Scalar(@"
+                            SELECT ID FROM BANGCHAMCONG 
+                            WHERE MANV = @MaNV AND THANG = @Thang AND NAM = @Nam",
+                            DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
+                            DbHelper.Param("@Thang", numThang.Value),
+                            DbHelper.Param("@Nam", numNam.Value)
+                        );
 
-                    if (existingId != null)
+                        if (existingId != null)
+                        {
+                            DbHelper.Execute(@"
+                                UPDATE BANGCHAMCONG SET NGAYCONG = @NgayCong, GHICHU = @GhiChu 
+                                WHERE ID = @ID",
+                                DbHelper.Param("@NgayCong", numNgayCong.Value),
+                                DbHelper.Param("@GhiChu", txtGhiChuCC.Text),
+                                DbHelper.Param("@ID", existingId)
+                            );
+                        }
+                        else
+                        {
+                            DbHelper.Execute(@"
+                                INSERT INTO BANGCHAMCONG (MANV, THANG, NAM, NGAYCONG, GHICHU)
+                                VALUES (@MaNV, @Thang, @Nam, @NgayCong, @GhiChu)",
+                                DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
+                                DbHelper.Param("@Thang", numThang.Value),
+                                DbHelper.Param("@Nam", numNam.Value),
+                                DbHelper.Param("@NgayCong", numNgayCong.Value),
+                                DbHelper.Param("@GhiChu", txtGhiChuCC.Text)
+                            );
+                        }
+                        daLuu = true;
+                    }
+
+                    // Xử lý lưu Tạm ứng
+                    if (numSoTien.Value > 0)
                     {
                         DbHelper.Execute(@"
-                            UPDATE BANGCHAMCONG SET NGAYCONG = @NgayCong, GHICHU = @GhiChu 
-                            WHERE ID = @ID",
-                            DbHelper.Param("@NgayCong", numNgayCong.Value),
-                            DbHelper.Param("@GhiChu", txtGhiChuCC.Text),
-                            DbHelper.Param("@ID", existingId)
+                            INSERT INTO TAMUNG (MANV, NGAY, SOTIEN, GHICHU)
+                            VALUES (@MaNV, @Ngay, @SoTien, @GhiChu)",
+                            DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
+                            DbHelper.Param("@Ngay", DateTime.Now.Date),
+                            DbHelper.Param("@SoTien", numSoTien.Value),
+                            DbHelper.Param("@GhiChu", txtGhiChuTU.Text)
                         );
+                        daLuu = true;
+                    }
+
+                    if (daLuu)
+                    {
+                        scope.Complete();
+                        MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadDataChamCong();
+                        LoadDataTamUng();
+                        SetInputMode(false);
                     }
                     else
                     {
-                        DbHelper.Execute(@"
-                            INSERT INTO BANGCHAMCONG (MANV, THANG, NAM, NGAYCONG, GHICHU)
-                            VALUES (@MaNV, @Thang, @Nam, @NgayCong, @GhiChu)",
-                            DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
-                            DbHelper.Param("@Thang", numThang.Value),
-                            DbHelper.Param("@Nam", numNam.Value),
-                            DbHelper.Param("@NgayCong", numNgayCong.Value),
-                            DbHelper.Param("@GhiChu", txtGhiChuCC.Text)
-                        );
+                        MessageBox.Show("Bạn chưa nhập ngày công hoặc số tiền tạm ứng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
-                    daLuu = true;
-                }
-
-                // Xử lý lưu Tạm ứng
-                if (numSoTien.Value > 0)
-                {
-                    DbHelper.Execute(@"
-                        INSERT INTO TAMUNG (MANV, NGAY, SOTIEN, GHICHU)
-                        VALUES (@MaNV, @Ngay, @SoTien, @GhiChu)",
-                        DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
-                        DbHelper.Param("@Ngay", DateTime.Now.Date),
-                        DbHelper.Param("@SoTien", numSoTien.Value),
-                        DbHelper.Param("@GhiChu", txtGhiChuTU.Text)
-                    );
-                    daLuu = true;
-                }
-
-                if (daLuu)
-                {
-                    MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadDataChamCong();
-                    LoadDataTamUng();
-                    SetInputMode(false);
-                }
-                else
-                {
-                    MessageBox.Show("Bạn chưa nhập ngày công hoặc số tiền tạm ứng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)

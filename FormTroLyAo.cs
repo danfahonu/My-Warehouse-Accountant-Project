@@ -28,12 +28,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
-        private async void btnSend_Click(object sender, EventArgs e)
+        private async void BtnSend_Click(object sender, EventArgs e)
         {
             await SendMessage();
         }
 
-        private async void txtInput_KeyDown(object sender, KeyEventArgs e)
+        private async void TxtInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
@@ -51,7 +51,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             AppendMessage("Bạn", question, Color.Black);
             txtInput.Clear();
             lblStatus.Text = "Đang suy nghĩ...";
-            
+
             try
             {
                 // 2. Gọi Gemini để lấy SQL
@@ -61,6 +61,14 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 {
                     AppendMessage("Bot", "Xin lỗi, tôi không hiểu câu hỏi hoặc không thể truy vấn dữ liệu này.", Color.Red);
                     lblStatus.Text = "Không thể trả lời.";
+                    return;
+                }
+
+                // Security Check
+                if (!IsSafeSql(sql))
+                {
+                    AppendMessage("Bot", "Cảnh báo: SQL không an toàn hoặc chứa từ khóa bị cấm (chỉ cho phép SELECT).", Color.Red);
+                    lblStatus.Text = "SQL bị chặn.";
                     return;
                 }
 
@@ -92,8 +100,24 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             rtbChat.SelectionColor = Color.Black;
             rtbChat.SelectionFont = new Font(rtbChat.Font, FontStyle.Regular);
             rtbChat.AppendText($"{message}\n");
-            
+
             rtbChat.ScrollToCaret();
+        }
+        private bool IsSafeSql(string sql)
+        {
+            if (string.IsNullOrWhiteSpace(sql)) return false;
+            string upperSql = sql.ToUpper().Trim();
+
+            // 1. Must start with SELECT
+            if (!upperSql.StartsWith("SELECT")) return false;
+
+            // 2. Block dangerous keywords
+            string[] forbidden = { "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE", "EXEC", "--", ";" };
+            foreach (string word in forbidden)
+            {
+                if (upperSql.Contains(word)) return false;
+            }
+            return true;
         }
     }
 }

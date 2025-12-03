@@ -17,33 +17,33 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void InitializeComponent()
         {
-            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.pnlHeader = new DoAnLapTrinhQuanLy.CustomControls.ModernPanel();
             this.lblTitle = new System.Windows.Forms.Label();
-            this.pnlActions = new System.Windows.Forms.Panel();
-            this.btnIn = new System.Windows.Forms.Button();
-            this.btnHuy = new System.Windows.Forms.Button();
-            this.btnLuu = new System.Windows.Forms.Button();
-            this.btnXoa = new System.Windows.Forms.Button();
-            this.btnSua = new System.Windows.Forms.Button();
-            this.btnThem = new System.Windows.Forms.Button();
+            this.pnlActions = new DoAnLapTrinhQuanLy.CustomControls.ModernPanel();
+            this.btnIn = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
+            this.btnHuy = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
+            this.btnLuu = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
+            this.btnXoa = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
+            this.btnSua = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
+            this.btnThem = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
             this.dgvHangHoa = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtMaHH = new System.Windows.Forms.TextBox();
+            this.txtMaHH = new DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.txtTenHH = new System.Windows.Forms.TextBox();
+            this.txtTenHH = new DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.cboNhomHang = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.txtGiaVon = new System.Windows.Forms.TextBox();
+            this.txtGiaVon = new DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.txtGiaBan = new System.Windows.Forms.TextBox();
+            this.txtGiaBan = new DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.txtDVT = new System.Windows.Forms.TextBox();
+            this.txtDVT = new DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox();
             this.chkActive = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.picHinhAnh = new System.Windows.Forms.PictureBox();
-            this.btnBrowse = new System.Windows.Forms.Button();
+            this.btnBrowse = new DoAnLapTrinhQuanLy.CustomControls.ModernButton();
             this.pnlHeader.SuspendLayout();
             this.pnlActions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvHangHoa)).BeginInit();
@@ -55,8 +55,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.pnlHeader.BorderRadius = 0;
             this.pnlHeader.Controls.Add(this.lblTitle);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlHeader.GradientAngle = 90F;
+            this.pnlHeader.GradientBottomColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.pnlHeader.GradientTopColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(984, 50);
@@ -65,6 +69,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // lblTitle
             // 
             this.lblTitle.AutoSize = true;
+            this.lblTitle.BackColor = System.Drawing.Color.Transparent;
             this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTitle.ForeColor = System.Drawing.Color.Gainsboro;
             this.lblTitle.Location = new System.Drawing.Point(12, 13);
@@ -75,6 +80,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             // pnlActions
             // 
+            this.pnlActions.BackColor = System.Drawing.Color.White;
+            this.pnlActions.BorderRadius = 0;
             this.pnlActions.Controls.Add(this.btnIn);
             this.pnlActions.Controls.Add(this.btnHuy);
             this.pnlActions.Controls.Add(this.btnLuu);
@@ -82,6 +89,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.pnlActions.Controls.Add(this.btnSua);
             this.pnlActions.Controls.Add(this.btnThem);
             this.pnlActions.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlActions.GradientAngle = 90F;
+            this.pnlActions.GradientBottomColor = System.Drawing.Color.White;
+            this.pnlActions.GradientTopColor = System.Drawing.Color.White;
             this.pnlActions.Location = new System.Drawing.Point(0, 50);
             this.pnlActions.Name = "pnlActions";
             this.pnlActions.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
@@ -90,82 +100,103 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             // btnIn
             // 
+            this.btnIn.BackColor = System.Drawing.Color.Gray;
+            this.btnIn.BorderColor = System.Drawing.Color.Gray;
+            this.btnIn.BorderRadius = 10;
+            this.btnIn.FlatAppearance.BorderSize = 0;
             this.btnIn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnIn.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btnIn.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnIn.ForeColor = System.Drawing.Color.White;
             this.btnIn.Location = new System.Drawing.Point(261, 15);
             this.btnIn.Name = "btnIn";
             this.btnIn.Size = new System.Drawing.Size(75, 30);
             this.btnIn.TabIndex = 5;
             this.btnIn.Text = "In";
-            this.btnIn.UseVisualStyleBackColor = true;
+            this.btnIn.UseVisualStyleBackColor = false;
             // 
             // btnHuy
             // 
             this.btnHuy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnHuy.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.btnHuy.BackColor = System.Drawing.Color.Gray;
+            this.btnHuy.BorderColor = System.Drawing.Color.Gray;
+            this.btnHuy.BorderRadius = 10;
             this.btnHuy.FlatAppearance.BorderSize = 0;
             this.btnHuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnHuy.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnHuy.ForeColor = System.Drawing.Color.Black;
+            this.btnHuy.ForeColor = System.Drawing.Color.White;
             this.btnHuy.Location = new System.Drawing.Point(871, 15);
             this.btnHuy.Name = "btnHuy";
             this.btnHuy.Size = new System.Drawing.Size(100, 30);
             this.btnHuy.TabIndex = 4;
             this.btnHuy.Text = "Hủy";
             this.btnHuy.UseVisualStyleBackColor = false;
-            this.btnHuy.Click += new System.EventHandler(this.btnHuy_Click);
+            this.btnHuy.Click += new System.EventHandler(this.BtnHuy_Click);
             // 
             // btnLuu
             // 
             this.btnLuu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLuu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(157)))), ((int)(((byte)(170)))), ((int)(((byte)(242)))));
+            this.btnLuu.BackColor = System.Drawing.Color.SeaGreen;
+            this.btnLuu.BorderColor = System.Drawing.Color.SeaGreen;
+            this.btnLuu.BorderRadius = 10;
             this.btnLuu.FlatAppearance.BorderSize = 0;
             this.btnLuu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLuu.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnLuu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.btnLuu.ForeColor = System.Drawing.Color.White;
             this.btnLuu.Location = new System.Drawing.Point(765, 15);
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(100, 30);
             this.btnLuu.TabIndex = 3;
             this.btnLuu.Text = "Lưu";
             this.btnLuu.UseVisualStyleBackColor = false;
-            this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
+            this.btnLuu.Click += new System.EventHandler(this.BtnLuu_Click);
             // 
             // btnXoa
             // 
+            this.btnXoa.BackColor = System.Drawing.Color.IndianRed;
+            this.btnXoa.BorderColor = System.Drawing.Color.IndianRed;
+            this.btnXoa.BorderRadius = 10;
+            this.btnXoa.FlatAppearance.BorderSize = 0;
             this.btnXoa.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnXoa.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btnXoa.ForeColor = System.Drawing.Color.White;
             this.btnXoa.Location = new System.Drawing.Point(180, 15);
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(75, 30);
             this.btnXoa.TabIndex = 2;
             this.btnXoa.Text = "Xóa";
-            this.btnXoa.UseVisualStyleBackColor = true;
-            this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
+            this.btnXoa.UseVisualStyleBackColor = false;
+            this.btnXoa.Click += new System.EventHandler(this.BtnXoa_Click);
             // 
             // btnSua
             // 
+            this.btnSua.BackColor = System.Drawing.Color.Orange;
+            this.btnSua.BorderColor = System.Drawing.Color.Orange;
+            this.btnSua.BorderRadius = 10;
+            this.btnSua.FlatAppearance.BorderSize = 0;
             this.btnSua.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSua.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btnSua.ForeColor = System.Drawing.Color.White;
             this.btnSua.Location = new System.Drawing.Point(99, 15);
             this.btnSua.Name = "btnSua";
             this.btnSua.Size = new System.Drawing.Size(75, 30);
             this.btnSua.TabIndex = 1;
             this.btnSua.Text = "Sửa";
-            this.btnSua.UseVisualStyleBackColor = true;
-            this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
+            this.btnSua.UseVisualStyleBackColor = false;
+            this.btnSua.Click += new System.EventHandler(this.BtnSua_Click);
             // 
             // btnThem
             // 
+            this.btnThem.BackColor = System.Drawing.Color.DodgerBlue;
+            this.btnThem.BorderColor = System.Drawing.Color.DodgerBlue;
+            this.btnThem.BorderRadius = 10;
+            this.btnThem.FlatAppearance.BorderSize = 0;
             this.btnThem.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnThem.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btnThem.ForeColor = System.Drawing.Color.White;
             this.btnThem.Location = new System.Drawing.Point(18, 15);
             this.btnThem.Name = "btnThem";
             this.btnThem.Size = new System.Drawing.Size(75, 30);
             this.btnThem.TabIndex = 0;
             this.btnThem.Text = "Thêm";
-            this.btnThem.UseVisualStyleBackColor = true;
-            this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
+            this.btnThem.UseVisualStyleBackColor = false;
+            this.btnThem.Click += new System.EventHandler(this.BtnThem_Click);
             // 
             // dgvHangHoa
             // 
@@ -182,7 +213,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.dgvHangHoa.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvHangHoa.Size = new System.Drawing.Size(984, 202);
             this.dgvHangHoa.TabIndex = 3;
-            this.dgvHangHoa.SelectionChanged += new System.EventHandler(this.dgvHangHoa_SelectionChanged);
+            this.dgvHangHoa.SelectionChanged += new System.EventHandler(this.DgvHangHoa_SelectionChanged);
             // 
             // tableLayoutPanel1
             // 
@@ -232,10 +263,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // txtMaHH
             // 
             this.txtMaHH.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtMaHH.Location = new System.Drawing.Point(118, 16);
+            this.txtMaHH.BackColor = System.Drawing.SystemColors.Window;
+            this.txtMaHH.BorderColor = System.Drawing.Color.MediumSlateBlue;
+            this.txtMaHH.BorderFocusColor = System.Drawing.Color.HotPink;
+            this.txtMaHH.BorderRadius = 0;
+            this.txtMaHH.BorderSize = 2;
+            this.txtMaHH.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtMaHH.ForeColor = System.Drawing.Color.DimGray;
+            this.txtMaHH.Location = new System.Drawing.Point(119, 14);
+            this.txtMaHH.Margin = new System.Windows.Forms.Padding(4);
+            this.txtMaHH.Multiline = false;
             this.txtMaHH.Name = "txtMaHH";
-            this.txtMaHH.Size = new System.Drawing.Size(302, 20);
+            this.txtMaHH.Padding = new System.Windows.Forms.Padding(7);
+            this.txtMaHH.PasswordChar = false;
+            this.txtMaHH.PlaceholderColor = System.Drawing.Color.DarkGray;
+            this.txtMaHH.PlaceholderText = "";
+            this.txtMaHH.ReadOnly = false;
+            this.txtMaHH.Size = new System.Drawing.Size(300, 31);
             this.txtMaHH.TabIndex = 1;
+            this.txtMaHH.Texts = "";
+            this.txtMaHH.UnderlinedStyle = true;
             // 
             // label2
             // 
@@ -251,10 +298,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // txtTenHH
             // 
             this.txtTenHH.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTenHH.Location = new System.Drawing.Point(118, 48);
+            this.txtTenHH.BackColor = System.Drawing.SystemColors.Window;
+            this.txtTenHH.BorderColor = System.Drawing.Color.MediumSlateBlue;
+            this.txtTenHH.BorderFocusColor = System.Drawing.Color.HotPink;
+            this.txtTenHH.BorderRadius = 0;
+            this.txtTenHH.BorderSize = 2;
+            this.txtTenHH.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtTenHH.ForeColor = System.Drawing.Color.DimGray;
+            this.txtTenHH.Location = new System.Drawing.Point(119, 46);
+            this.txtTenHH.Margin = new System.Windows.Forms.Padding(4);
+            this.txtTenHH.Multiline = false;
             this.txtTenHH.Name = "txtTenHH";
-            this.txtTenHH.Size = new System.Drawing.Size(302, 20);
+            this.txtTenHH.Padding = new System.Windows.Forms.Padding(7);
+            this.txtTenHH.PasswordChar = false;
+            this.txtTenHH.PlaceholderColor = System.Drawing.Color.DarkGray;
+            this.txtTenHH.PlaceholderText = "";
+            this.txtTenHH.ReadOnly = false;
+            this.txtTenHH.Size = new System.Drawing.Size(300, 31);
             this.txtTenHH.TabIndex = 3;
+            this.txtTenHH.Texts = "";
+            this.txtTenHH.UnderlinedStyle = true;
             // 
             // label6
             // 
@@ -290,10 +353,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // txtGiaVon
             // 
             this.txtGiaVon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtGiaVon.Location = new System.Drawing.Point(526, 16);
+            this.txtGiaVon.BackColor = System.Drawing.SystemColors.Window;
+            this.txtGiaVon.BorderColor = System.Drawing.Color.MediumSlateBlue;
+            this.txtGiaVon.BorderFocusColor = System.Drawing.Color.HotPink;
+            this.txtGiaVon.BorderRadius = 0;
+            this.txtGiaVon.BorderSize = 2;
+            this.txtGiaVon.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtGiaVon.ForeColor = System.Drawing.Color.DimGray;
+            this.txtGiaVon.Location = new System.Drawing.Point(527, 14);
+            this.txtGiaVon.Margin = new System.Windows.Forms.Padding(4);
+            this.txtGiaVon.Multiline = false;
             this.txtGiaVon.Name = "txtGiaVon";
-            this.txtGiaVon.Size = new System.Drawing.Size(302, 20);
+            this.txtGiaVon.Padding = new System.Windows.Forms.Padding(7);
+            this.txtGiaVon.PasswordChar = false;
+            this.txtGiaVon.PlaceholderColor = System.Drawing.Color.DarkGray;
+            this.txtGiaVon.PlaceholderText = "";
+            this.txtGiaVon.ReadOnly = false;
+            this.txtGiaVon.Size = new System.Drawing.Size(300, 31);
             this.txtGiaVon.TabIndex = 7;
+            this.txtGiaVon.Texts = "";
+            this.txtGiaVon.UnderlinedStyle = true;
             // 
             // label5
             // 
@@ -309,10 +388,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // txtGiaBan
             // 
             this.txtGiaBan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtGiaBan.Location = new System.Drawing.Point(526, 48);
+            this.txtGiaBan.BackColor = System.Drawing.SystemColors.Window;
+            this.txtGiaBan.BorderColor = System.Drawing.Color.MediumSlateBlue;
+            this.txtGiaBan.BorderFocusColor = System.Drawing.Color.HotPink;
+            this.txtGiaBan.BorderRadius = 0;
+            this.txtGiaBan.BorderSize = 2;
+            this.txtGiaBan.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtGiaBan.ForeColor = System.Drawing.Color.DimGray;
+            this.txtGiaBan.Location = new System.Drawing.Point(527, 46);
+            this.txtGiaBan.Margin = new System.Windows.Forms.Padding(4);
+            this.txtGiaBan.Multiline = false;
             this.txtGiaBan.Name = "txtGiaBan";
-            this.txtGiaBan.Size = new System.Drawing.Size(302, 20);
+            this.txtGiaBan.Padding = new System.Windows.Forms.Padding(7);
+            this.txtGiaBan.PasswordChar = false;
+            this.txtGiaBan.PlaceholderColor = System.Drawing.Color.DarkGray;
+            this.txtGiaBan.PlaceholderText = "";
+            this.txtGiaBan.ReadOnly = false;
+            this.txtGiaBan.Size = new System.Drawing.Size(300, 31);
             this.txtGiaBan.TabIndex = 9;
+            this.txtGiaBan.Texts = "";
+            this.txtGiaBan.UnderlinedStyle = true;
             // 
             // label3
             // 
@@ -328,10 +423,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // txtDVT
             // 
             this.txtDVT.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDVT.Location = new System.Drawing.Point(526, 80);
+            this.txtDVT.BackColor = System.Drawing.SystemColors.Window;
+            this.txtDVT.BorderColor = System.Drawing.Color.MediumSlateBlue;
+            this.txtDVT.BorderFocusColor = System.Drawing.Color.HotPink;
+            this.txtDVT.BorderRadius = 0;
+            this.txtDVT.BorderSize = 2;
+            this.txtDVT.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDVT.ForeColor = System.Drawing.Color.DimGray;
+            this.txtDVT.Location = new System.Drawing.Point(527, 78);
+            this.txtDVT.Margin = new System.Windows.Forms.Padding(4);
+            this.txtDVT.Multiline = false;
             this.txtDVT.Name = "txtDVT";
-            this.txtDVT.Size = new System.Drawing.Size(302, 20);
+            this.txtDVT.Padding = new System.Windows.Forms.Padding(7);
+            this.txtDVT.PasswordChar = false;
+            this.txtDVT.PlaceholderColor = System.Drawing.Color.DarkGray;
+            this.txtDVT.PlaceholderText = "";
+            this.txtDVT.ReadOnly = false;
+            this.txtDVT.Size = new System.Drawing.Size(300, 31);
             this.txtDVT.TabIndex = 5;
+            this.txtDVT.Texts = "";
+            this.txtDVT.UnderlinedStyle = true;
             // 
             // chkActive
             // 
@@ -374,15 +485,19 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             this.btnBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBrowse.BackColor = System.Drawing.Color.DodgerBlue;
+            this.btnBrowse.BorderColor = System.Drawing.Color.DodgerBlue;
+            this.btnBrowse.BorderRadius = 10;
+            this.btnBrowse.FlatAppearance.BorderSize = 0;
             this.btnBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBrowse.ForeColor = System.Drawing.Color.Gainsboro;
+            this.btnBrowse.ForeColor = System.Drawing.Color.White;
             this.btnBrowse.Location = new System.Drawing.Point(3, 97);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(126, 23);
             this.btnBrowse.TabIndex = 1;
             this.btnBrowse.Text = "Chọn ảnh...";
-            this.btnBrowse.UseVisualStyleBackColor = true;
-            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
+            this.btnBrowse.UseVisualStyleBackColor = false;
+            this.btnBrowse.Click += new System.EventHandler(this.BtnBrowse_Click);
             // 
             // FormDanhMucHangHoa
             // 
@@ -412,32 +527,32 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         #endregion
 
-        private System.Windows.Forms.Panel pnlHeader;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernPanel pnlHeader;
         private System.Windows.Forms.Label lblTitle;
-        private System.Windows.Forms.Panel pnlActions;
-        private System.Windows.Forms.Button btnThem;
-        private System.Windows.Forms.Button btnSua;
-        private System.Windows.Forms.Button btnXoa;
-        private System.Windows.Forms.Button btnLuu;
-        private System.Windows.Forms.Button btnHuy;
-        private System.Windows.Forms.Button btnIn;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernPanel pnlActions;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnThem;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnSua;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnXoa;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnLuu;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnHuy;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnIn;
         private System.Windows.Forms.DataGridView dgvHangHoa;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtMaHH;
+        private DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox txtMaHH;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox txtDVT;
+        private DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox txtDVT;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox txtTenHH;
+        private DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox txtTenHH;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox txtGiaVon;
+        private DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox txtGiaVon;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.ComboBox cboNhomHang;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox txtGiaBan;
+        private DoAnLapTrinhQuanLy.CustomControls.MaterialTextBox txtGiaBan;
         private System.Windows.Forms.CheckBox chkActive;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox picHinhAnh;
-        private System.Windows.Forms.Button btnBrowse;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernButton btnBrowse;
     }
 }

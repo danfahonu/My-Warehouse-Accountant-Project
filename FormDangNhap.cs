@@ -34,8 +34,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer // (Giữ namespace của bà)
 
         private void BtnDangNhap_Click(object sender, EventArgs e)
         {
-            string taiKhoan = txtTaiKhoan.Text;
-            string matKhau = txtMatKhau.Text;
+            string taiKhoan = txtTaiKhoan.Texts;
+            string matKhau = txtMatKhau.Texts;
 
             if (string.IsNullOrEmpty(taiKhoan) || string.IsNullOrEmpty(matKhau))
             {
@@ -89,11 +89,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer // (Giữ namespace của bà)
         {
             if (chkShowPassword.Checked)
             {
-                txtMatKhau.PasswordChar = '\0';
+                txtMatKhau.PasswordChar = false;
             }
             else
             {
-                txtMatKhau.PasswordChar = '●';
+                txtMatKhau.PasswordChar = true;
             }
         }
     }

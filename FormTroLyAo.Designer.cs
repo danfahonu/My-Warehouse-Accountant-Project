@@ -1,4 +1,4 @@
-namespace DoAnLapTrinhQuanLy
+namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     partial class FormTroLyAo
     {
@@ -67,7 +67,7 @@ namespace DoAnLapTrinhQuanLy
             this.btnSend.TabIndex = 1;
             this.btnSend.Text = "Gửi";
             this.btnSend.UseVisualStyleBackColor = false;
-            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
+            this.btnSend.Click += new System.EventHandler(this.BtnSend_Click);
             // 
             // txtInput
             // 
@@ -78,7 +78,7 @@ namespace DoAnLapTrinhQuanLy
             this.txtInput.Name = "txtInput";
             this.txtInput.Size = new System.Drawing.Size(780, 40);
             this.txtInput.TabIndex = 0;
-            this.txtInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtInput_KeyDown);
+            this.txtInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TxtInput_KeyDown);
             // 
             // splitContainer1
             // 

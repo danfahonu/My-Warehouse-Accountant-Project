@@ -3,7 +3,8 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.Data; // Đảm bảo using này đúng
+using DoAnLapTrinhQuanLy.Data;
+using System.Data.SqlClient;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
@@ -19,9 +20,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void FormNhanVien_Load(object sender, EventArgs e)
         {
+            ThemeManager.Apply(this);
             LoadData();
             LoadComboBoxChucVu();
-            SetInputMode(false); // Khóa giao diện khi mới mở
+            SetInputMode(false);
         }
 
         #region Xử lý dữ liệu
@@ -58,11 +60,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void ClearInputs()
         {
-            txtMaNV.Text = "";
-            txtHoTen.Text = "";
-            txtDiaChi.Text = "";
-            txtSDT.Text = "";
-            txtEmail.Text = "";
+            txtMaNV.Texts = "";
+            txtHoTen.Texts = "";
+            txtDiaChi.Texts = "";
+            txtSDT.Texts = "";
+            txtEmail.Texts = "";
             cboChucVu.SelectedIndex = -1;
             chkHoatDong.Checked = true;
             picHinhAnh.Image = null;
@@ -95,7 +97,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         #region Sự kiện
 
-        private void btnThem_Click(object sender, EventArgs e)
+        private void BtnThem_Click(object sender, EventArgs e)
         {
             isAdding = true;
             ClearInputs();
@@ -103,7 +105,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             txtMaNV.Focus();
         }
 
-        private void btnSua_Click(object sender, EventArgs e)
+        private void BtnSua_Click(object sender, EventArgs e)
         {
             if (dgvNhanVien.SelectedRows.Count == 0)
             {
@@ -115,7 +117,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             txtHoTen.Focus();
         }
 
-        private void btnXoa_Click(object sender, EventArgs e)
+        private void BtnXoa_Click(object sender, EventArgs e)
         {
             if (dgvNhanVien.SelectedRows.Count == 0)
             {
@@ -134,6 +136,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     LoadData();
                     MessageBox.Show("Xóa nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                catch (SqlException sqlEx)
+                {
+                    if (sqlEx.Number == 547) // Foreign Key constraint violation
+                    {
+                        MessageBox.Show("Nhân viên này đang có dữ liệu liên quan (hóa đơn, phiếu nhập...), không thể xóa!", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Lỗi SQL khi xóa: " + sqlEx.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Lỗi khi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -141,11 +154,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
-        private void btnLuu_Click(object sender, EventArgs e)
+        private void BtnLuu_Click(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtMaNV.Text) || string.IsNullOrWhiteSpace(txtHoTen.Text))
+                if (string.IsNullOrWhiteSpace(txtMaNV.Texts) || string.IsNullOrWhiteSpace(txtHoTen.Texts))
                 {
                     MessageBox.Show("Mã và Tên nhân viên không được để trống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -153,16 +166,25 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
                 if (isAdding)
                 {
+                    // Duplicate Validation
+                    object count = DbHelper.Scalar("SELECT COUNT(*) FROM NHANVIEN WHERE MANV = @MaNV", DbHelper.Param("@MaNV", txtMaNV.Texts));
+                    if (Convert.ToInt32(count) > 0)
+                    {
+                        MessageBox.Show("Mã nhân viên này đã tồn tại! Vui lòng chọn mã khác.", "Trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        txtMaNV.Focus();
+                        return;
+                    }
+
                     string query = @"
                         INSERT INTO NHANVIEN (MANV, HOTEN, CHUCVU, DIACHI, SDT, EMAIL, ANH, HOATDONG)
                         VALUES (@MaNV, @HoTen, @ChucVu, @DiaChi, @SDT, @Email, @Anh, @HoatDong)";
                     DbHelper.Execute(query,
-                        DbHelper.Param("@MaNV", txtMaNV.Text),
-                        DbHelper.Param("@HoTen", txtHoTen.Text),
+                        DbHelper.Param("@MaNV", txtMaNV.Texts),
+                        DbHelper.Param("@HoTen", txtHoTen.Texts),
                         DbHelper.Param("@ChucVu", cboChucVu.SelectedValue),
-                        DbHelper.Param("@DiaChi", txtDiaChi.Text),
-                        DbHelper.Param("@SDT", txtSDT.Text),
-                        DbHelper.Param("@Email", txtEmail.Text),
+                        DbHelper.Param("@DiaChi", txtDiaChi.Texts),
+                        DbHelper.Param("@SDT", txtSDT.Texts),
+                        DbHelper.Param("@Email", txtEmail.Texts),
                         DbHelper.Param("@Anh", currentImagePath),
                         DbHelper.Param("@HoatDong", chkHoatDong.Checked)
                     );
@@ -175,14 +197,14 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                             EMAIL = @Email, ANH = @Anh, HOATDONG = @HoatDong
                         WHERE MANV = @MaNV";
                     DbHelper.Execute(query,
-                        DbHelper.Param("@HoTen", txtHoTen.Text),
+                        DbHelper.Param("@HoTen", txtHoTen.Texts),
                         DbHelper.Param("@ChucVu", cboChucVu.SelectedValue),
-                        DbHelper.Param("@DiaChi", txtDiaChi.Text),
-                        DbHelper.Param("@SDT", txtSDT.Text),
-                        DbHelper.Param("@Email", txtEmail.Text),
+                        DbHelper.Param("@DiaChi", txtDiaChi.Texts),
+                        DbHelper.Param("@SDT", txtSDT.Texts),
+                        DbHelper.Param("@Email", txtEmail.Texts),
                         DbHelper.Param("@Anh", currentImagePath),
                         DbHelper.Param("@HoatDong", chkHoatDong.Checked),
-                        DbHelper.Param("@MaNV", txtMaNV.Text)
+                        DbHelper.Param("@MaNV", txtMaNV.Texts)
                     );
                 }
                 MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -196,11 +218,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
-        private void btnHuy_Click(object sender, EventArgs e)
+        private void BtnHuy_Click(object sender, EventArgs e)
         {
             if (!isAdding)
             {
-                dgvNhanVien_SelectionChanged(null, null);
+                DgvNhanVien_SelectionChanged(null, null);
             }
             else
             {
@@ -210,7 +232,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             isAdding = false;
         }
 
-        private void btnBrowse_Click(object sender, EventArgs e)
+        private void BtnBrowse_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFile = new OpenFileDialog();
             openFile.Filter = "Image Files(*.jpg; *.jpeg; *.gif; *.bmp; *.png)|*.jpg; *.jpeg; *.gif; *.bmp; *.png";
@@ -221,17 +243,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
-        private void dgvNhanVien_SelectionChanged(object sender, EventArgs e)
+        private void DgvNhanVien_SelectionChanged(object sender, EventArgs e)
         {
             if (!isAdding && dgvNhanVien.SelectedRows.Count > 0)
             {
                 var row = dgvNhanVien.SelectedRows[0];
-                txtMaNV.Text = row.Cells["MANV"].Value?.ToString();
-                txtHoTen.Text = row.Cells["HOTEN"].Value?.ToString();
+                txtMaNV.Texts = row.Cells["MANV"].Value?.ToString();
+                txtHoTen.Texts = row.Cells["HOTEN"].Value?.ToString();
                 cboChucVu.SelectedValue = row.Cells["CHUCVU"].Value;
-                txtDiaChi.Text = row.Cells["DIACHI"].Value?.ToString();
-                txtSDT.Text = row.Cells["SDT"].Value?.ToString();
-                txtEmail.Text = row.Cells["EMAIL"].Value?.ToString();
+                txtDiaChi.Texts = row.Cells["DIACHI"].Value?.ToString();
+                txtSDT.Texts = row.Cells["SDT"].Value?.ToString();
+                txtEmail.Texts = row.Cells["EMAIL"].Value?.ToString();
                 chkHoatDong.Checked = row.Cells["HOATDONG"].Value != null && (bool)row.Cells["HOATDONG"].Value;
 
                 currentImagePath = row.Cells["ANH"].Value?.ToString();

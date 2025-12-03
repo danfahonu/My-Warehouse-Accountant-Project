@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Transactions;
 using DoAnLapTrinhQuanLy.Data;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
@@ -62,12 +63,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void ClearInputs()
         {
-            txtSoPhieu.Text = "(Phiếu mới)";
+            txtSoPhieu.Texts = "(Phiếu mới)";
             dtpNgayLap.Value = DateTime.Now;
             cboKhachHang.SelectedIndex = -1;
             cboTaiKhoan.SelectedIndex = -1;
-            txtSoTien.Text = "0";
-            txtLyDo.Text = "";
+            txtSoTien.Texts = "0";
+            txtLyDo.Texts = "";
             currentSoPhieu = -1;
         }
 
@@ -113,43 +114,47 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     return;
                 }
 
-                if (isAdding)
+                using (TransactionScope scope = new TransactionScope())
                 {
-                    // Tạo phiếu mới ở trạng thái Nháp, LOAI = 'T' (Thu)
-                    string queryPhieu = @"
-                        INSERT INTO PHIEUTHUCHI (NGAYLAP, LOAI, MAKH, SOTIEN, LYDO, SOTK_NO)
-                        OUTPUT INSERTED.SOPTC
-                        VALUES (@NgayLap, 'T', @MaKH, @SoTien, @LyDo, @TkNo)";
+                    if (isAdding)
+                    {
+                        // Tạo phiếu mới ở trạng thái Nháp, LOAI = 'T' (Thu)
+                        string queryPhieu = @"
+                            INSERT INTO PHIEUTHUCHI (NGAYLAP, LOAI, MAKH, SOTIEN, LYDO, SOTK_NO)
+                            OUTPUT INSERTED.SOPTC
+                            VALUES (@NgayLap, 'T', @MaKH, @SoTien, @LyDo, @TkNo)";
 
-                    object generatedId = DbHelper.Scalar(queryPhieu,
-                        DbHelper.Param("@NgayLap", dtpNgayLap.Value),
-                        DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
-                        DbHelper.Param("@SoTien", decimal.Parse(txtSoTien.Text)),
-                        DbHelper.Param("@LyDo", txtLyDo.Text),
-                        DbHelper.Param("@TkNo", cboTaiKhoan.SelectedValue)
-                    );
-                    currentSoPhieu = Convert.ToInt64(generatedId);
-                }
-                else
-                {
-                    // Cập nhật thông tin phiếu đã có
-                    string queryPhieu = @"
-                        UPDATE PHIEUTHUCHI SET 
-                            NGAYLAP = @NgayLap, MAKH = @MaKH, SOTIEN = @SoTien, 
-                            LYDO = @LyDo, SOTK_NO = @TkNo
-                        WHERE SOPTC = @SoPhieu";
-                    DbHelper.Execute(queryPhieu,
-                         DbHelper.Param("@NgayLap", dtpNgayLap.Value),
-                         DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
-                         DbHelper.Param("@SoTien", decimal.Parse(txtSoTien.Text)),
-                         DbHelper.Param("@LyDo", txtLyDo.Text),
-                         DbHelper.Param("@TkNo", cboTaiKhoan.SelectedValue),
-                         DbHelper.Param("@SoPhieu", currentSoPhieu)
-                    );
+                        object generatedId = DbHelper.Scalar(queryPhieu,
+                            DbHelper.Param("@NgayLap", dtpNgayLap.Value),
+                            DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
+                            DbHelper.Param("@SoTien", decimal.Parse(txtSoTien.Texts)),
+                            DbHelper.Param("@LyDo", txtLyDo.Texts),
+                            DbHelper.Param("@TkNo", cboTaiKhoan.SelectedValue)
+                        );
+                        currentSoPhieu = Convert.ToInt64(generatedId);
+                    }
+                    else
+                    {
+                        // Cập nhật thông tin phiếu đã có
+                        string queryPhieu = @"
+                            UPDATE PHIEUTHUCHI SET 
+                                NGAYLAP = @NgayLap, MAKH = @MaKH, SOTIEN = @SoTien, 
+                                LYDO = @LyDo, SOTK_NO = @TkNo
+                            WHERE SOPTC = @SoPhieu";
+                        DbHelper.Execute(queryPhieu,
+                             DbHelper.Param("@NgayLap", dtpNgayLap.Value),
+                             DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
+                             DbHelper.Param("@SoTien", decimal.Parse(txtSoTien.Texts)),
+                             DbHelper.Param("@LyDo", txtLyDo.Texts),
+                             DbHelper.Param("@TkNo", cboTaiKhoan.SelectedValue),
+                             DbHelper.Param("@SoPhieu", currentSoPhieu)
+                        );
+                    }
+                    scope.Complete();
                 }
 
                 MessageBox.Show("Lưu phiếu thu nháp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                txtSoPhieu.Text = currentSoPhieu.ToString();
+                txtSoPhieu.Texts = currentSoPhieu.ToString();
                 isAdding = false;
                 SetInputMode(false);
             }
@@ -174,22 +179,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
             try
             {
-                string tkNo = cboTaiKhoan.SelectedValue.ToString();
-                // Giả định TK Có là 131 - Phải thu của khách hàng
-                string tkCo = "131";
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    string tkNo = cboTaiKhoan.SelectedValue.ToString();
+                    // Giả định TK Có là 131 - Phải thu của khách hàng
+                    string tkCo = "131";
 
-                string queryButToan = @"
-                    INSERT INTO BUTTOAN_KETOAN (NGAY_HT, SO_CT, MA_CT, DIEN_GIAI, TK_NO, TK_CO, SOTIEN)
-                    VALUES (@NgayHT, @SoCT, 'PT', @DienGiai, @TkNo, @TkCo, @SoTien)";
+                    string queryButToan = @"
+                        INSERT INTO BUTTOAN_KETOAN (NGAY_HT, SO_CT, MA_CT, DIEN_GIAI, TK_NO, TK_CO, SOTIEN)
+                        VALUES (@NgayHT, @SoCT, 'PT', @DienGiai, @TkNo, @TkCo, @SoTien)";
 
-                DbHelper.Execute(queryButToan,
-                    DbHelper.Param("@NgayHT", dtpNgayLap.Value),
-                    DbHelper.Param("@SoCT", currentSoPhieu.ToString()),
-                    DbHelper.Param("@DienGiai", txtLyDo.Text),
-                    DbHelper.Param("@TkNo", tkNo),
-                    DbHelper.Param("@TkCo", tkCo),
-                    DbHelper.Param("@SoTien", decimal.Parse(txtSoTien.Text))
-                );
+                    DbHelper.Execute(queryButToan,
+                        DbHelper.Param("@NgayHT", dtpNgayLap.Value),
+                        DbHelper.Param("@SoCT", currentSoPhieu.ToString()),
+                        DbHelper.Param("@DienGiai", txtLyDo.Texts),
+                        DbHelper.Param("@TkNo", tkNo),
+                        DbHelper.Param("@TkCo", tkCo),
+                        DbHelper.Param("@SoTien", decimal.Parse(txtSoTien.Texts))
+                    );
+                    scope.Complete();
+                }
 
                 // Cập nhật trạng thái phiếu (nếu có cột trạng thái trong bảng PHIEUTHUCHI)
                 // Ví dụ: DbHelper.Execute("UPDATE PHIEUTHUCHI SET TRANGTHAI = 1 WHERE SOPTC = @SoPhieu", DbHelper.Param("@SoPhieu", currentSoPhieu));

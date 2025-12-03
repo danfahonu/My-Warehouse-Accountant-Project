@@ -2,7 +2,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.Data; // Đảm bảo using này đúng
+using DoAnLapTrinhQuanLy.Data;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
@@ -40,12 +40,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void ClearInputs()
         {
-            txtMaKH.Text = "";
-            txtTenKH.Text = "";
-            txtDiaChi.Text = "";
-            txtSDT.Text = "";
-            txtEmail.Text = "";
-            txtGhiChu.Text = "";
+            txtMaKH.Texts = "";
+            txtTenKH.Texts = "";
+            txtDiaChi.Texts = "";
+            txtSDT.Texts = "";
+            txtEmail.Texts = "";
+            txtGhiChu.Texts = "";
         }
 
         #endregion
@@ -111,6 +111,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     LoadData();
                     MessageBox.Show("Xóa khách hàng thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                catch (System.Data.SqlClient.SqlException sqlEx)
+                {
+                    if (sqlEx.Number == 547) // Foreign Key constraint violation
+                    {
+                        MessageBox.Show("Khách hàng này đã có giao dịch, không thể xóa!", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Lỗi SQL khi xóa: " + sqlEx.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Lỗi khi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -122,7 +133,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtMaKH.Text) || string.IsNullOrWhiteSpace(txtTenKH.Text))
+                if (string.IsNullOrWhiteSpace(txtMaKH.Texts) || string.IsNullOrWhiteSpace(txtTenKH.Texts))
                 {
                     MessageBox.Show("Mã và Tên khách hàng không được để trống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -130,16 +141,25 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
                 if (isAdding)
                 {
+                    // Duplicate Validation
+                    object count = DbHelper.Scalar("SELECT COUNT(*) FROM DANHMUCKHACHHANG WHERE MAKH = @MaKH", DbHelper.Param("@MaKH", txtMaKH.Texts));
+                    if (Convert.ToInt32(count) > 0)
+                    {
+                        MessageBox.Show("Mã khách hàng này đã tồn tại! Vui lòng chọn mã khác.", "Trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        txtMaKH.Focus();
+                        return;
+                    }
+
                     string query = @"
                         INSERT INTO DANHMUCKHACHHANG (MAKH, TENKH, DIACHI, SDT, EMAIL, GHICHU, NGAYTAO)
                         VALUES (@MaKH, @TenKH, @DiaChi, @SDT, @Email, @GhiChu, @NgayTao)";
                     DbHelper.Execute(query,
-                        DbHelper.Param("@MaKH", txtMaKH.Text),
-                        DbHelper.Param("@TenKH", txtTenKH.Text),
-                        DbHelper.Param("@DiaChi", txtDiaChi.Text),
-                        DbHelper.Param("@SDT", txtSDT.Text),
-                        DbHelper.Param("@Email", txtEmail.Text),
-                        DbHelper.Param("@GhiChu", txtGhiChu.Text),
+                        DbHelper.Param("@MaKH", txtMaKH.Texts),
+                        DbHelper.Param("@TenKH", txtTenKH.Texts),
+                        DbHelper.Param("@DiaChi", txtDiaChi.Texts),
+                        DbHelper.Param("@SDT", txtSDT.Texts),
+                        DbHelper.Param("@Email", txtEmail.Texts),
+                        DbHelper.Param("@GhiChu", txtGhiChu.Texts),
                         DbHelper.Param("@NgayTao", DateTime.Now)
                     );
                 }
@@ -151,12 +171,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                             EMAIL = @Email, GHICHU = @GhiChu
                         WHERE MAKH = @MaKH";
                     DbHelper.Execute(query,
-                        DbHelper.Param("@TenKH", txtTenKH.Text),
-                        DbHelper.Param("@DiaChi", txtDiaChi.Text),
-                        DbHelper.Param("@SDT", txtSDT.Text),
-                        DbHelper.Param("@Email", txtEmail.Text),
-                        DbHelper.Param("@GhiChu", txtGhiChu.Text),
-                        DbHelper.Param("@MaKH", txtMaKH.Text)
+                        DbHelper.Param("@TenKH", txtTenKH.Texts),
+                        DbHelper.Param("@DiaChi", txtDiaChi.Texts),
+                        DbHelper.Param("@SDT", txtSDT.Texts),
+                        DbHelper.Param("@Email", txtEmail.Texts),
+                        DbHelper.Param("@GhiChu", txtGhiChu.Texts),
+                        DbHelper.Param("@MaKH", txtMaKH.Texts)
                     );
                 }
                 MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -189,12 +209,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             if (!isAdding && dgvKhachHang.SelectedRows.Count > 0)
             {
                 var row = dgvKhachHang.SelectedRows[0];
-                txtMaKH.Text = row.Cells["MAKH"].Value?.ToString();
-                txtTenKH.Text = row.Cells["TENKH"].Value?.ToString();
-                txtDiaChi.Text = row.Cells["DIACHI"].Value?.ToString();
-                txtSDT.Text = row.Cells["SDT"].Value?.ToString();
-                txtEmail.Text = row.Cells["EMAIL"].Value?.ToString();
-                txtGhiChu.Text = row.Cells["GHICHU"].Value?.ToString();
+                txtMaKH.Texts = row.Cells["MAKH"].Value?.ToString();
+                txtTenKH.Texts = row.Cells["TENKH"].Value?.ToString();
+                txtDiaChi.Texts = row.Cells["DIACHI"].Value?.ToString();
+                txtSDT.Texts = row.Cells["SDT"].Value?.ToString();
+                txtEmail.Texts = row.Cells["EMAIL"].Value?.ToString();
+                txtGhiChu.Texts = row.Cells["GHICHU"].Value?.ToString();
             }
         }
 

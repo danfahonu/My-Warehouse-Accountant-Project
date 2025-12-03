@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Transactions;
 using DoAnLapTrinhQuanLy.Data;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
@@ -78,10 +79,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void ClearInputs()
         {
-            txtSoPhieu.Text = "(Phiếu mới)";
+            txtSoPhieu.Texts = "(Phiếu mới)";
             dtpNgayLap.Value = DateTime.Now;
             cboKhachHang.SelectedIndex = -1;
-            txtGhiChu.Text = "";
+            txtGhiChu.Texts = "";
             dgvPhieuXuat.Rows.Clear();
             lblTongTien.Text = "0";
             currentSoPhieu = -1;
@@ -126,55 +127,81 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     return;
                 }
 
-                if (isAdding)
-                {
-                    string queryPhieu = @"
-                        INSERT INTO PHIEU (NGAYLAP, LOAI, MAKH, GHICHU, TRANGTHAI)
-                        OUTPUT INSERTED.SOPHIEU
-                        VALUES (@NgayLap, 'X', @MaKH, @GhiChu, 0)";
-                    object generatedId = DbHelper.Scalar(queryPhieu,
-                        DbHelper.Param("@NgayLap", dtpNgayLap.Value),
-                        DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
-                        DbHelper.Param("@GhiChu", txtGhiChu.Text)
-                    );
-                    currentSoPhieu = Convert.ToInt64(generatedId);
-                }
-                else
-                {
-                    string queryPhieu = @"
-                        UPDATE PHIEU SET NGAYLAP = @NgayLap, MAKH = @MaKH, GHICHU = @GhiChu
-                        WHERE SOPHIEU = @SoPhieu";
-                    DbHelper.Execute(queryPhieu,
-                         DbHelper.Param("@NgayLap", dtpNgayLap.Value),
-                         DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
-                         DbHelper.Param("@GhiChu", txtGhiChu.Text),
-                         DbHelper.Param("@SoPhieu", currentSoPhieu)
-                    );
-                    DbHelper.Execute("DELETE FROM PHIEU_CT WHERE SOPHIEU = @SoPhieu", DbHelper.Param("@SoPhieu", currentSoPhieu));
-                }
-
+                // 1. Validate Stock Availability BEFORE Save
                 foreach (DataGridViewRow row in dgvPhieuXuat.Rows)
                 {
                     if (row.IsNewRow) continue;
                     string maHH = row.Cells["MAHH"].Value?.ToString();
                     if (string.IsNullOrEmpty(maHH)) continue;
 
-                    int soLuong = Convert.ToInt32(row.Cells["SL"].Value);
-                    decimal donGia = Convert.ToDecimal(row.Cells["DONGIA"].Value);
+                    int soLuongXuat = Convert.ToInt32(row.Cells["SL"].Value);
 
-                    string queryCT = @"
-                        INSERT INTO PHIEU_CT (SOPHIEU, MAHH, SL, DONGIA)
-                        VALUES (@SoPhieu, @MaHH, @SL, @DonGia)";
-                    DbHelper.Execute(queryCT,
-                        DbHelper.Param("@SoPhieu", currentSoPhieu),
-                        DbHelper.Param("@MaHH", maHH),
-                        DbHelper.Param("@SL", soLuong),
-                        DbHelper.Param("@DonGia", donGia)
-                    );
+                    // Check current stock
+                    object result = DbHelper.Scalar("SELECT TONKHO FROM DM_HANGHOA WHERE MAHH = @MAHH", DbHelper.Param("@MAHH", maHH));
+                    int currentStock = result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+
+                    if (soLuongXuat > currentStock)
+                    {
+                        MessageBox.Show($"Hàng hóa '{maHH}' không đủ tồn kho! Hiện tại còn: {currentStock}, Xuất: {soLuongXuat}", "Lỗi Tồn Kho", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return; // Stop save
+                    }
+                }
+
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    if (isAdding)
+                    {
+                        string queryPhieu = @"
+                            INSERT INTO PHIEU (NGAYLAP, LOAI, MAKH, GHICHU, TRANGTHAI)
+                            OUTPUT INSERTED.SOPHIEU
+                            VALUES (@NgayLap, 'X', @MaKH, @GhiChu, 0)";
+                        object generatedId = DbHelper.Scalar(queryPhieu,
+                            DbHelper.Param("@NgayLap", dtpNgayLap.Value),
+                            DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
+                            DbHelper.Param("@GhiChu", txtGhiChu.Texts)
+                        );
+                        currentSoPhieu = Convert.ToInt64(generatedId);
+                    }
+                    else
+                    {
+                        string queryPhieu = @"
+                            UPDATE PHIEU SET NGAYLAP = @NgayLap, MAKH = @MaKH, GHICHU = @GhiChu
+                            WHERE SOPHIEU = @SoPhieu";
+                        DbHelper.Execute(queryPhieu,
+                             DbHelper.Param("@NgayLap", dtpNgayLap.Value),
+                             DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
+                             DbHelper.Param("@GhiChu", txtGhiChu.Texts),
+                             DbHelper.Param("@SoPhieu", currentSoPhieu)
+                        );
+                        DbHelper.Execute("DELETE FROM PHIEU_CT WHERE SOPHIEU = @SoPhieu", DbHelper.Param("@SoPhieu", currentSoPhieu));
+                    }
+
+                    foreach (DataGridViewRow row in dgvPhieuXuat.Rows)
+                    {
+                        if (row.IsNewRow) continue;
+                        string maHH = row.Cells["MAHH"].Value?.ToString();
+                        if (string.IsNullOrEmpty(maHH)) continue;
+
+                        int soLuong = Convert.ToInt32(row.Cells["SL"].Value);
+                        decimal donGia = Convert.ToDecimal(row.Cells["DONGIA"].Value);
+
+                        // NO THANHTIEN in INSERT
+                        string queryCT = @"
+                            INSERT INTO PHIEU_CT (SOPHIEU, MAHH, SL, DONGIA)
+                            VALUES (@SoPhieu, @MaHH, @SL, @DonGia)";
+                        DbHelper.Execute(queryCT,
+                            DbHelper.Param("@SoPhieu", currentSoPhieu),
+                            DbHelper.Param("@MaHH", maHH),
+                            DbHelper.Param("@SL", soLuong),
+                            DbHelper.Param("@DonGia", donGia)
+                        );
+                    }
+
+                    scope.Complete();
                 }
 
                 MessageBox.Show("Lưu phiếu nháp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                txtSoPhieu.Text = currentSoPhieu.ToString();
+                txtSoPhieu.Texts = currentSoPhieu.ToString();
                 isAdding = false;
                 SetInputMode(false);
             }
@@ -199,79 +226,37 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
             try
             {
-                DbHelper.ExecuteTran((conn, tran) =>
+                using (TransactionScope scope = new TransactionScope())
                 {
-                    // Lấy chi tiết phiếu xuất
-                    var dtChiTietXuat = DbHelper.QueryInTran(conn, tran,
-                        "SELECT ID, MAHH, SL FROM PHIEU_CT WHERE SOPHIEU = @SoPhieu",
+                    // 1. Re-Verify Stock before final commit (Concurrency check)
+                    var dtChiTietXuat = DbHelper.Query(
+                        "SELECT MAHH, SL FROM PHIEU_CT WHERE SOPHIEU = @SoPhieu",
                         DbHelper.Param("@SoPhieu", currentSoPhieu));
 
                     foreach (DataRow rowXuat in dtChiTietXuat.Rows)
                     {
                         string maHH = rowXuat["MAHH"].ToString();
                         int soLuongXuat = Convert.ToInt32(rowXuat["SL"]);
-                        long idPhieuXuatCT = Convert.ToInt64(rowXuat["ID"]);
-                        decimal tongGiaVon = 0;
 
-                        // Lấy các lô hàng tồn kho theo thứ tự FIFO
-                        var dtTonKhoFIFO = DbHelper.QueryInTran(conn, tran,
-                            @"SELECT ID, SO_LUONG_TON, DON_GIA_NHAP 
-                              FROM KHO_CHITIET_TONKHO 
-                              WHERE MAHH = @MaHH AND SO_LUONG_TON > 0 
-                              ORDER BY NGAY_NHAP ASC, ID ASC",
-                            DbHelper.Param("@MaHH", maHH));
+                        object result = DbHelper.Scalar("SELECT TONKHO FROM DM_HANGHOA WHERE MAHH = @MAHH", DbHelper.Param("@MAHH", maHH));
+                        int currentStock = result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
 
-                        // Kiểm tra tồn kho
-                        int tongTon = 0;
-                        foreach (DataRow r in dtTonKhoFIFO.Rows) tongTon += Convert.ToInt32(r["SO_LUONG_TON"]);
-                        if (soLuongXuat > tongTon)
+                        if (soLuongXuat > currentStock)
                         {
-                            throw new Exception($"Không đủ tồn kho cho mặt hàng '{maHH}'. Tồn: {tongTon}, Xuất: {soLuongXuat}");
+                            throw new Exception($"Hàng hóa '{maHH}' không đủ tồn kho để ghi sổ! Hiện tại còn: {currentStock}");
                         }
-
-                        // Trừ tồn kho theo FIFO
-                        foreach (DataRow rowTon in dtTonKhoFIFO.Rows)
-                        {
-                            if (soLuongXuat <= 0) break;
-
-                            long idTonKho = Convert.ToInt64(rowTon["ID"]);
-                            int soLuongTonTrongLo = Convert.ToInt32(rowTon["SO_LUONG_TON"]);
-                            decimal donGiaNhap = Convert.ToDecimal(rowTon["DON_GIA_NHAP"]);
-
-                            int slXuatTuLo = Math.Min(soLuongXuat, soLuongTonTrongLo);
-
-                            // Cập nhật lại số lượng tồn trong lô
-                            DbHelper.ExecuteInTran(conn, tran,
-                                "UPDATE KHO_CHITIET_TONKHO SET SO_LUONG_TON = SO_LUONG_TON - @sl WHERE ID = @id",
-                                DbHelper.Param("@sl", slXuatTuLo),
-                                DbHelper.Param("@id", idTonKho));
-
-                            // Tính tổng giá vốn
-                            tongGiaVon += slXuatTuLo * donGiaNhap;
-                            soLuongXuat -= slXuatTuLo;
-                        }
-
-                        // Cập nhật giá vốn trung bình cho dòng chi tiết phiếu xuất
-                        decimal giaVonTrungBinh = tongGiaVon / Convert.ToInt32(rowXuat["SL"]);
-                        DbHelper.ExecuteInTran(conn, tran,
-                            "UPDATE PHIEU_CT SET GIAVON = @GiaVon WHERE ID = @id",
-                            DbHelper.Param("@GiaVon", giaVonTrungBinh),
-                            DbHelper.Param("@id", idPhieuXuatCT));
-
-                        // Cập nhật tồn kho tổng
-                        DbHelper.ExecuteInTran(conn, tran,
-                            "UPDATE DM_HANGHOA SET TONKHO = TONKHO - @sl WHERE MAHH = @maHH",
-                            DbHelper.Param("@sl", Convert.ToInt32(rowXuat["SL"])),
-                            DbHelper.Param("@maHH", maHH));
                     }
 
-                    // Cập nhật trạng thái phiếu
-                    DbHelper.ExecuteInTran(conn, tran,
-                        "UPDATE PHIEU SET TRANGTHAI = 1 WHERE SOPHIEU = @SoPhieu",
+                    // 2. Update Status to 1 (Completed)
+                    // NOTE: We do NOT insert into KHO_CHITIET_TONKHO for Exports.
+                    // The system assumes a Trigger on PHIEU/PHIEU_CT or DM_HANGHOA handles the stock deduction,
+                    // OR that KHO_CHITIET_TONKHO is strictly for Inbound batches.
+
+                    DbHelper.Execute("UPDATE PHIEU SET TRANGTHAI = 1 WHERE SOPHIEU = @SoPhieu",
                         DbHelper.Param("@SoPhieu", currentSoPhieu));
 
-                    return 1; // return > 0 để commit transaction
-                });
+                    scope.Complete();
+                }
 
                 MessageBox.Show("Ghi sổ thành công! Hàng đã được xuất khỏi kho.", "Thành công");
                 SetInputMode(false);

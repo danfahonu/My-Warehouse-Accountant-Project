@@ -202,6 +202,12 @@
     <Compile Include="FormCaiDatHeThong.Designer.cs">
       <DependentUpon>FormCaiDatHeThong.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormChonPhieuYeuCau.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormChonPhieuYeuCau.Designer.cs">
+      <DependentUpon>FormChonPhieuYeuCau.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormDangNhap.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -316,6 +322,12 @@
     <Compile Include="FormReportCongNo.Designer.cs">
       <DependentUpon>FormReportCongNo.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormReportViewer.Designer.cs">
+      <DependentUpon>FormReportViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormReportViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormSoChiTietTaiKhoan.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -352,6 +364,12 @@
     <Compile Include="FormTinhLuong.Designer.cs">
       <DependentUpon>FormTinhLuong.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormTroLyAo.Designer.cs">
+      <DependentUpon>FormTroLyAo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTroLyAo.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormYeuCauNhapKho.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -383,6 +401,18 @@
     <Compile Include="SqlServerTypes\Loader.cs" />
     <Compile Include="UserData.cs" />
     <Compile Include="ThemeManager.cs" />
+    <Compile Include="CustomControls\ModernButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CustomControls\MaterialTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CustomControls\ModernPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CustomControls\DarkTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="FormAttach.resx">
       <DependentUpon>FormAttach.cs</DependentUpon>
     </EmbeddedResource>
@@ -403,6 +433,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormInPhieu.resx">
       <DependentUpon>FormInPhieu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormKhachHang.resx">
+      <DependentUpon>FormKhachHang.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormNganHang.resx">
       <DependentUpon>FormNganHang.cs</DependentUpon>

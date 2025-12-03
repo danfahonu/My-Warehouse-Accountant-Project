@@ -13,6 +13,9 @@ namespace DoAnLapTrinhQuanLy
         public FrmMain()
         {
             InitializeComponent();
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
+            this.UpdateStyles();
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -108,6 +111,12 @@ namespace DoAnLapTrinhQuanLy
         {
             using (var f = new FormAttach())
                 f.ShowDialog(this);
+        }
+
+        private void mBaoCao_Click(object sender, EventArgs e)
+        {
+            // Open FormReportViewer as MDI Child
+            OpenChild<FormReportViewer>();
         }
 
         private void mTroLyAo_Click(object sender, EventArgs e)

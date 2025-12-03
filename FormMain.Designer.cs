@@ -12,6 +12,7 @@ namespace DoAnLapTrinhQuanLy
         private ToolStripMenuItem mDoiMatKhau;
         private ToolStripMenuItem mAttachDb;
         private ToolStripMenuItem mTroLyAo;
+        private ToolStripMenuItem mBaoCao;
         private ToolStripMenuItem mThoat;
         private ToolStripMenuItem mDanhMuc;
         private ToolStripMenuItem mKhachHang;
@@ -97,8 +98,13 @@ namespace DoAnLapTrinhQuanLy
             this.mHeThong.DropDownItems.AddRange(new ToolStripItem[] {
                 this.mDangNhapLai, this.mDoiMatKhau, new ToolStripSeparator(),
                 this.mDangNhapLai, this.mDoiMatKhau, new ToolStripSeparator(),
-                this.mAttachDb, new ToolStripSeparator(), this.mTroLyAo, new ToolStripSeparator(), this.mThoat
+                this.mAttachDb, new ToolStripSeparator(), this.mTroLyAo, new ToolStripSeparator(), this.mBaoCao, new ToolStripSeparator(), this.mThoat
             });
+            // 
+            // mBaoCao
+            // 
+            this.mBaoCao.Text = "Báo Cáo";
+            this.mBaoCao.Click += new System.EventHandler(this.mBaoCao_Click);
             // 
             // mTroLyAo
             // 

@@ -17,31 +17,75 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
     {
         private string _mode = "";
         private long _idYeuCau = 0;
-        private DataTable dtChiTiet;
+        private readonly DataTable dtChiTiet;
 
         public FormPhieuNhap()
         {
-            InitializeComponent();
+            try
+            {
+                InitializeComponent();
+                // 1. Double Buffering
+                this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+                this.UpdateStyles();
 
-            // Khởi tạo DataTable chi tiết
-            dtChiTiet = new DataTable();
-            dtChiTiet.Columns.Add("MAHH", typeof(string));
-            dtChiTiet.Columns.Add("TENHH", typeof(string));
-            dtChiTiet.Columns.Add("DVT", typeof(string));
-            dtChiTiet.Columns.Add("SL", typeof(int));
-            dtChiTiet.Columns.Add("DONGIA", typeof(decimal));
-            dtChiTiet.Columns.Add("THANHTIEN", typeof(decimal), "SL * DONGIA");
+                if (dgvChiTiet == null) throw new Exception("dgvChiTiet is null after InitializeComponent");
 
-            dgvChiTiet.DataSource = dtChiTiet;
+                // Khởi tạo DataTable chi tiết
+                dtChiTiet = new DataTable();
+                dtChiTiet.Columns.Add("MAHH", typeof(string));
+                dtChiTiet.Columns.Add("TENHH", typeof(string));
+                dtChiTiet.Columns.Add("DVT", typeof(string));
+                dtChiTiet.Columns.Add("SL", typeof(int));
+                dtChiTiet.Columns.Add("DONGIA", typeof(decimal));
+                // Use Expression Column for auto-calculation in DataTable
+                dtChiTiet.Columns.Add("THANHTIEN", typeof(decimal), "SL * DONGIA");
+
+                // Hook ColumnChanged for Total Amount calculation
+                dtChiTiet.ColumnChanged += DtChiTiet_ColumnChanged;
+
+                dgvChiTiet.DataSource = dtChiTiet;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Constructor Error: " + ex.Message + "\n" + ex.StackTrace);
+            }
         }
 
-        private void FormPhieuNhap_Load(object sender, EventArgs e)
+        private void DtChiTiet_ColumnChanged(object sender, DataColumnChangeEventArgs e)
+        {
+            // Recalculate Total Amount whenever SL or DONGIA changes
+            if (e.Column.ColumnName == "SL" || e.Column.ColumnName == "DONGIA" || e.Column.ColumnName == "THANHTIEN")
+            {
+                CalculateTotalAmount();
+            }
+        }
+
+        private async void FormPhieuNhap_Load(object sender, EventArgs e)
         {
             try
             {
                 ThemeManager.Apply(this);
-                LoadComboBoxNhaCungCap();
-                LoadProductComboboxColumn();
+                this.SuspendLayout();
+                this.Cursor = Cursors.WaitCursor;
+
+                // 2. Async Data Loading
+                var nccTask = Task.Run(() => GetNhaCungCapData());
+                var productTask = Task.Run(() => GetProductData());
+
+                await Task.WhenAll(nccTask, productTask);
+
+                var dtNcc = nccTask.Result;
+                var dtProduct = productTask.Result;
+
+                // Bind NCC
+                cboNhaCungCap.DataSource = dtNcc;
+                cboNhaCungCap.DisplayMember = "TEN_NCC";
+                cboNhaCungCap.ValueMember = "MA_NCC";
+                cboNhaCungCap.SelectedIndex = -1;
+
+                // Bind Product Column
+                BindProductComboboxColumn(dtProduct);
+
                 dgvChiTiet.CellValueChanged += DgvChiTiet_CellValueChanged;
                 SetInputMode(false);
                 ClearInputs();
@@ -50,16 +94,46 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             {
                 MessageBox.Show("Lỗi khi tải form: " + ex.Message);
             }
+            finally
+            {
+                this.ResumeLayout();
+                this.Cursor = Cursors.Default;
+            }
         }
 
-        private void LoadComboBoxNhaCungCap()
+        private DataTable GetNhaCungCapData()
         {
             string query = "SELECT MA_NCC, TEN_NCC FROM DM_NHACUNGCAP";
-            DataTable dt = DbHelper.Query(query);
-            cboNhaCungCap.DataSource = dt;
-            cboNhaCungCap.DisplayMember = "TEN_NCC";
-            cboNhaCungCap.ValueMember = "MA_NCC";
-            cboNhaCungCap.SelectedIndex = -1;
+            return DbHelper.Query(query);
+        }
+
+        private DataTable GetProductData()
+        {
+            string query = "SELECT MAHH, TENHH FROM DM_HANGHOA";
+            return DbHelper.Query(query);
+        }
+
+        private void BindProductComboboxColumn(DataTable dt)
+        {
+            if (dgvChiTiet.Columns.Contains("MAHH"))
+            {
+                if (dgvChiTiet.Columns["MAHH"] is DataGridViewComboBoxColumn) return;
+                dgvChiTiet.Columns.Remove("MAHH");
+            }
+
+            DataGridViewComboBoxColumn cmbCol = new DataGridViewComboBoxColumn
+            {
+                HeaderText = "Hàng Hóa",
+                Name = "MAHH",
+                DataPropertyName = "MAHH",
+                Width = 200,
+                AutoComplete = true,
+                DataSource = dt,
+                DisplayMember = "TENHH",
+                ValueMember = "MAHH"
+            };
+
+            dgvChiTiet.Columns.Insert(0, cmbCol);
         }
 
         private void SetInputMode(bool enable)
@@ -72,16 +146,23 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             btnThem.Enabled = !enable;
             btnLuu.Enabled = enable;
             btnHuy.Enabled = enable;
-            btnChonYeuCau.Enabled = !enable; // Chỉ cho chọn khi không ở chế độ nhập liệu
+            btnChonYeuCau.Enabled = !enable;
         }
 
         private void ClearInputs()
         {
             dtpNgayLap.Value = DateTime.Now;
             cboNhaCungCap.SelectedIndex = -1;
-            txtGhiChu.Text = "";
+            txtGhiChu.Texts = ""; // MaterialTextBox uses Texts
             dtChiTiet?.Clear();
             _idYeuCau = 0;
+            lblTongTien.Text = "0";
+
+            // Unlock Product Column
+            if (dgvChiTiet.Columns["MAHH"] != null)
+            {
+                dgvChiTiet.Columns["MAHH"].ReadOnly = false;
+            }
         }
 
         private void BtnThem_Click(object sender, EventArgs e)
@@ -91,16 +172,15 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             SetInputMode(true);
         }
 
-        // === LOGIC MỚI 1: CHỌN PHIẾU YÊU CẦU ===
         private void BtnChonYeuCau_Click(object sender, EventArgs e)
         {
-            // Giả lập là ta chọn được phiếu YC có ID = 1002
-            long sampleId = 1002;
-            MessageBox.Show($"Giả lập: Chọn Phiếu Yêu Cầu ID = {sampleId} (Đã duyệt)");
-            LoadDataFromYeuCau(sampleId);
+            using FormChonPhieuYeuCau f = new FormChonPhieuYeuCau();
+            if (f.ShowDialog(this) == DialogResult.OK)
+            {
+                LoadDataFromYeuCau(f.SelectedYeuCauID);
+            }
         }
 
-        // === LOGIC MỚI 2: TẢI DATA TỪ YÊU CẦU SANG PHIẾU NHẬP ===
         private void LoadDataFromYeuCau(long idYeuCau)
         {
             try
@@ -118,179 +198,29 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     JOIN DM_HANGHOA hh ON ct.MAHH = hh.MAHH
                     WHERE ct.ID_YEUCAU = @ID";
 
-                dtChiTiet = DbHelper.Query(queryDetail, DbHelper.Param("@ID", idYeuCau));
+                DataTable dtTemp = DbHelper.Query(queryDetail, DbHelper.Param("@ID", idYeuCau));
 
-                if (dtChiTiet.Rows.Count == 0)
+                if (dtTemp.Rows.Count == 0)
                 {
                     MessageBox.Show("Phiếu yêu cầu này không có hàng hóa.");
                     _idYeuCau = 0;
                     return;
                 }
 
-                // Thêm cột thành tiền nếu chưa có (vì query trên chưa có)
-                if (!dtChiTiet.Columns.Contains("THANHTIEN"))
+                dtChiTiet.Clear();
+                foreach (DataRow row in dtTemp.Rows)
                 {
-                    dtChiTiet.Columns.Add("THANHTIEN", typeof(decimal), "SL * DONGIA");
+                    dtChiTiet.ImportRow(row);
                 }
 
-                dgvChiTiet.DataSource = dtChiTiet;
-
-                _mode = "add_from_request";
                 SetInputMode(true);
+                txtGhiChu.Texts = $"Nhập theo yêu cầu #{idYeuCau}";
 
-                // UX: Lock Product, Enable Quantity, Change Color
-                dgvChiTiet.Columns["MAHH"].ReadOnly = true;
-                dgvChiTiet.Columns["SL"].ReadOnly = false;
-                dgvChiTiet.BackgroundColor = ColorTranslator.FromHtml("#3c3c3c"); // Dark Mode Highlight
-                MessageBox.Show("Đã tải dữ liệu từ Phiếu Yêu Cầu. Vui lòng kiểm tra lại Số lượng, Đơn giá và bấm Lưu.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi tải dữ liệu từ Phiếu Yêu Cầu: " + ex.Message);
-            }
-        }
-
-        // === LOGIC LƯU ===
-        private void BtnLuu_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(_mode)) return;
-            if (cboNhaCungCap.SelectedValue == null || string.IsNullOrEmpty(cboNhaCungCap.SelectedValue.ToString()))
-            {
-                MessageBox.Show("Vui lòng chọn Nhà Cung Cấp!");
-                return;
-            }
-            dgvChiTiet.EndEdit();
-
-            // Lọc các dòng hợp lệ
-            var validRows = (dgvChiTiet.DataSource as DataTable).AsEnumerable()
-                .Where(r => r.RowState != DataRowState.Deleted &&
-                            r["MAHH"] != DBNull.Value &&
-                            !string.IsNullOrEmpty(r["MAHH"].ToString()))
-                .ToList();
-
-            if (validRows.Count == 0)
-            {
-                MessageBox.Show("Phiếu phải có ít nhất 1 dòng hàng hóa!");
-                return;
-            }
-
-            try
-            {
-                using var scope = new TransactionScope();
-
-                // --- BƯỚC 1: Lưu Master (Bảng PHIEU) ---
-                string queryPhieu = @"
-                    INSERT INTO PHIEU (NGAYLAP, LOAI, MA_NCC, GHICHU, TRANGTHAI, ID_YEUCAU)
-                    VALUES (@NGAYLAP, 'N', @MA_NCC, @GHICHU, 1, @ID_YEUCAU);
-                    SELECT SCOPE_IDENTITY();";
-
-                long soPhieuMoi = Convert.ToInt64(DbHelper.ExecuteScalar(queryPhieu,
-                    DbHelper.Param("@NGAYLAP", dtpNgayLap.Value.Date),
-                    DbHelper.Param("@MA_NCC", cboNhaCungCap.SelectedValue.ToString()),
-                    DbHelper.Param("@GHICHU", txtGhiChu.Text),
-                    DbHelper.Param("@ID_YEUCAU", _idYeuCau > 0 ? (object)_idYeuCau : DBNull.Value)
-                ));
-
-                // --- BƯỚC 2: Lưu Detail (Loop qua DataGridView) ---
-                foreach (DataRow row in validRows)
+                // Lock Product Column if importing from Request
+                if (dgvChiTiet.Columns["MAHH"] != null)
                 {
-                    string mahh = row["MAHH"].ToString();
-                    int soLuong = Convert.ToInt32(row["SL"]);
-                    decimal donGia = Convert.ToDecimal(row["DONGIA"]);
-
-                    // 2a. LƯU VÀO PHIEU_CT
-                    string queryPhieuCT = @"
-                        INSERT INTO PHIEU_CT (SOPHIEU, MAHH, SL, DONGIA)
-                        VALUES (@SOPHIEU, @MAHH, @SL, @DONGIA);
-                        SELECT SCOPE_IDENTITY();";
-
-                    long idPhieuCtMoi = Convert.ToInt64(DbHelper.ExecuteScalar(queryPhieuCT,
-                        DbHelper.Param("@SOPHIEU", soPhieuMoi),
-                        DbHelper.Param("@MAHH", mahh),
-                        DbHelper.Param("@SL", soLuong),
-                        DbHelper.Param("@DONGIA", donGia)
-                    ));
-
-                    // 2b. LƯU VÀO KHO_CHITIET_TONKHO
-                    string queryKho = @"
-                        INSERT INTO KHO_CHITIET_TONKHO (ID_PHIEUNHAP_CT, MAHH, NGAY_NHAP, SO_LUONG_NHAP, DON_GIA_NHAP, SO_LUONG_TON)
-                        VALUES (@ID_PHIEUNHAP_CT, @MAHH, @NGAY_NHAP, @SO_LUONG, @DON_GIA, @SO_LUONG_TON)";
-
-                    DbHelper.Execute(queryKho,
-                        DbHelper.Param("@ID_PHIEUNHAP_CT", idPhieuCtMoi),
-                        DbHelper.Param("@MAHH", mahh),
-                        DbHelper.Param("@NGAY_NHAP", dtpNgayLap.Value.Date),
-                        DbHelper.Param("@SO_LUONG", soLuong),
-                        DbHelper.Param("@DON_GIA", donGia),
-                        DbHelper.Param("@SO_LUONG_TON", soLuong)
-                    );
-
-                    // 2c. Cập nhật TỒN KHO trong DM_HANGHOA
-                    UpdateTonKho(mahh, soLuong, true); // true = nhập kho
+                    dgvChiTiet.Columns["MAHH"].ReadOnly = true;
                 }
-
-                // --- BƯỚC 3: Cập nhật lại Yêu cầu gốc là "Đã nhập kho" (TRANGTHAI = 3) ---
-                if (_idYeuCau > 0)
-                {
-                    DbHelper.Execute("UPDATE PHIEU_YEUCAU_NHAPKHO SET TRANGTHAI = 3 WHERE ID = @ID",
-                        DbHelper.Param("@ID", _idYeuCau));
-                }
-
-                scope.Complete();
-
-                MessageBox.Show("Đã lưu Phiếu Nhập kho và CẬP NHẬT KHO thành công!");
-                _mode = "";
-                SetInputMode(false);
-                ClearInputs();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi nghiêm trọng khi lưu Phiếu Nhập: " + ex.Message);
-            }
-        }
-
-        private void BtnHuy_Click(object sender, EventArgs e)
-        {
-            _mode = "";
-            ClearInputs();
-            SetInputMode(false);
-        }
-
-        private void UpdateTonKho(string mahh, int soLuong, bool isNhapKho)
-        {
-            string op = isNhapKho ? "+" : "-";
-            string query = $"UPDATE DM_HANGHOA SET TONKHO = TONKHO {op} @SL WHERE MAHH = @MAHH";
-            DbHelper.Execute(query,
-                DbHelper.Param("@SL", soLuong),
-                DbHelper.Param("@MAHH", mahh)
-            );
-        }
-        private void LoadProductComboboxColumn()
-        {
-            try
-            {
-                // Remove existing text column if it exists (auto-generated)
-                if (dgvChiTiet.Columns.Contains("MAHH"))
-                {
-                    dgvChiTiet.Columns.Remove("MAHH");
-                }
-
-                DataGridViewComboBoxColumn cmbCol = new DataGridViewComboBoxColumn();
-                cmbCol.HeaderText = "Hàng Hóa";
-                cmbCol.Name = "MAHH";
-                cmbCol.DataPropertyName = "MAHH"; // Bind to DataTable
-
-                string query = "SELECT MAHH, TENHH FROM DM_HANGHOA";
-                DataTable dt = DbHelper.Query(query);
-
-                cmbCol.DataSource = dt;
-                cmbCol.DisplayMember = "TENHH";
-                cmbCol.ValueMember = "MAHH";
-                cmbCol.Width = 200;
-                cmbCol.AutoComplete = true;
-
-                // Add to grid at first position
-                dgvChiTiet.Columns.Insert(0, cmbCol);
             }
             catch (Exception ex)
             {
@@ -318,12 +248,148 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     {
                         row.Cells["DVT"].Value = dt.Rows[0]["DVT"];
                         row.Cells["DONGIA"].Value = dt.Rows[0]["GIAVON"];
-                        // Trigger calc for Total Amount
                         row.Cells["SL"].Value = row.Cells["SL"].Value ?? 1;
                     }
                 }
             }
         }
 
+        private void CalculateTotalAmount()
+        {
+            try
+            {
+                decimal total = 0;
+                foreach (DataRow row in dtChiTiet.Rows)
+                {
+                    // Check row state to avoid deleted rows
+                    if (row.RowState == DataRowState.Deleted) continue;
+
+                    if (row["THANHTIEN"] != DBNull.Value)
+                    {
+                        if (decimal.TryParse(row["THANHTIEN"].ToString(), out decimal val))
+                        {
+                            total += val;
+                        }
+                    }
+                }
+
+                // Update UI on UI thread if needed (though usually this runs on UI thread)
+                if (lblTongTien.InvokeRequired)
+                {
+                    lblTongTien.Invoke(new Action(() => lblTongTien.Text = total.ToString("N0")));
+                }
+                else
+                {
+                    lblTongTien.Text = total.ToString("N0");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't crash
+                Console.WriteLine("Calc Error: " + ex.Message);
+            }
+        }
+
+        public void BtnHuy_Click(object sender, EventArgs e)
+        {
+            SetInputMode(false);
+            ClearInputs();
+        }
+
+        public void BtnLuu_Click(object sender, EventArgs e)
+        {
+            // 1. Validate
+            if (cboNhaCungCap.SelectedIndex < 0)
+            {
+                MessageBox.Show("Vui lòng chọn Nhà cung cấp!");
+                return;
+            }
+            if (dtChiTiet.Rows.Count == 0)
+            {
+                MessageBox.Show("Chưa có hàng hóa nào!");
+                return;
+            }
+            if (dtpNgayLap.Value.Date > DateTime.Now.Date)
+            {
+                MessageBox.Show("Ngày lập phiếu không được lớn hơn ngày hiện tại!");
+                return;
+            }
+
+            try
+            {
+                // 3. Transaction Scope
+                using TransactionScope scope = new TransactionScope();
+
+                // 4. Insert PHIEU (Master)
+                string sqlPhieu = @"INSERT INTO PHIEU (NGAYLAP, LOAI, MA_NCC, GHICHU, TRANGTHAI, ID_YEUCAU) 
+                                  VALUES (@NGAYLAP, 'N', @MA_NCC, @GHICHU, 1, @ID_YEUCAU);
+                                  SELECT SCOPE_IDENTITY();";
+
+                object result = DbHelper.Scalar(sqlPhieu,
+                    DbHelper.Param("@NGAYLAP", dtpNgayLap.Value),
+                    DbHelper.Param("@MA_NCC", cboNhaCungCap.SelectedValue),
+                    DbHelper.Param("@GHICHU", txtGhiChu.Texts),
+                    DbHelper.Param("@ID_YEUCAU", _idYeuCau == 0 ? (object)DBNull.Value : _idYeuCau)
+                );
+
+                long soPhieu = Convert.ToInt64(result);
+
+                // 5. Insert Details & Inventory Log
+                foreach (DataRow row in dtChiTiet.Rows)
+                {
+                    if (row.RowState == DataRowState.Deleted) continue;
+
+                    string mahh = row["MAHH"].ToString();
+                    int soLuong = Convert.ToInt32(row["SL"]);
+                    decimal donGia = Convert.ToDecimal(row["DONGIA"]);
+
+                    // a. Insert PHIEU_CT
+                    // SQL Safety: Excluded THANHTIEN
+                    string sqlChiTiet = @"INSERT INTO PHIEU_CT (SOPHIEU, MAHH, SL, DONGIA) 
+                                        VALUES (@SOPHIEU, @MAHH, @SL, @DONGIA);
+                                        SELECT SCOPE_IDENTITY();";
+
+                    object resultCT = DbHelper.Scalar(sqlChiTiet,
+                        DbHelper.Param("@SOPHIEU", soPhieu),
+                        DbHelper.Param("@MAHH", mahh),
+                        DbHelper.Param("@SL", soLuong),
+                        DbHelper.Param("@DONGIA", donGia)
+                    );
+
+                    long idPhieuCT = Convert.ToInt64(resultCT);
+
+                    // b. Insert KHO_CHITIET_TONKHO
+                    string sqlKho = @"INSERT INTO KHO_CHITIET_TONKHO 
+                                    (ID_PHIEUNHAP_CT, MAHH, NGAY_NHAP, SO_LUONG_NHAP, DON_GIA_NHAP, SO_LUONG_TON)
+                                    VALUES 
+                                    (@ID_PHIEUNHAP_CT, @MAHH, @NGAY_NHAP, @SL, @DONGIA, @SL)";
+
+                    DbHelper.Execute(sqlKho,
+                        DbHelper.Param("@ID_PHIEUNHAP_CT", idPhieuCT),
+                        DbHelper.Param("@MAHH", mahh),
+                        DbHelper.Param("@NGAY_NHAP", dtpNgayLap.Value),
+                        DbHelper.Param("@SL", soLuong),
+                        DbHelper.Param("@DONGIA", donGia)
+                    );
+                }
+
+                // 6. Update Status of YeuCau if needed
+                if (_idYeuCau > 0)
+                {
+                    // Update status to 3 (Completed)
+                    string sqlUpdateYC = "UPDATE PHIEU_YEUCAU_NHAPKHO SET TRANGTHAI = 3 WHERE ID = @ID";
+                    DbHelper.Execute(sqlUpdateYC, DbHelper.Param("@ID", _idYeuCau));
+                }
+
+                scope.Complete();
+                MessageBox.Show($"Lưu phiếu nhập #{soPhieu} thành công!");
+                SetInputMode(false);
+                ClearInputs();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi lưu phiếu: " + ex.Message);
+            }
+        }
     }
 }

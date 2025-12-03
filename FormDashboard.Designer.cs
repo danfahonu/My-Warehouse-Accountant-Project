@@ -22,21 +22,21 @@
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel1 = new DoAnLapTrinhQuanLy.CustomControls.ModernPanel();
             this.lblGiaTriTon = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.panel2 = new DoAnLapTrinhQuanLy.CustomControls.ModernPanel();
             this.lblSoMatHang = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.panel3 = new System.Windows.Forms.Panel();
+            this.panel3 = new DoAnLapTrinhQuanLy.CustomControls.ModernPanel();
             this.lblTongTon = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.panel4 = new System.Windows.Forms.Panel();
+            this.panel4 = new DoAnLapTrinhQuanLy.CustomControls.ModernPanel();
             this.lblHangSapHet = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.panel5 = new System.Windows.Forms.Panel();
+            this.panel5 = new DoAnLapTrinhQuanLy.CustomControls.ModernPanel();
             this.chartNhomHang = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabControl1 = new DoAnLapTrinhQuanLy.CustomControls.DarkTabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.dgvTopSoLuong = new System.Windows.Forms.DataGridView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -79,10 +79,15 @@
             // 
             // panel1
             // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.panel1.BackColor = System.Drawing.Color.White;
+            this.panel1.BorderRadius = 30;
             this.panel1.Controls.Add(this.lblGiaTriTon);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.ForeColor = System.Drawing.Color.Black;
+            this.panel1.GradientAngle = 45F;
+            this.panel1.GradientBottomColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(201)))), ((int)(((byte)(255)))));
+            this.panel1.GradientTopColor = System.Drawing.Color.FromArgb(((int)(((byte)(146)))), ((int)(((byte)(254)))), ((int)(((byte)(157)))));
             this.panel1.Location = new System.Drawing.Point(10, 10);
             this.panel1.Margin = new System.Windows.Forms.Padding(10);
             this.panel1.Name = "panel1";
@@ -113,10 +118,15 @@
             // 
             // panel2
             // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.panel2.BackColor = System.Drawing.Color.White;
+            this.panel2.BorderRadius = 30;
             this.panel2.Controls.Add(this.lblSoMatHang);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.ForeColor = System.Drawing.Color.Black;
+            this.panel2.GradientAngle = 45F;
+            this.panel2.GradientBottomColor = System.Drawing.Color.FromArgb(((int)(((byte)(137)))), ((int)(((byte)(247)))), ((int)(((byte)(254)))));
+            this.panel2.GradientTopColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(166)))), ((int)(((byte)(255)))));
             this.panel2.Location = new System.Drawing.Point(231, 10);
             this.panel2.Margin = new System.Windows.Forms.Padding(10);
             this.panel2.Name = "panel2";
@@ -147,10 +157,15 @@
             // 
             // panel3
             // 
-            this.panel3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.panel3.BackColor = System.Drawing.Color.White;
+            this.panel3.BorderRadius = 30;
             this.panel3.Controls.Add(this.lblTongTon);
             this.panel3.Controls.Add(this.label5);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel3.ForeColor = System.Drawing.Color.Black;
+            this.panel3.GradientAngle = 45F;
+            this.panel3.GradientBottomColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(153)))), ((int)(((byte)(102)))));
+            this.panel3.GradientTopColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(94)))), ((int)(((byte)(98)))));
             this.panel3.Location = new System.Drawing.Point(452, 10);
             this.panel3.Margin = new System.Windows.Forms.Padding(10);
             this.panel3.Name = "panel3";
@@ -181,10 +196,15 @@
             // 
             // panel4
             // 
-            this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
+            this.panel4.BackColor = System.Drawing.Color.White;
+            this.panel4.BorderRadius = 30;
             this.panel4.Controls.Add(this.lblHangSapHet);
             this.panel4.Controls.Add(this.label7);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel4.ForeColor = System.Drawing.Color.Black;
+            this.panel4.GradientAngle = 45F;
+            this.panel4.GradientBottomColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(65)))), ((int)(((byte)(108)))));
+            this.panel4.GradientTopColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(75)))), ((int)(((byte)(43)))));
             this.panel4.Location = new System.Drawing.Point(673, 10);
             this.panel4.Margin = new System.Windows.Forms.Padding(10);
             this.panel4.Name = "panel4";
@@ -340,21 +360,21 @@
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Panel panel1;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernPanel panel1;
         private System.Windows.Forms.Label lblGiaTriTon;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel2;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernPanel panel2;
         private System.Windows.Forms.Label lblSoMatHang;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Panel panel3;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernPanel panel3;
         private System.Windows.Forms.Label lblTongTon;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Panel panel4;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernPanel panel4;
         private System.Windows.Forms.Label lblHangSapHet;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Panel panel5;
+        private DoAnLapTrinhQuanLy.CustomControls.ModernPanel panel5;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartNhomHang;
-        private System.Windows.Forms.TabControl tabControl1;
+        private DoAnLapTrinhQuanLy.CustomControls.DarkTabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.DataGridView dgvTopSoLuong;
         private System.Windows.Forms.TabPage tabPage2;

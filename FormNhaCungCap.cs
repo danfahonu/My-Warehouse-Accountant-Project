@@ -40,13 +40,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void ClearInputs()
         {
-            txtMaNCC.Text = "";
-            txtTenNCC.Text = "";
-            txtDiaChi.Text = "";
-            txtSDT.Text = "";
-            txtEmail.Text = "";
-            txtMST.Text = "";
-            txtGhiChu.Text = "";
+            txtMaNCC.Texts = "";
+            txtTenNCC.Texts = "";
+            txtDiaChi.Texts = "";
+            txtSDT.Texts = "";
+            txtEmail.Texts = "";
+            txtMST.Texts = "";
+            txtGhiChu.Texts = "";
         }
 
         #endregion
@@ -113,6 +113,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     LoadData();
                     MessageBox.Show("Xóa nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                catch (System.Data.SqlClient.SqlException sqlEx)
+                {
+                    if (sqlEx.Number == 547) // Foreign Key constraint violation
+                    {
+                        MessageBox.Show("Nhà cung cấp này đang được sử dụng trong hệ thống, không thể xóa!", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Lỗi SQL khi xóa: " + sqlEx.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Lỗi khi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -124,7 +135,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtMaNCC.Text) || string.IsNullOrWhiteSpace(txtTenNCC.Text))
+                if (string.IsNullOrWhiteSpace(txtMaNCC.Texts) || string.IsNullOrWhiteSpace(txtTenNCC.Texts))
                 {
                     MessageBox.Show("Mã và Tên nhà cung cấp không được để trống.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -132,17 +143,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
                 if (isAdding)
                 {
+                    // Duplicate Validation
+                    object count = DbHelper.Scalar("SELECT COUNT(*) FROM DM_NHACUNGCAP WHERE MA_NCC = @MaNCC", DbHelper.Param("@MaNCC", txtMaNCC.Texts));
+                    if (Convert.ToInt32(count) > 0)
+                    {
+                        MessageBox.Show("Mã nhà cung cấp này đã tồn tại! Vui lòng chọn mã khác.", "Trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        txtMaNCC.Focus();
+                        return;
+                    }
+
                     string query = @"
                         INSERT INTO DM_NHACUNGCAP (MA_NCC, TEN_NCC, DIACHI_NCC, SDT, EMAIL, MSTHUE, GHICHU)
                         VALUES (@MaNCC, @TenNCC, @DiaChi, @SDT, @Email, @MST, @GhiChu)";
                     DbHelper.Execute(query,
-                        DbHelper.Param("@MaNCC", txtMaNCC.Text),
-                        DbHelper.Param("@TenNCC", txtTenNCC.Text),
-                        DbHelper.Param("@DiaChi", txtDiaChi.Text),
-                        DbHelper.Param("@SDT", txtSDT.Text),
-                        DbHelper.Param("@Email", txtEmail.Text),
-                        DbHelper.Param("@MST", txtMST.Text),
-                        DbHelper.Param("@GhiChu", txtGhiChu.Text)
+                        DbHelper.Param("@MaNCC", txtMaNCC.Texts),
+                        DbHelper.Param("@TenNCC", txtTenNCC.Texts),
+                        DbHelper.Param("@DiaChi", txtDiaChi.Texts),
+                        DbHelper.Param("@SDT", txtSDT.Texts),
+                        DbHelper.Param("@Email", txtEmail.Texts),
+                        DbHelper.Param("@MST", txtMST.Texts),
+                        DbHelper.Param("@GhiChu", txtGhiChu.Texts)
                     );
                 }
                 else
@@ -153,13 +173,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                             EMAIL = @Email, MSTHUE = @MST, GHICHU = @GhiChu
                         WHERE MA_NCC = @MaNCC";
                     DbHelper.Execute(query,
-                        DbHelper.Param("@TenNCC", txtTenNCC.Text),
-                        DbHelper.Param("@DiaChi", txtDiaChi.Text),
-                        DbHelper.Param("@SDT", txtSDT.Text),
-                        DbHelper.Param("@Email", txtEmail.Text),
-                        DbHelper.Param("@MST", txtMST.Text),
-                        DbHelper.Param("@GhiChu", txtGhiChu.Text),
-                        DbHelper.Param("@MaNCC", txtMaNCC.Text)
+                        DbHelper.Param("@TenNCC", txtTenNCC.Texts),
+                        DbHelper.Param("@DiaChi", txtDiaChi.Texts),
+                        DbHelper.Param("@SDT", txtSDT.Texts),
+                        DbHelper.Param("@Email", txtEmail.Texts),
+                        DbHelper.Param("@MST", txtMST.Texts),
+                        DbHelper.Param("@GhiChu", txtGhiChu.Texts),
+                        DbHelper.Param("@MaNCC", txtMaNCC.Texts)
                     );
                 }
                 MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -192,13 +212,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             if (!isAdding && dgvNhaCungCap.SelectedRows.Count > 0)
             {
                 var row = dgvNhaCungCap.SelectedRows[0];
-                txtMaNCC.Text = row.Cells["MA_NCC"].Value?.ToString();
-                txtTenNCC.Text = row.Cells["TEN_NCC"].Value?.ToString();
-                txtDiaChi.Text = row.Cells["DIACHI_NCC"].Value?.ToString();
-                txtSDT.Text = row.Cells["SDT"].Value?.ToString();
-                txtEmail.Text = row.Cells["EMAIL"].Value?.ToString();
-                txtMST.Text = row.Cells["MSTHUE"].Value?.ToString();
-                txtGhiChu.Text = row.Cells["GHICHU"].Value?.ToString();
+                txtMaNCC.Texts = row.Cells["MA_NCC"].Value?.ToString();
+                txtTenNCC.Texts = row.Cells["TEN_NCC"].Value?.ToString();
+                txtDiaChi.Texts = row.Cells["DIACHI_NCC"].Value?.ToString();
+                txtSDT.Texts = row.Cells["SDT"].Value?.ToString();
+                txtEmail.Texts = row.Cells["EMAIL"].Value?.ToString();
+                txtMST.Texts = row.Cells["MSTHUE"].Value?.ToString();
+                txtGhiChu.Texts = row.Cells["GHICHU"].Value?.ToString();
             }
         }
 
