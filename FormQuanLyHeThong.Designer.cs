@@ -1,4 +1,4 @@
-﻿namespace DoAnLapTrinhQuanLy.GuiLayer
+namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     partial class FormQuanLyHeThong
     {
@@ -18,7 +18,7 @@
         private void InitializeComponent()
         {
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.pnlActions = new System.Windows.Forms.Panel();
             this.btnHuy = new System.Windows.Forms.Button();
             this.btnLuu = new System.Windows.Forms.Button();
@@ -52,23 +52,23 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
-            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Controls.Add(this.lblHeaderTitle);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(884, 50);
             this.pnlHeader.TabIndex = 1;
             // 
-            // lblTitle
+            // lblHeaderTitle
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lblTitle.Location = new System.Drawing.Point(12, 13);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(205, 25);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "QUẢN LÝ HỆ THỐNG";
+            this.lblHeaderTitle.AutoSize = true;
+            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lblHeaderTitle.Location = new System.Drawing.Point(12, 13);
+            this.lblHeaderTitle.Name = "lblHeaderTitle";
+            this.lblHeaderTitle.Size = new System.Drawing.Size(205, 25);
+            this.lblHeaderTitle.TabIndex = 0;
+            this.lblHeaderTitle.Text = "QU?N L� H? TH?NG";
             // 
             // pnlActions
             // 
@@ -96,7 +96,7 @@
             this.btnHuy.Name = "btnHuy";
             this.btnHuy.Size = new System.Drawing.Size(100, 30);
             this.btnHuy.TabIndex = 4;
-            this.btnHuy.Text = "Hủy";
+            this.btnHuy.Text = "H?y";
             this.btnHuy.UseVisualStyleBackColor = false;
             this.btnHuy.Click += new System.EventHandler(this.BtnHuy_Click);
             // 
@@ -112,7 +112,7 @@
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(100, 30);
             this.btnLuu.TabIndex = 3;
-            this.btnLuu.Text = "Lưu";
+            this.btnLuu.Text = "Luu";
             this.btnLuu.UseVisualStyleBackColor = false;
             this.btnLuu.Click += new System.EventHandler(this.BtnLuu_Click);
             // 
@@ -124,7 +124,7 @@
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(75, 30);
             this.btnXoa.TabIndex = 2;
-            this.btnXoa.Text = "Xóa";
+            this.btnXoa.Text = "X�a";
             this.btnXoa.UseVisualStyleBackColor = true;
             this.btnXoa.Click += new System.EventHandler(this.BtnXoa_Click);
             // 
@@ -136,7 +136,7 @@
             this.btnSua.Name = "btnSua";
             this.btnSua.Size = new System.Drawing.Size(75, 30);
             this.btnSua.TabIndex = 1;
-            this.btnSua.Text = "Sửa";
+            this.btnSua.Text = "S?a";
             this.btnSua.UseVisualStyleBackColor = true;
             this.btnSua.Click += new System.EventHandler(this.BtnSua_Click);
             // 
@@ -148,7 +148,7 @@
             this.btnThem.Name = "btnThem";
             this.btnThem.Size = new System.Drawing.Size(75, 30);
             this.btnThem.TabIndex = 0;
-            this.btnThem.Text = "Thêm";
+            this.btnThem.Text = "Th�m";
             this.btnThem.UseVisualStyleBackColor = true;
             this.btnThem.Click += new System.EventHandler(this.BtnThem_Click);
             // 
@@ -226,7 +226,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Tài khoản:";
+            this.label1.Text = "T�i kho?n:";
             // 
             // txtTaiKhoan
             // 
@@ -245,7 +245,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(42, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Họ tên:";
+            this.label2.Text = "H? t�n:";
             // 
             // txtHoTen
             // 
@@ -264,14 +264,14 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(55, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Mật khẩu:";
+            this.label3.Text = "M?t kh?u:";
             // 
             // txtMatKhau
             // 
             this.txtMatKhau.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtMatKhau.Location = new System.Drawing.Point(113, 87);
             this.txtMatKhau.Name = "txtMatKhau";
-            this.txtMatKhau.PasswordChar = '●';
+            this.txtMatKhau.PasswordChar = '?';
             this.txtMatKhau.Size = new System.Drawing.Size(304, 20);
             this.txtMatKhau.TabIndex = 5;
             // 
@@ -284,7 +284,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(41, 13);
             this.label5.TabIndex = 8;
-            this.label5.Text = "Quyền:";
+            this.label5.Text = "Quy?n:";
             // 
             // cboQuyen
             // 
@@ -305,7 +305,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(82, 13);
             this.label4.TabIndex = 6;
-            this.label4.Text = "Gán nhân viên:";
+            this.label4.Text = "G�n nh�n vi�n:";
             // 
             // cboNhanVien
             // 
@@ -326,7 +326,7 @@
             this.chkHoatDong.Name = "chkHoatDong";
             this.chkHoatDong.Size = new System.Drawing.Size(77, 17);
             this.chkHoatDong.TabIndex = 12;
-            this.chkHoatDong.Text = "Hoạt động";
+            this.chkHoatDong.Text = "Ho?t d?ng";
             this.chkHoatDong.UseVisualStyleBackColor = true;
             // 
             // FormQuanLyHeThong
@@ -340,7 +340,7 @@
             this.Controls.Add(this.pnlHeader);
             this.MinimumSize = new System.Drawing.Size(800, 500);
             this.Name = "FormQuanLyHeThong";
-            this.Text = "Quản Lý Hệ Thống";
+            this.Text = "Qu?n L� H? Th?ng";
             this.Load += new System.EventHandler(this.FormQuanLyHeThong_Load);
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
@@ -359,7 +359,7 @@
         #endregion
 
         private System.Windows.Forms.Panel pnlHeader;
-        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblHeaderTitle;
         private System.Windows.Forms.Panel pnlActions;
         private System.Windows.Forms.Button btnThem;
         private System.Windows.Forms.Button btnSua;

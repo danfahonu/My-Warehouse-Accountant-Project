@@ -18,7 +18,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void InitializeComponent()
         {
             this.pnlHeader = new DoAnLapTrinhQuanLy.Controls.ModernPanel();
-            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.pnlActions = new DoAnLapTrinhQuanLy.Controls.ModernPanel();
             this.btnHuy = new DoAnLapTrinhQuanLy.Controls.ModernButton();
             this.btnLuu = new DoAnLapTrinhQuanLy.Controls.ModernButton();
@@ -53,7 +53,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.Transparent;
             this.pnlHeader.BorderRadius = 30;
-            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Controls.Add(this.lblHeaderTitle);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.ForeColor = System.Drawing.Color.Black;
             this.pnlHeader.GradientAngle = 90F;
@@ -65,17 +65,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.pnlHeader.Size = new System.Drawing.Size(1326, 77);
             this.pnlHeader.TabIndex = 0;
             // 
-            // lblTitle
+            // lblHeaderTitle
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lblTitle.Location = new System.Drawing.Point(18, 20);
-            this.lblTitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(406, 40);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "DANH MỤC NHÀ CUNG CẤP";
+            this.lblHeaderTitle.AutoSize = true;
+            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lblHeaderTitle.Location = new System.Drawing.Point(18, 20);
+            this.lblHeaderTitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblHeaderTitle.Name = "lblHeaderTitle";
+            this.lblHeaderTitle.Size = new System.Drawing.Size(406, 40);
+            this.lblHeaderTitle.TabIndex = 0;
+            this.lblHeaderTitle.Text = "DANH MỤC NHÀ CUNG CẤP";
             // 
             // pnlActions
             // 
@@ -541,7 +541,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         #endregion
 
         private DoAnLapTrinhQuanLy.Controls.ModernPanel pnlHeader;
-        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblHeaderTitle;
         private DoAnLapTrinhQuanLy.Controls.ModernPanel pnlActions;
         private DoAnLapTrinhQuanLy.Controls.ModernButton btnThem;
         private DoAnLapTrinhQuanLy.Controls.ModernButton btnSua;

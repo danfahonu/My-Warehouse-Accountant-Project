@@ -1,4 +1,4 @@
-Ôªønamespace DoAnLapTrinhQuanLy.GuiLayer
+namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     partial class FormQuanLyTaiKhoanNganHang
     {
@@ -18,7 +18,7 @@
         private void InitializeComponent()
         {
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.pnlActions = new System.Windows.Forms.Panel();
             this.btnHuy = new System.Windows.Forms.Button();
             this.btnLuu = new System.Windows.Forms.Button();
@@ -48,23 +48,23 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
-            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Controls.Add(this.lblHeaderTitle);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(884, 50);
             this.pnlHeader.TabIndex = 0;
             // 
-            // lblTitle
+            // lblHeaderTitle
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lblTitle.Location = new System.Drawing.Point(12, 13);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(328, 25);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "QU·∫¢N L√ù T√ÄI KHO·∫¢N NG√ÇN H√ÄNG";
+            this.lblHeaderTitle.AutoSize = true;
+            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lblHeaderTitle.Location = new System.Drawing.Point(12, 13);
+            this.lblHeaderTitle.Name = "lblHeaderTitle";
+            this.lblHeaderTitle.Size = new System.Drawing.Size(328, 25);
+            this.lblHeaderTitle.TabIndex = 0;
+            this.lblHeaderTitle.Text = "QU?N L› T¿I KHO?N NG¬N H¿NG";
             // 
             // pnlActions
             // 
@@ -92,7 +92,7 @@
             this.btnHuy.Name = "btnHuy";
             this.btnHuy.Size = new System.Drawing.Size(100, 30);
             this.btnHuy.TabIndex = 4;
-            this.btnHuy.Text = "H·ªßy";
+            this.btnHuy.Text = "H?y";
             this.btnHuy.UseVisualStyleBackColor = false;
             this.btnHuy.Click += new System.EventHandler(this.btnHuy_Click);
             // 
@@ -108,7 +108,7 @@
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(100, 30);
             this.btnLuu.TabIndex = 3;
-            this.btnLuu.Text = "L∆∞u";
+            this.btnLuu.Text = "Luu";
             this.btnLuu.UseVisualStyleBackColor = false;
             this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
             // 
@@ -120,7 +120,7 @@
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(75, 30);
             this.btnXoa.TabIndex = 2;
-            this.btnXoa.Text = "X√≥a";
+            this.btnXoa.Text = "XÛa";
             this.btnXoa.UseVisualStyleBackColor = true;
             this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
             // 
@@ -132,7 +132,7 @@
             this.btnSua.Name = "btnSua";
             this.btnSua.Size = new System.Drawing.Size(75, 30);
             this.btnSua.TabIndex = 1;
-            this.btnSua.Text = "S·ª≠a";
+            this.btnSua.Text = "S?a";
             this.btnSua.UseVisualStyleBackColor = true;
             this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
             // 
@@ -144,7 +144,7 @@
             this.btnThem.Name = "btnThem";
             this.btnThem.Size = new System.Drawing.Size(75, 30);
             this.btnThem.TabIndex = 0;
-            this.btnThem.Text = "Th√™m";
+            this.btnThem.Text = "ThÍm";
             this.btnThem.UseVisualStyleBackColor = true;
             this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
             // 
@@ -207,7 +207,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(68, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "S·ªë t√†i kho·∫£n:";
+            this.label1.Text = "S? t‡i kho?n:";
             // 
             // txtSoTK
             // 
@@ -226,7 +226,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(63, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Ng√¢n h√†ng:";
+            this.label3.Text = "Ng‚n h‡ng:";
             // 
             // cboNganHang
             // 
@@ -246,7 +246,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(76, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Ch·ªß t√†i kho·∫£n:";
+            this.label2.Text = "Ch? t‡i kho?n:";
             // 
             // txtChuTK
             // 
@@ -265,7 +265,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(56, 13);
             this.label4.TabIndex = 6;
-            this.label4.Text = "ƒê·ªëi t∆∞·ª£ng:";
+            this.label4.Text = "–?i tu?ng:";
             // 
             // cboDoiTuong
             // 
@@ -286,7 +286,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(77, 13);
             this.label6.TabIndex = 10;
-            this.label6.Text = "Lo·∫°i t√†i kho·∫£n:";
+            this.label6.Text = "Lo?i t‡i kho?n:";
             // 
             // cboLoaiTK
             // 
@@ -294,8 +294,8 @@
             this.cboLoaiTK.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboLoaiTK.FormattingEnabled = true;
             this.cboLoaiTK.Items.AddRange(new object[] {
-            "C√¥ng ty",
-            "Nh√† cung c·∫•p"});
+            "CÙng ty",
+            "Nh‡ cung c?p"});
             this.cboLoaiTK.Location = new System.Drawing.Point(545, 44);
             this.cboLoaiTK.Name = "cboLoaiTK";
             this.cboLoaiTK.Size = new System.Drawing.Size(321, 21);
@@ -311,7 +311,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(47, 13);
             this.label5.TabIndex = 8;
-            this.label5.Text = "Ghi ch√∫:";
+            this.label5.Text = "Ghi ch˙:";
             // 
             // txtGhiChu
             // 
@@ -334,7 +334,7 @@
             this.Controls.Add(this.pnlHeader);
             this.MinimumSize = new System.Drawing.Size(800, 500);
             this.Name = "FormQuanLyTaiKhoanNganHang";
-            this.Text = "Qu·∫£n L√Ω T√†i Kho·∫£n Ng√¢n H√†ng";
+            this.Text = "Qu?n L˝ T‡i Kho?n Ng‚n H‡ng";
             this.Load += new System.EventHandler(this.FormQuanLyTaiKhoanNganHang_Load);
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
@@ -348,7 +348,7 @@
         #endregion
 
         private System.Windows.Forms.Panel pnlHeader;
-        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblHeaderTitle;
         private System.Windows.Forms.Panel pnlActions;
         private System.Windows.Forms.Button btnThem;
         private System.Windows.Forms.Button btnSua;

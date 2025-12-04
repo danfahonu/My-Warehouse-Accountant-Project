@@ -1,4 +1,4 @@
-Ôªønamespace DoAnLapTrinhQuanLy.GuiLayer
+namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     partial class FormBaoCaoQuy
     {
@@ -18,7 +18,7 @@
         private void InitializeComponent()
         {
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.pnlFilters = new System.Windows.Forms.Panel();
             this.btnXemBaoCao = new System.Windows.Forms.Button();
             this.dtpDenNgay = new System.Windows.Forms.DateTimePicker();
@@ -44,23 +44,23 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
-            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Controls.Add(this.lblHeaderTitle);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(884, 50);
             this.pnlHeader.TabIndex = 1;
             // 
-            // lblTitle
+            // lblHeaderTitle
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lblTitle.Location = new System.Drawing.Point(12, 13);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(211, 25);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "B√ÅO C√ÅO S? K? TO√ÅN QU?";
+            this.lblHeaderTitle.AutoSize = true;
+            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold);
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lblHeaderTitle.Location = new System.Drawing.Point(12, 13);
+            this.lblHeaderTitle.Name = "lblHeaderTitle";
+            this.lblHeaderTitle.Size = new System.Drawing.Size(211, 25);
+            this.lblHeaderTitle.TabIndex = 0;
+            this.lblHeaderTitle.Text = "B¡O C¡O S? K? TO¡N QU?";
             // 
             // pnlFilters
             // 
@@ -87,7 +87,7 @@
             this.btnXemBaoCao.Name = "btnXemBaoCao";
             this.btnXemBaoCao.Size = new System.Drawing.Size(120, 30);
             this.btnXemBaoCao.TabIndex = 4;
-            this.btnXemBaoCao.Text = "Xem B√°o C√°o";
+            this.btnXemBaoCao.Text = "Xem B·o C·o";
             this.btnXemBaoCao.UseVisualStyleBackColor = false;
             this.btnXemBaoCao.Click += new System.EventHandler(this.BtnXemBaoCao_Click);
             // 
@@ -107,7 +107,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(56, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "√ê?n ng√†y:";
+            this.label2.Text = "–?n ng‡y:";
             // 
             // dtpTuNgay
             // 
@@ -125,7 +125,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(49, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "T? ng√†y:";
+            this.label1.Text = "T? ng‡y:";
             // 
             // dgvBaoCao
             // 
@@ -159,7 +159,7 @@
             this.panel1.TabIndex = 4;
             // 
             // lblTonCuoi
-            // ... (Code cho c√°c label n√†y)
+            // ... (Code cho c·c label n‡y)
             //
             // FormBaoCaoQuy
             // 
@@ -173,7 +173,7 @@
             this.Controls.Add(this.pnlHeader);
             this.MinimumSize = new System.Drawing.Size(800, 500);
             this.Name = "FormBaoCaoQuy";
-            this.Text = "B√°o C√°o Qu? Ti?n M?t";
+            this.Text = "B·o C·o Qu? Ti?n M?t";
             this.Load += new System.EventHandler(this.FormBaoCaoQuy_Load);
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
@@ -188,7 +188,7 @@
         #endregion
 
         private System.Windows.Forms.Panel pnlHeader;
-        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblHeaderTitle;
         private System.Windows.Forms.Panel pnlFilters;
         private System.Windows.Forms.Button btnXemBaoCao;
         private System.Windows.Forms.DataGridView dgvBaoCao;

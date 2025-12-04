@@ -280,7 +280,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormNhanVien.Designer.cs">
-      <DependentUpon>FormNhanVien.cs</DependentUpon>
     </Compile>
     <Compile Include="FormNhomHang.cs">
       <SubType>Form</SubType>
@@ -305,6 +304,9 @@
     </Compile>
     <Compile Include="FormPhieuXuat.Designer.cs">
       <DependentUpon>FormPhieuXuat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormTimKiemHangHoa.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormQuanLyHeThong.cs">
       <SubType>Form</SubType>
@@ -423,42 +425,11 @@
       <DependentUpon>FormDanhMucHangHoa.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormDoiMatKhau.resx">
-      <DependentUpon>FormDoiMatKhau.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormHeThongTaiKhoanKeToan.resx">
-      <DependentUpon>FormHeThongTaiKhoanKeToan.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormInPhieu.resx">
-      <DependentUpon>FormInPhieu.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormKhachHang.resx">
-      <DependentUpon>FormKhachHang.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormNganHang.resx">
-      <DependentUpon>FormNganHang.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormNhaCungCap.resx">
-      <DependentUpon>FormNhaCungCap.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormNhanVien.resx">
       <DependentUpon>FormNhanVien.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormNhomHang.resx">
-      <DependentUpon>FormNhomHang.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormPhieuChi.resx">
-      <DependentUpon>FormPhieuChi.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormPhieuNhap.resx">
-      <DependentUpon>FormPhieuNhap.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormPhieuXuat.resx">
-      <DependentUpon>FormPhieuXuat.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FormTamUngChamCong.resx">
-      <DependentUpon>FormTamUngChamCong.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
@@ -468,6 +439,12 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="FormPhieuNhap.resx">
+      <DependentUpon>FormPhieuNhap.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormPhieuXuat.resx">
+      <DependentUpon>FormPhieuXuat.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

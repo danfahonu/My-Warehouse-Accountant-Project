@@ -1,4 +1,4 @@
-﻿// Đổi namespace này cho khớp với project của bà (ví dụ: StoreGearVN.GuiLayer)
+// �?i namespace n�y cho kh?p v?i project c?a b� (v� d?: StoreGearVN.GuiLayer)
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     partial class FormYeuCauNhapKho
@@ -33,7 +33,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.pnlActions = new System.Windows.Forms.Panel();
             this.btnDuyet = new System.Windows.Forms.Button();
             this.btnTuChoi = new System.Windows.Forms.Button();
@@ -79,25 +79,25 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
-            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Controls.Add(this.lblHeaderTitle);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(1284, 50);
             this.pnlHeader.TabIndex = 0;
             // 
-            // lblTitle
+            // lblHeaderTitle
             // 
-            this.lblTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.lblHeaderTitle.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTitle.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lblTitle.Location = new System.Drawing.Point(12, 12);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(254, 25);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "QUẢN LÝ YÊU CẦU NHẬP KHO";
+            this.lblHeaderTitle.AutoSize = true;
+            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lblHeaderTitle.Location = new System.Drawing.Point(12, 12);
+            this.lblHeaderTitle.Name = "lblHeaderTitle";
+            this.lblHeaderTitle.Size = new System.Drawing.Size(254, 25);
+            this.lblHeaderTitle.TabIndex = 0;
+            this.lblHeaderTitle.Text = "QU?N L� Y�U C?U NH?P KHO";
             // 
             // pnlActions
             // 
@@ -124,7 +124,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnDuyet.Name = "btnDuyet";
             this.btnDuyet.Size = new System.Drawing.Size(100, 30);
             this.btnDuyet.TabIndex = 6;
-            this.btnDuyet.Text = "Duyệt";
+            this.btnDuyet.Text = "Duy?t";
             this.btnDuyet.UseVisualStyleBackColor = true;
             // 
             // btnTuChoi
@@ -136,7 +136,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnTuChoi.Name = "btnTuChoi";
             this.btnTuChoi.Size = new System.Drawing.Size(100, 30);
             this.btnTuChoi.TabIndex = 5;
-            this.btnTuChoi.Text = "Từ chối";
+            this.btnTuChoi.Text = "T? ch?i";
             this.btnTuChoi.UseVisualStyleBackColor = true;
             // 
             // btnHuy
@@ -149,7 +149,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnHuy.Name = "btnHuy";
             this.btnHuy.Size = new System.Drawing.Size(100, 30);
             this.btnHuy.TabIndex = 4;
-            this.btnHuy.Text = "Hủy";
+            this.btnHuy.Text = "H?y";
             this.btnHuy.UseVisualStyleBackColor = false;
             // 
             // btnLuu
@@ -162,7 +162,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(100, 30);
             this.btnLuu.TabIndex = 3;
-            this.btnLuu.Text = "Lưu";
+            this.btnLuu.Text = "Luu";
             this.btnLuu.UseVisualStyleBackColor = false;
             // 
             // btnXoa
@@ -173,7 +173,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnXoa.Name = "btnXoa";
             this.btnXoa.Size = new System.Drawing.Size(100, 30);
             this.btnXoa.TabIndex = 2;
-            this.btnXoa.Text = "Xóa";
+            this.btnXoa.Text = "X�a";
             this.btnXoa.UseVisualStyleBackColor = true;
             // 
             // btnSua
@@ -184,7 +184,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnSua.Name = "btnSua";
             this.btnSua.Size = new System.Drawing.Size(100, 30);
             this.btnSua.TabIndex = 1;
-            this.btnSua.Text = "Sửa";
+            this.btnSua.Text = "S?a";
             this.btnSua.UseVisualStyleBackColor = true;
             // 
             // btnThem
@@ -195,7 +195,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnThem.Name = "btnThem";
             this.btnThem.Size = new System.Drawing.Size(100, 30);
             this.btnThem.TabIndex = 0;
-            this.btnThem.Text = "Thêm";
+            this.btnThem.Text = "Th�m";
             this.btnThem.UseVisualStyleBackColor = true;
             // 
             // tlpMain
@@ -224,7 +224,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.gbDanhSach.Size = new System.Drawing.Size(443, 555);
             this.gbDanhSach.TabIndex = 0;
             this.gbDanhSach.TabStop = false;
-            this.gbDanhSach.Text = "Danh sách Phiếu yêu cầu";
+            this.gbDanhSach.Text = "Danh s�ch Phi?u y�u c?u";
             // 
             // dgvDanhSach
             // 
@@ -270,7 +270,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.gbChiTiet.Size = new System.Drawing.Size(829, 315);
             this.gbChiTiet.TabIndex = 1;
             this.gbChiTiet.TabStop = false;
-            this.gbChiTiet.Text = "Chi tiết Hàng hóa Yêu cầu";
+            this.gbChiTiet.Text = "Chi ti?t H�ng h�a Y�u c?u";
             // 
             // dgvChiTiet
             // 
@@ -308,7 +308,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.gbThongTin.Size = new System.Drawing.Size(829, 240);
             this.gbThongTin.TabIndex = 0;
             this.gbThongTin.TabStop = false;
-            this.gbThongTin.Text = "Thông tin Phiếu";
+            this.gbThongTin.Text = "Th�ng tin Phi?u";
             // 
             // txtGhiChuDuyet
             // 
@@ -327,7 +327,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(79, 13);
             this.label8.TabIndex = 14;
-            this.label8.Text = "Ghi chú duyệt:";
+            this.label8.Text = "Ghi ch� duy?t:";
             // 
             // cboNhanVienDuyet
             // 
@@ -346,7 +346,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(65, 13);
             this.label7.TabIndex = 12;
-            this.label7.Text = "Người duyệt:";
+            this.label7.Text = "Ngu?i duy?t:";
             // 
             // dtpNgayDuyet
             // 
@@ -363,7 +363,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(65, 13);
             this.label6.TabIndex = 10;
-            this.label6.Text = "Ngày duyệt:";
+            this.label6.Text = "Ng�y duy?t:";
             // 
             // cboTrangThai
             // 
@@ -380,7 +380,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(58, 13);
             this.label5.TabIndex = 8;
-            this.label5.Text = "Trạng thái:";
+            this.label5.Text = "Tr?ng th�i:";
             // 
             // txtLyDo
             // 
@@ -399,7 +399,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(36, 13);
             this.label4.TabIndex = 6;
-            this.label4.Text = "Lý do:";
+            this.label4.Text = "L� do:";
             // 
             // cboNhanVienYeuCau
             // 
@@ -418,7 +418,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(82, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Người yêu cầu:";
+            this.label3.Text = "Ngu?i y�u c?u:";
             // 
             // dtpNgayYeuCau
             // 
@@ -437,7 +437,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(77, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Ngày yêu cầu:";
+            this.label2.Text = "Ng�y y�u c?u:";
             // 
             // txtID
             // 
@@ -454,7 +454,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(52, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Số phiếu:";
+            this.label1.Text = "S? phi?u:";
             // 
             // FormYeuCauNhapKho
             // 
@@ -466,7 +466,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.Controls.Add(this.pnlActions);
             this.Controls.Add(this.pnlHeader);
             this.Name = "FormYeuCauNhapKho";
-            this.Text = "Quản lý Yêu cầu Nhập kho";
+            this.Text = "Qu?n l� Y�u c?u Nh?p kho";
             this.Load += new System.EventHandler(this.FormYeuCauNhapKho_Load);
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
@@ -486,7 +486,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         #endregion
 
         private System.Windows.Forms.Panel pnlHeader;
-        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblHeaderTitle;
         private System.Windows.Forms.Panel pnlActions;
         private System.Windows.Forms.Button btnHuy;
         private System.Windows.Forms.Button btnLuu;

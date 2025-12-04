@@ -10,306 +10,521 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     public partial class FormPhieuXuat : BaseForm
     {
-        private long currentSoPhieu = -1;
-        private bool isAdding = false;
+        private DataTable _dtHangHoa;
 
         public FormPhieuXuat()
         {
             InitializeComponent();
-            UseCustomTitleBar = false;
 
-            // Initialization logic
-            LoadComboBoxKhachHang();
-            SetupDataGridViewComboBox();
-            ClearInputs();
+            // Designer Fix: Only apply runtime layout changes if NOT in Design Mode
+            if (!this.DesignMode)
+            {
+                this.Padding = new Padding(0, 40, 0, 0); // Adjust for TitleBar
+            }
         }
 
         private void FormPhieuXuat_Load(object sender, EventArgs e)
         {
-            SetInputMode(false);
+            // Apply Standard Dark Theme
+            ApplyTheme();
+
+            // Ensure TitleBar is visible and at the top
+            if (this.pnlTitleBar != null)
+            {
+                this.pnlTitleBar.BringToFront();
+            }
+
+            LoadKhachHang();
+            LoadHangHoa();
+            ClearInputs();
+            StyleDataGridView();
         }
 
-        #region Xử lý dữ liệu và ComboBox
+        private void ApplyTheme()
+        {
+            // Form Background
+            this.BackColor = ColorTranslator.FromHtml("#0F1626");
 
-        private void LoadComboBoxKhachHang()
+            // Panels
+            Color panelColor = ColorTranslator.FromHtml("#1A2238");
+            if (this.pnlHeader != null) this.pnlHeader.BackColor = panelColor;
+            if (this.pnlInput != null) this.pnlInput.BackColor = panelColor;
+            if (this.pnlFooter != null) this.pnlFooter.BackColor = panelColor;
+
+            // Labels
+            Color textColor = Color.Gainsboro;
+            if (this.lblHeaderTitle != null) this.lblHeaderTitle.ForeColor = Color.White;
+            if (this.lblTongTien != null) this.lblTongTien.ForeColor = textColor;
+            if (this.label7 != null) this.label7.ForeColor = textColor;
+            if (this.chkThanhToan != null) this.chkThanhToan.ForeColor = textColor;
+
+            foreach (Control c in this.tableLayoutPanel1.Controls)
+            {
+                if (c is Label lbl) lbl.ForeColor = textColor;
+            }
+
+            // Inputs (TextBox, ComboBox, DateTimePicker)
+            Color inputBack = ColorTranslator.FromHtml("#1F2940");
+            Color inputFore = Color.White;
+
+            foreach (Control c in this.tableLayoutPanel1.Controls)
+            {
+                if (c is TextBox txt)
+                {
+                    txt.BackColor = inputBack;
+                    txt.ForeColor = inputFore;
+                    txt.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else if (c is ComboBox cbo)
+                {
+                    cbo.BackColor = inputBack;
+                    cbo.ForeColor = inputFore;
+                    cbo.FlatStyle = FlatStyle.Flat;
+                }
+                else if (c is DateTimePicker dtp)
+                {
+                    dtp.CalendarMonthBackground = inputBack;
+                    dtp.CalendarForeColor = inputFore;
+                }
+            }
+
+            // Buttons
+            StyleButton(btnThem, Color.DodgerBlue);
+            StyleButton(btnLuu, Color.SeaGreen);
+            StyleButton(btnIn, Color.MediumSlateBlue);
+            StyleButton(btnHuy, Color.DimGray);
+        }
+
+        private void StyleButton(Button btn, Color backColor)
+        {
+            if (btn == null) return;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.BackColor = backColor;
+            btn.ForeColor = Color.White;
+            btn.Cursor = Cursors.Hand;
+        }
+
+        private void StyleDataGridView()
+        {
+            dgvPhieuXuat.BackgroundColor = ColorTranslator.FromHtml("#0F1626");
+            dgvPhieuXuat.GridColor = ColorTranslator.FromHtml("#2D3B55");
+            dgvPhieuXuat.BorderStyle = BorderStyle.None;
+            dgvPhieuXuat.EnableHeadersVisualStyles = false;
+
+            // Header Style
+            dgvPhieuXuat.ColumnHeadersDefaultCellStyle.BackColor = ColorTranslator.FromHtml("#1A2238");
+            dgvPhieuXuat.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvPhieuXuat.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dgvPhieuXuat.ColumnHeadersHeight = 35;
+
+            // Row Style
+            dgvPhieuXuat.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#0F1626");
+            dgvPhieuXuat.DefaultCellStyle.ForeColor = Color.White;
+            dgvPhieuXuat.DefaultCellStyle.Font = new Font("Segoe UI", 10);
+            dgvPhieuXuat.DefaultCellStyle.SelectionBackColor = ColorTranslator.FromHtml("#2D3B55");
+            dgvPhieuXuat.DefaultCellStyle.SelectionForeColor = Color.White;
+            dgvPhieuXuat.RowTemplate.Height = 30;
+
+            dgvPhieuXuat.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            // Format Currency Columns
+            if (dgvPhieuXuat.Columns.Contains("DONGIA"))
+            {
+                dgvPhieuXuat.Columns["DONGIA"].DefaultCellStyle.Format = "N0";
+                dgvPhieuXuat.Columns["DONGIA"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            }
+
+            if (dgvPhieuXuat.Columns.Contains("THANHTIEN"))
+            {
+                dgvPhieuXuat.Columns["THANHTIEN"].DefaultCellStyle.Format = "N0";
+                dgvPhieuXuat.Columns["THANHTIEN"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            }
+
+            // Format Quantity Column
+            if (dgvPhieuXuat.Columns.Contains("SL"))
+            {
+                dgvPhieuXuat.Columns["SL"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+        }
+
+        private void LoadKhachHang()
         {
             try
             {
-                string query = "SELECT MAKH, TENKH FROM DANHMUCKHACHHANG";
-                DataTable dt = DbHelper.Query(query);
+                DataTable dt = DbHelper.Query("SELECT MAKH, TENKH FROM DANHMUCKHACHHANG");
                 cboKhachHang.DataSource = dt;
                 cboKhachHang.DisplayMember = "TENKH";
                 cboKhachHang.ValueMember = "MAKH";
+                cboKhachHang.SelectedIndex = -1;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải danh sách khách hàng: " + ex.Message);
+                MessageBox.Show("Lỗi tải khách hàng: " + ex.Message);
             }
         }
 
-        private void SetupDataGridViewComboBox()
+        private void LoadHangHoa()
         {
             try
             {
-                // Remove existing text column if it exists (auto-generated or from designer)
-                if (dgvPhieuXuat.Columns.Contains("MAHH"))
+                // Load GIAVON for reference, but FIFO will calculate real COGS
+                _dtHangHoa = DbHelper.Query("SELECT MAHH, TENHH, DVT, GIABAN, GIAVON, TONKHO FROM DM_HANGHOA");
+
+                // Setup ComboBox Column
+                DataGridViewComboBoxColumn colMAHH = dgvPhieuXuat.Columns["MAHH"] as DataGridViewComboBoxColumn;
+
+                if (colMAHH != null)
                 {
-                    dgvPhieuXuat.Columns.Remove("MAHH");
+                    colMAHH.DataSource = _dtHangHoa;
+                    colMAHH.DisplayMember = "TENHH";
+                    colMAHH.ValueMember = "MAHH";
                 }
-
-                DataGridViewComboBoxColumn cmbCol = new DataGridViewComboBoxColumn();
-                cmbCol.HeaderText = "Hàng Hóa";
-                cmbCol.Name = "MAHH";
-                cmbCol.DataPropertyName = "MAHH"; // Bind to DataTable column if bound, or use as value holder
-
-                string query = "SELECT MAHH, TENHH FROM DM_HANGHOA WHERE ACTIVE = 1";
-                DataTable dt = DbHelper.Query(query);
-
-                cmbCol.DataSource = dt;
-                cmbCol.DisplayMember = "TENHH";
-                cmbCol.ValueMember = "MAHH";
-                cmbCol.Width = 200;
-                cmbCol.AutoComplete = true;
-
-                // Add to grid at first position
-                dgvPhieuXuat.Columns.Insert(0, cmbCol);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải danh sách hàng hóa: " + ex.Message);
+                MessageBox.Show("Lỗi tải hàng hóa: " + ex.Message);
             }
         }
 
         private void ClearInputs()
         {
-            txtSoPhieu.Texts = "(Phiếu mới)";
+            txtSoPhieu.Text = "";
             dtpNgayLap.Value = DateTime.Now;
             cboKhachHang.SelectedIndex = -1;
-            txtGhiChu.Texts = "";
+            txtGhiChu.Text = "";
             dgvPhieuXuat.Rows.Clear();
             lblTongTien.Text = "0";
-            currentSoPhieu = -1;
-        }
 
-        #endregion
+            // Button States
+            btnLuu.Enabled = true;
+            btnThem.Enabled = false;
+            if (btnIn != null) btnIn.Enabled = false;
 
-        #region Quản lý trạng thái giao diện (UX)
-
-        private void SetInputMode(bool enable)
-        {
-            dtpNgayLap.Enabled = enable;
-            cboKhachHang.Enabled = enable;
-            txtGhiChu.ReadOnly = !enable;
-            dgvPhieuXuat.ReadOnly = !enable;
-
-            btnLuu.Enabled = enable;
-            btnHuy.Enabled = enable;
-            btnThem.Enabled = !enable;
-            btnGhiSo.Enabled = !enable && currentSoPhieu != -1;
-        }
-
-        #endregion
-
-        #region Sự kiện
-
-        public void BtnThem_Click(object sender, EventArgs e)
-        {
-            isAdding = true;
-            ClearInputs();
-            SetInputMode(true);
+            // Focus
             cboKhachHang.Focus();
         }
 
-        public void BtnLuu_Click(object sender, EventArgs e)
+        // --- Smart ComboBox Logic ---
+        private void DgvPhieuXuat_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            var colMAHH = dgvPhieuXuat.Columns["MAHH"];
+            if (colMAHH != null && dgvPhieuXuat.CurrentCell.ColumnIndex == colMAHH.Index && e.Control is ComboBox comboBox)
+            {
+                comboBox.DropDownStyle = ComboBoxStyle.DropDown;
+                comboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                comboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
+            }
+        }
+
+        private void DgvPhieuXuat_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var colMAHH = dgvPhieuXuat.Columns["MAHH"];
+            var colDONGIA = dgvPhieuXuat.Columns["DONGIA"];
+            var colSL = dgvPhieuXuat.Columns["SL"];
+            var colTHANHTIEN = dgvPhieuXuat.Columns["THANHTIEN"];
+
+            // When Product changes -> Auto-fill Unit and Price
+            if (colMAHH != null && e.ColumnIndex == colMAHH.Index)
+            {
+                var maHH = dgvPhieuXuat.Rows[e.RowIndex].Cells[colMAHH.Index].Value?.ToString();
+                if (!string.IsNullOrEmpty(maHH))
+                {
+                    DataRow[] rows = _dtHangHoa.Select($"MAHH = '{maHH}'");
+                    if (rows.Length > 0)
+                    {
+                        // Default price is Selling Price (GIABAN)
+                        if (colDONGIA != null) dgvPhieuXuat.Rows[e.RowIndex].Cells[colDONGIA.Index].Value = rows[0]["GIABAN"];
+
+                        // Default SL = 1
+                        if (colSL != null)
+                        {
+                            var currentSL = dgvPhieuXuat.Rows[e.RowIndex].Cells[colSL.Index].Value;
+                            if (currentSL == null || Convert.ToDecimal(currentSL) == 0)
+                            {
+                                dgvPhieuXuat.Rows[e.RowIndex].Cells[colSL.Index].Value = 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Calculate Total Amount
+            CalculateRowAmount(e.RowIndex);
+            CalculateTotal();
+        }
+
+        private void CalculateRowAmount(int rowIndex)
         {
             try
             {
-                if (cboKhachHang.SelectedValue == null)
+                var colSL = dgvPhieuXuat.Columns["SL"];
+                var colDONGIA = dgvPhieuXuat.Columns["DONGIA"];
+                var colTHANHTIEN = dgvPhieuXuat.Columns["THANHTIEN"];
+
+                if (colSL == null || colDONGIA == null || colTHANHTIEN == null) return;
+
+                var cellSL = dgvPhieuXuat.Rows[rowIndex].Cells[colSL.Index].Value;
+                var cellDonGia = dgvPhieuXuat.Rows[rowIndex].Cells[colDONGIA.Index].Value;
+
+                if (cellSL != null && cellDonGia != null)
                 {
-                    MessageBox.Show("Vui lòng chọn khách hàng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    decimal sl = Convert.ToDecimal(cellSL);
+                    decimal donGia = Convert.ToDecimal(cellDonGia);
+                    dgvPhieuXuat.Rows[rowIndex].Cells[colTHANHTIEN.Index].Value = sl * donGia;
                 }
+            }
+            catch { /* Ignore parsing errors */ }
+        }
 
-                // 1. Validate Stock Availability BEFORE Save
-                foreach (DataGridViewRow row in dgvPhieuXuat.Rows)
+        private void CalculateTotal()
+        {
+            decimal total = 0;
+            var colTHANHTIEN = dgvPhieuXuat.Columns["THANHTIEN"];
+
+            if (colTHANHTIEN == null) return;
+
+            foreach (DataGridViewRow row in dgvPhieuXuat.Rows)
+            {
+                if (row.Cells[colTHANHTIEN.Index].Value != null)
                 {
-                    if (row.IsNewRow) continue;
-                    string maHH = row.Cells["MAHH"].Value?.ToString();
-                    if (string.IsNullOrEmpty(maHH)) continue;
-
-                    int soLuongXuat = Convert.ToInt32(row.Cells["SL"].Value);
-
-                    // Check current stock
-                    object result = DbHelper.Scalar("SELECT TONKHO FROM DM_HANGHOA WHERE MAHH = @MAHH", DbHelper.Param("@MAHH", maHH));
-                    int currentStock = result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
-
-                    if (soLuongXuat > currentStock)
-                    {
-                        MessageBox.Show($"Hàng hóa '{maHH}' không đủ tồn kho! Hiện tại còn: {currentStock}, Xuất: {soLuongXuat}", "Lỗi Tồn Kho", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return; // Stop save
-                    }
+                    total += Convert.ToDecimal(row.Cells[colTHANHTIEN.Index].Value);
                 }
+            }
+            lblTongTien.Text = total.ToString("N0");
+        }
 
+        // --- FIFO LOGIC IMPLEMENTATION ---
+        private decimal CalculateCOGS_FIFO(string maHH, int slCanXuat)
+        {
+            decimal totalCOGS = 0;
+            int remainingQty = slCanXuat;
+
+            // 1. Get batches with stock > 0, ordered by Oldest First
+            string sql = "SELECT ID, SO_LUONG_TON, DON_GIA_NHAP FROM KHO_CHITIET_TONKHO WHERE MAHH = @MaHH AND SO_LUONG_TON > 0 ORDER BY NGAY_NHAP ASC";
+            DataTable dtBatches = DbHelper.Query(sql, DbHelper.Param("@MaHH", maHH));
+
+            foreach (DataRow row in dtBatches.Rows)
+            {
+                if (remainingQty <= 0) break;
+
+                long batchId = Convert.ToInt64(row["ID"]);
+                int batchStock = Convert.ToInt32(row["SO_LUONG_TON"]);
+                decimal importPrice = Convert.ToDecimal(row["DON_GIA_NHAP"]);
+
+                int quantityToTake = Math.Min(remainingQty, batchStock);
+
+                // Accumulate Cost
+                totalCOGS += (quantityToTake * importPrice);
+
+                // Update Database immediately (We are in a TransactionScope)
+                string updateSql = "UPDATE KHO_CHITIET_TONKHO SET SO_LUONG_TON = SO_LUONG_TON - @Qty WHERE ID = @Id";
+                DbHelper.Execute(updateSql,
+                    DbHelper.Param("@Qty", quantityToTake),
+                    DbHelper.Param("@Id", batchId));
+
+                remainingQty -= quantityToTake;
+            }
+
+            if (remainingQty > 0)
+            {
+                throw new Exception($"Hàng hóa {maHH} không đủ tồn kho theo lô (Thiếu {remainingQty}). Vui lòng kiểm tra lại dữ liệu kho.");
+            }
+
+            return totalCOGS;
+        }
+
+        // --- Save Logic (Core Transaction) ---
+        private void BtnLuu_Click(object sender, EventArgs e)
+        {
+            if (cboKhachHang.SelectedValue == null)
+            {
+                MessageBox.Show("Vui lòng chọn Khách hàng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (dgvPhieuXuat.Rows.Count <= 1)
+            {
+                MessageBox.Show("Vui lòng nhập chi tiết hàng hóa.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Column References
+            var colMAHH = dgvPhieuXuat.Columns["MAHH"];
+            var colSL = dgvPhieuXuat.Columns["SL"];
+            var colDONGIA = dgvPhieuXuat.Columns["DONGIA"];
+
+            if (colMAHH == null || colSL == null || colDONGIA == null)
+            {
+                MessageBox.Show("Lỗi cấu hình cột DataGridView.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    if (isAdding)
-                    {
-                        string queryPhieu = @"
-                                    INSERT INTO PHIEU (NGAYLAP, LOAI, MAKH, GHICHU, TRANGTHAI)
-                                    OUTPUT INSERTED.SOPHIEU
-                                    VALUES (@NgayLap, 'X', @MaKH, @GhiChu, 0)";
-                        object generatedId = DbHelper.Scalar(queryPhieu,
-                            DbHelper.Param("@NgayLap", dtpNgayLap.Value),
-                            DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
-                            DbHelper.Param("@GhiChu", txtGhiChu.Texts)
-                        );
-                        currentSoPhieu = Convert.ToInt64(generatedId);
-                    }
-                    else
-                    {
-                        string queryPhieu = @"
-                                    UPDATE PHIEU SET NGAYLAP = @NgayLap, MAKH = @MaKH, GHICHU = @GhiChu
-                                    WHERE SOPHIEU = @SoPhieu";
-                        DbHelper.Execute(queryPhieu,
-                             DbHelper.Param("@NgayLap", dtpNgayLap.Value),
-                             DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
-                             DbHelper.Param("@GhiChu", txtGhiChu.Texts),
-                             DbHelper.Param("@SoPhieu", currentSoPhieu)
-                        );
-                        DbHelper.Execute("DELETE FROM PHIEU_CT WHERE SOPHIEU = @SoPhieu", DbHelper.Param("@SoPhieu", currentSoPhieu));
-                    }
+                    // 1. Insert PHIEU Header
+                    string sqlPhieu = @"
+                        INSERT INTO PHIEU (NGAYLAP, LOAI, MAKH, GHICHU, TRANGTHAI)
+                        OUTPUT INSERTED.SOPHIEU
+                        VALUES (@NgayLap, 'X', @MaKH, @GhiChu, 1)";
+
+                    long soPhieu = Convert.ToInt64(DbHelper.Scalar(sqlPhieu,
+                        DbHelper.Param("@NgayLap", dtpNgayLap.Value),
+                        DbHelper.Param("@MaKH", cboKhachHang.SelectedValue),
+                        DbHelper.Param("@GhiChu", txtGhiChu.Text)
+                    ));
+
+                    // 2. Insert Details & Inventory (FIFO) & Accounting
+                    decimal tongTien = 0;
+                    decimal tongGiaVon = 0;
 
                     foreach (DataGridViewRow row in dgvPhieuXuat.Rows)
                     {
                         if (row.IsNewRow) continue;
-                        string maHH = row.Cells["MAHH"].Value?.ToString();
+
+                        string maHH = row.Cells[colMAHH.Index].Value?.ToString();
                         if (string.IsNullOrEmpty(maHH)) continue;
 
-                        int soLuong = Convert.ToInt32(row.Cells["SL"].Value);
-                        decimal donGia = Convert.ToDecimal(row.Cells["DONGIA"].Value);
+                        int sl = Convert.ToInt32(row.Cells[colSL.Index].Value);
+                        decimal donGia = Convert.ToDecimal(row.Cells[colDONGIA.Index].Value);
+                        decimal thanhTien = sl * donGia;
+                        tongTien += thanhTien;
 
-                        // NO THANHTIEN in INSERT
-                        string queryCT = @"
-                                    INSERT INTO PHIEU_CT (SOPHIEU, MAHH, SL, DONGIA)
-                                    VALUES (@SoPhieu, @MaHH, @SL, @DonGia)";
-                        DbHelper.Execute(queryCT,
-                            DbHelper.Param("@SoPhieu", currentSoPhieu),
+                        // --- FIFO CALCULATION ---
+                        // This updates KHO_CHITIET_TONKHO and returns total COGS for this item
+                        decimal itemCOGS = CalculateCOGS_FIFO(maHH, sl);
+                        tongGiaVon += itemCOGS;
+
+                        // Insert PHIEU_CT with the calculated COGS (Average for this line)
+                        // Note: GIAVON column in PHIEU_CT is useful for profit reporting
+                        decimal unitCOGS = sl > 0 ? itemCOGS / sl : 0;
+
+                        string sqlCT = @"INSERT INTO PHIEU_CT (SOPHIEU, MAHH, SL, DONGIA, GIAVON) 
+                                            VALUES (@SoPhieu, @MaHH, @SL, @DonGia, @GiaVon)";
+
+                        DbHelper.Execute(sqlCT,
+                            DbHelper.Param("@SoPhieu", soPhieu),
                             DbHelper.Param("@MaHH", maHH),
-                            DbHelper.Param("@SL", soLuong),
-                            DbHelper.Param("@DonGia", donGia)
+                            DbHelper.Param("@SL", sl),
+                            DbHelper.Param("@DonGia", donGia),
+                            DbHelper.Param("@GiaVon", unitCOGS)
                         );
+
+                        // Update DM_HANGHOA total stock (Optional but good for quick lookup)
+                        DbHelper.Execute("UPDATE DM_HANGHOA SET TONKHO = TONKHO - @SL WHERE MAHH = @MaHH",
+                            DbHelper.Param("@SL", sl),
+                            DbHelper.Param("@MaHH", maHH));
                     }
 
-                    scope.Complete();
-                }
+                    // 3. Accounting Entries
+                    // Entry 1: Revenue (Doanh thu) - Credit 511, Debit 131/1111
+                    string tkNo = (chkThanhToan != null && chkThanhToan.Checked) ? "1111" : "131";
+                    string sqlDoanhThu = @"INSERT INTO BUTTOAN_KETOAN (NGAY_HT, TK_NO, TK_CO, SOTIEN, DIEN_GIAI)
+                                            VALUES (@Ngay, @TkNo, '511', @SoTien, @DienGiai)";
 
-                MessageBox.Show("Lưu phiếu nháp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                txtSoPhieu.Texts = currentSoPhieu.ToString();
-                isAdding = false;
-                SetInputMode(false);
+                    DbHelper.Execute(sqlDoanhThu,
+                        DbHelper.Param("@Ngay", dtpNgayLap.Value),
+                        DbHelper.Param("@TkNo", tkNo),
+                        DbHelper.Param("@SoTien", tongTien),
+                        DbHelper.Param("@DienGiai", $"Doanh thu bán hàng phiếu #{soPhieu}")
+                    );
+
+                    // Entry 2: COGS (Giá vốn) - Credit 156, Debit 632
+                    // Use the REAL FIFO Calculated Value
+                    string sqlGiaVon = @"INSERT INTO BUTTOAN_KETOAN (NGAY_HT, TK_NO, TK_CO, SOTIEN, DIEN_GIAI)
+                                            VALUES (@Ngay, '632', '156', @SoTien, @DienGiai)";
+
+                    DbHelper.Execute(sqlGiaVon,
+                        DbHelper.Param("@Ngay", dtpNgayLap.Value),
+                        DbHelper.Param("@SoTien", tongGiaVon),
+                        DbHelper.Param("@DienGiai", $"Giá vốn hàng bán phiếu #{soPhieu} (FIFO)")
+                    );
+
+                    scope.Complete();
+                    MessageBox.Show($"Lưu phiếu xuất #{soPhieu} thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    txtSoPhieu.Text = soPhieu.ToString();
+
+                    // Button States after Save
+                    btnLuu.Enabled = false;
+                    btnThem.Enabled = true;
+                    if (btnIn != null) btnIn.Enabled = true;
+
+                    // Focus
+                    btnThem.Focus();
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi lưu phiếu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi lưu phiếu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        public void BtnGhiSo_Click(object sender, EventArgs e)
-        {
-            if (currentSoPhieu == -1)
-            {
-                MessageBox.Show("Vui lòng lưu phiếu trước khi ghi sổ.", "Thông báo");
-                return;
-            }
-
-            if (MessageBox.Show("Sau khi ghi sổ sẽ không thể sửa đổi. Bạn có chắc chắn muốn tiếp tục?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-            {
-                return;
-            }
-
-            try
-            {
-                using (TransactionScope scope = new TransactionScope())
-                {
-                    // 1. Re-Verify Stock before final commit (Concurrency check)
-                    var dtChiTietXuat = DbHelper.Query(
-                        "SELECT MAHH, SL FROM PHIEU_CT WHERE SOPHIEU = @SoPhieu",
-                        DbHelper.Param("@SoPhieu", currentSoPhieu));
-
-                    foreach (DataRow rowXuat in dtChiTietXuat.Rows)
-                    {
-                        string maHH = rowXuat["MAHH"].ToString();
-                        int soLuongXuat = Convert.ToInt32(rowXuat["SL"]);
-
-                        object result = DbHelper.Scalar("SELECT TONKHO FROM DM_HANGHOA WHERE MAHH = @MAHH", DbHelper.Param("@MAHH", maHH));
-                        int currentStock = result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
-
-                        if (soLuongXuat > currentStock)
-                        {
-                            throw new Exception($"Hàng hóa '{maHH}' không đủ tồn kho để ghi sổ! Hiện tại còn: {currentStock}");
-                        }
-                    }
-
-                    // 2. Update Status to 1 (Completed)
-                    // NOTE: We do NOT insert into KHO_CHITIET_TONKHO for Exports.
-                    // The system assumes a Trigger on PHIEU/PHIEU_CT or DM_HANGHOA handles the stock deduction,
-                    // OR that KHO_CHITIET_TONKHO is strictly for Inbound batches.
-
-                    DbHelper.Execute("UPDATE PHIEU SET TRANGTHAI = 1 WHERE SOPHIEU = @SoPhieu",
-                        DbHelper.Param("@SoPhieu", currentSoPhieu));
-
-                    scope.Complete();
-                }
-
-                MessageBox.Show("Ghi sổ thành công! Hàng đã được xuất khỏi kho.", "Thành công");
-                SetInputMode(false);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi ghi sổ: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        public void DgvPhieuXuat_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-            DataGridViewRow row = dgvPhieuXuat.Rows[e.RowIndex];
-
-            // Tự động điền giá bán khi chọn hàng hóa
-            if (e.ColumnIndex == dgvPhieuXuat.Columns["MAHH"].Index)
-            {
-                string maHH = row.Cells["MAHH"].Value?.ToString();
-                if (!string.IsNullOrEmpty(maHH))
-                {
-                    object giaBan = DbHelper.Scalar("SELECT GIABAN FROM DM_HANGHOA WHERE MAHH = @maHH", DbHelper.Param("@maHH", maHH));
-                    row.Cells["DONGIA"].Value = giaBan;
-                }
-            }
-
-            // Tự động tính thành tiền
-            if (e.ColumnIndex == dgvPhieuXuat.Columns["SL"].Index || e.ColumnIndex == dgvPhieuXuat.Columns["DONGIA"].Index)
-            {
-                int soLuong = Convert.ToInt32(row.Cells["SL"].Value ?? 0);
-                decimal donGia = Convert.ToDecimal(row.Cells["DONGIA"].Value ?? 0);
-                row.Cells["THANHTIEN"].Value = soLuong * donGia;
-
-                // Cập nhật tổng tiền
-                decimal tongTien = 0;
-                foreach (DataGridViewRow r in dgvPhieuXuat.Rows)
-                {
-                    tongTien += Convert.ToDecimal(r.Cells["THANHTIEN"].Value ?? 0);
-                }
-                lblTongTien.Text = tongTien.ToString("N0");
-            }
-        }
-
-        public void BtnHuy_Click(object sender, EventArgs e)
+        private void BtnThem_Click(object sender, EventArgs e)
         {
             ClearInputs();
-            SetInputMode(false);
-            isAdding = false;
+            MessageBox.Show("Đã sẵn sàng xuất phiếu mới.", "Thông báo");
         }
 
-        #endregion
+        private void BtnIn_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtSoPhieu.Text))
+            {
+                MessageBox.Show("Vui lòng lưu phiếu trước khi in.");
+                return;
+            }
+
+            if (long.TryParse(txtSoPhieu.Text, out long soPhieu))
+            {
+                PrintPhieu(soPhieu);
+            }
+        }
+
+        private void PrintPhieu(long soPhieu)
+        {
+            try
+            {
+                string sql = @"SELECT P.SOPHIEU, KH.TENKH, P.NGAYLAP, SUM(CT.SL * CT.DONGIA) as TONGTIEN
+                               FROM PHIEU P
+                               JOIN DANHMUCKHACHHANG KH ON P.MAKH = KH.MAKH
+                               JOIN PHIEU_CT CT ON P.SOPHIEU = CT.SOPHIEU
+                               WHERE P.SOPHIEU = @SoPhieu
+                               GROUP BY P.SOPHIEU, KH.TENKH, P.NGAYLAP";
+
+                DataTable dt = DbHelper.Query(sql, DbHelper.Param("@SoPhieu", soPhieu));
+
+                if (dt.Rows.Count > 0)
+                {
+                    DataRow r = dt.Rows[0];
+                    string msg = $"--- THÔNG TIN IN PHIẾU XUẤT ---\n" +
+                                 $"Số Phiếu: {r["SOPHIEU"]}\n" +
+                                 $"Khách Hàng: {r["TENKH"]}\n" +
+                                 $"Ngày Lập: {Convert.ToDateTime(r["NGAYLAP"]):dd/MM/yyyy}\n" +
+                                 $"Tổng Tiền: {Convert.ToDecimal(r["TONGTIEN"]):N0} VNĐ";
+
+                    MessageBox.Show(msg, "Print Preview", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Không tìm thấy dữ liệu phiếu.", "Lỗi in");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi in: " + ex.Message);
+            }
+        }
+
+        private void BtnHuy_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Bạn có chắc muốn hủy nhập liệu?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                ClearInputs();
+            }
+        }
     }
 }
