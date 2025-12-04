@@ -417,3 +417,4 @@ D:\aa\obj\Debug\WindowsF.EA766B00.Up2Date
 D:\aa\obj\Debug\StoreGearVN.exe
 D:\aa\obj\Debug\StoreGearVN.pdb
 D:\aa\obj\Debug\DoAnLapTrinhQuanLy.GuiLayer.FormKhachHang.resources
+D:\aa\obj\Debug\StoreGearVN.exe.config
