@@ -13,10 +13,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private Form _currentForm;
 
         // UI Layout Controls
-        private Panel pnlNavigationRail;
+        private Panel pnlSidebar;
+        private FlowLayoutPanel flpSidebarButtons;
         private Panel pnlSubMenuContainer;
         private Panel pnlContent;
-        private Panel pnlHeader; // New Header
+        private Panel pnlHeader;
         private StatusStrip statusStrip;
         private ToolStripStatusLabel staUser;
         private ToolStripStatusLabel staDb;
@@ -26,7 +27,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private Label lblAppTitle;
         private MaterialTextBox txtGlobalSearch;
 
-        // Rail Buttons
+        // Sidebar Buttons
         private ModernButton btnDashboard;
         private ModernButton btnHeThong;
         private ModernButton btnDanhMuc;
@@ -85,30 +86,45 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.Size = new Size(1280, 720);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Text = "SALEGEARVN - QUẢN LÝ BÁN HÀNG";
+            this.Font = ThemeManager.BaseFont;
 
-            // 1. Navigation Rail (Leftmost)
-            pnlNavigationRail = new Panel
+            // 1. Sidebar (Left, 250px)
+            pnlSidebar = new Panel
             {
                 Dock = DockStyle.Left,
-                Width = 80,
-                BackColor = ThemeManager.SecondaryColor
+                Width = 250,
+                BackColor = ThemeManager.SecondaryColor,
+                Padding = new Padding(0, 0, 0, 0)
             };
 
-            // 2. SubMenu Container (Next to Rail)
+            // Sidebar Content: FlowLayoutPanel
+            flpSidebarButtons = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                AutoScroll = true,
+                BackColor = ThemeManager.SecondaryColor,
+                Padding = new Padding(10, 20, 10, 10)
+            };
+            pnlSidebar.Controls.Add(flpSidebarButtons);
+
+            // 2. SubMenu Container (Left, after Sidebar)
             pnlSubMenuContainer = new Panel
             {
                 Dock = DockStyle.Left,
                 Width = 220,
-                BackColor = Color.FromArgb(30, 30, 30),
+                BackColor = Color.FromArgb(35, 35, 38), // Slightly lighter than secondary
                 Visible = false
             };
 
-            // 3. Header (Top)
+            // 3. Header (Top, 60px)
             pnlHeader = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 50,
-                BackColor = ThemeManager.SecondaryColor
+                Height = 60,
+                BackColor = ThemeManager.SecondaryColor,
+                Padding = new Padding(10)
             };
             InitializeHeader();
 
@@ -116,7 +132,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             statusStrip = new StatusStrip
             {
                 BackColor = ThemeManager.AccentColor,
-                ForeColor = Color.White
+                ForeColor = Color.White,
+                Dock = DockStyle.Bottom
             };
             staUser = new ToolStripStatusLabel { Text = "User: ..." };
             staDb = new ToolStripStatusLabel { Text = "DB: ..." };
@@ -127,18 +144,32 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             pnlContent = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = ThemeManager.PrimaryColor
+                BackColor = ThemeManager.PrimaryColor,
+                Padding = new Padding(10)
             };
 
-            // Add Layout Containers
+            // Add Controls to Form
             this.Controls.Add(pnlContent);
-            this.Controls.Add(pnlHeader); // Add Header
-            this.Controls.Add(pnlSubMenuContainer);
-            this.Controls.Add(pnlNavigationRail);
             this.Controls.Add(statusStrip);
+            this.Controls.Add(pnlSubMenuContainer);
+            this.Controls.Add(pnlHeader);
+            this.Controls.Add(pnlSidebar);
 
-            // Initialize Buttons and SubMenus
-            InitializeRailButtons();
+            // Correct Z-Order for Docking Priority:
+            // 1. Sidebar (Index 0, Topmost) -> Left Full Height
+            // 2. Header (Index 1) -> Top of Remaining (Right of Sidebar)
+            // 3. SubMenu (Index 2) -> Left of Remaining (Below Header, Right of Sidebar)
+            // 4. StatusStrip (Index 3) -> Bottom of Remaining
+            // 5. Content (Index 4) -> Fill Remaining
+
+            pnlContent.SendToBack(); // Puts it at the very bottom
+            statusStrip.BringToFront(); // Becomes Top
+            pnlSubMenuContainer.BringToFront(); // Becomes Top (Status pushed down)
+            pnlHeader.BringToFront(); // Becomes Top (SubMenu pushed down)
+            pnlSidebar.BringToFront(); // Becomes Top (Header pushed down)
+
+            // Initialize Buttons
+            InitializeSidebarButtons();
             InitializeSubMenus();
         }
 
@@ -147,10 +178,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             lblAppTitle = new Label
             {
                 Text = "SALEGEARVN",
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
                 ForeColor = ThemeManager.AccentColor,
                 AutoSize = true,
-                Location = new Point(10, 10)
+                Location = new Point(20, 15) // Relative to pnlHeader
             };
             pnlHeader.Controls.Add(lblAppTitle);
 
@@ -159,93 +190,134 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             {
                 PlaceholderText = "🔍 Search (Ctrl+P)",
                 Size = new Size(400, 35),
-                Location = new Point((this.Width - 400) / 2, 7),
-                Anchor = AnchorStyles.Top // Centered roughly
+                Location = new Point(300, 12),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, // Fixed: Stretches with window
+                BackColor = ThemeManager.TextBoxBackground,
+                BorderColor = ThemeManager.BorderColor
             };
             pnlHeader.Controls.Add(txtGlobalSearch);
         }
 
-        private void InitializeRailButtons()
+        private void InitializeSidebarButtons()
         {
-            // Helper to create rail buttons
-            static ModernButton CreateRailBtn(string text, string iconText)
+            // Helper to create Sidebar buttons
+            ModernButton CreateSidebarBtn(string text, string iconText)
             {
                 var btn = new ModernButton
                 {
-                    Text = text,
-                    Dock = DockStyle.Top,
-                    Height = 70,
+                    Text = "  " + text,
+                    Width = 230, // Fit inside 250px sidebar with padding
+                    Height = 45,
                     BackColor = Color.Transparent,
                     ForeColor = ThemeManager.TextColor,
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    BorderRadius = 10
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    BorderRadius = 8,
+                    Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                    Margin = new Padding(0, 0, 0, 10),
+                    Padding = new Padding(10, 0, 0, 0)
                 };
+
+                btn.FlatAppearance.BorderSize = 0;
+
+                // Hover effect
+                btn.MouseEnter += (s, e) =>
+                {
+                    btn.BackColor = Color.FromArgb(50, 60, 60, 60);
+                };
+                btn.MouseLeave += (s, e) =>
+                {
+                    btn.BackColor = Color.Transparent; // Restore
+                };
+
                 return btn;
             }
 
-            // Add in reverse order of Dock=Top
-            btnLogout = CreateRailBtn("Thoát", "EXIT");
-            btnLogout.Dock = DockStyle.Bottom;
-            btnLogout.BackColor = ThemeManager.DangerColor;
-            btnLogout.Click += (s, e) => Application.Exit();
-            pnlNavigationRail.Controls.Add(btnLogout);
-
-            btnBaoCao = CreateRailBtn("Báo Cáo", "BC");
-            btnBaoCao.Click += (s, e) => ToggleSubMenu(pnlBaoCaoSub);
-            pnlNavigationRail.Controls.Add(btnBaoCao);
-
-            btnNghiepVu = CreateRailBtn("Nghiệp Vụ", "NV");
-            btnNghiepVu.Click += (s, e) => ToggleSubMenu(pnlNghiepVuSub);
-            pnlNavigationRail.Controls.Add(btnNghiepVu);
-
-            btnDanhMuc = CreateRailBtn("Danh Mục", "DM");
-            btnDanhMuc.Click += (s, e) => ToggleSubMenu(pnlDanhMucSub);
-            pnlNavigationRail.Controls.Add(btnDanhMuc);
-
-            btnHeThong = CreateRailBtn("Hệ Thống", "HT");
-            btnHeThong.Click += (s, e) => ToggleSubMenu(pnlHeThongSub);
-            pnlNavigationRail.Controls.Add(btnHeThong);
-
-            btnDashboard = CreateRailBtn("Dashboard", "DB");
+            // Dashboard
+            btnDashboard = CreateSidebarBtn("Dashboard", "DB");
+            btnDashboard.Image = null; // Add icon if available
             btnDashboard.Click += (s, e) => { ShowForm<FormDashboard>(); HideSubMenu(); };
-            pnlNavigationRail.Controls.Add(btnDashboard);
+            flpSidebarButtons.Controls.Add(btnDashboard);
+
+            // He Thong
+            btnHeThong = CreateSidebarBtn("Hệ Thống", "HT");
+            btnHeThong.Click += (s, e) => ToggleSubMenu(pnlHeThongSub);
+            flpSidebarButtons.Controls.Add(btnHeThong);
+
+            // Danh Muc
+            btnDanhMuc = CreateSidebarBtn("Danh Mục", "DM");
+            btnDanhMuc.Click += (s, e) => ToggleSubMenu(pnlDanhMucSub);
+            flpSidebarButtons.Controls.Add(btnDanhMuc);
+
+            // Nghiep Vu
+            btnNghiepVu = CreateSidebarBtn("Nghiệp Vụ", "NV");
+            btnNghiepVu.Click += (s, e) => ToggleSubMenu(pnlNghiepVuSub);
+            flpSidebarButtons.Controls.Add(btnNghiepVu);
+
+            // Bao Cao
+            btnBaoCao = CreateSidebarBtn("Báo Cáo", "BC");
+            btnBaoCao.Click += (s, e) => ToggleSubMenu(pnlBaoCaoSub);
+            flpSidebarButtons.Controls.Add(btnBaoCao);
+
+            // Logout
+            btnLogout = CreateSidebarBtn("Đăng xuất", "EXIT");
+            btnLogout.BackColor = Color.FromArgb(100, ThemeManager.DangerColor);
+            btnLogout.ForeColor = Color.White;
+            btnLogout.Click += (s, e) => Application.Exit();
+            btnLogout.Margin = new Padding(0, 50, 0, 0); // Margin top to separate
+
+            // Override hover for Logout
+            btnLogout.MouseEnter += (s, e) => btnLogout.BackColor = ThemeManager.DangerColor;
+            btnLogout.MouseLeave += (s, e) => btnLogout.BackColor = Color.FromArgb(100, ThemeManager.DangerColor);
+
+            flpSidebarButtons.Controls.Add(btnLogout);
         }
 
         private void InitializeSubMenus()
         {
             // Helper to create sub-menu buttons
-            static ModernButton CreateSubBtn(string text, EventHandler onClick)
+            ModernButton CreateSubBtn(string text, EventHandler onClick)
             {
                 var btn = new ModernButton
                 {
                     Text = text,
                     Dock = DockStyle.Top,
-                    Height = 45,
+                    Height = 40,
                     BackColor = Color.Transparent,
                     ForeColor = ThemeManager.TextColor,
                     TextAlign = ContentAlignment.MiddleLeft,
-                    Padding = new Padding(15, 0, 0, 0),
-                    BorderRadius = 0
+                    Padding = new Padding(20, 0, 0, 0), // Indent
+                    BorderRadius = 0,
+                    Font = new Font("Segoe UI", 9, FontStyle.Regular)
                 };
+
+                btn.FlatAppearance.BorderSize = 0;
+                btn.MouseEnter += (s, e) => btn.BackColor = Color.FromArgb(40, 40, 40);
+                btn.MouseLeave += (s, e) => btn.BackColor = Color.Transparent;
+
                 btn.Click += onClick;
                 return btn;
             }
 
             // 1. HeThong SubMenu
             pnlHeThongSub = new Panel { Dock = DockStyle.Fill, Visible = false };
-            btnAbout = CreateSubBtn("Thông tin phần mềm", (s, e) => new FormThongTinPhanMem().ShowDialog(this));
-            btnKetNoiCSDL = CreateSubBtn("Kết nối CSDL", (s, e) => new FormKetNoiCSDL().ShowDialog(this));
-            btnCaiDat = CreateSubBtn("Cài đặt chung", (s, e) => ShowForm<FormCaiDatHeThong>());
-            btnQuanLyHeThong = CreateSubBtn("Quản lý Hệ thống", (s, e) => ShowForm<FormQuanLyHeThong>());
 
-            pnlHeThongSub.Controls.Add(btnAbout);
-            pnlHeThongSub.Controls.Add(btnKetNoiCSDL);
-            pnlHeThongSub.Controls.Add(btnCaiDat);
+            btnQuanLyHeThong = CreateSubBtn("Quản lý Hệ thống", (s, e) => ShowForm<FormQuanLyHeThong>());
+            btnCaiDat = CreateSubBtn("Cài đặt chung", (s, e) => ShowForm<FormCaiDatHeThong>());
+            btnKetNoiCSDL = CreateSubBtn("Kết nối CSDL", (s, e) => new FormKetNoiCSDL().ShowDialog(this));
+            btnAbout = CreateSubBtn("Thông tin phần mềm", (s, e) => new FormThongTinPhanMem().ShowDialog(this));
+
+            // Add in Normal Order (Top to Bottom) - Dock=Top stacks, but we rely on correct addition order or BringToFront if needed. 
+            // Standard Controls.Add appends to end. Index 0 is Topmost Z-order.
             pnlHeThongSub.Controls.Add(btnQuanLyHeThong);
+            pnlHeThongSub.Controls.Add(btnCaiDat);
+            pnlHeThongSub.Controls.Add(btnKetNoiCSDL);
+            pnlHeThongSub.Controls.Add(btnAbout);
+
             pnlSubMenuContainer.Controls.Add(pnlHeThongSub);
 
             // 2. DanhMuc SubMenu
             pnlDanhMucSub = new Panel { Dock = DockStyle.Fill, Visible = false };
+
             btnHeThongTKKeToan = CreateSubBtn("Hệ thống TK Kế toán", (s, e) => ShowForm<FormHeThongTaiKhoanKeToan>());
             btnTaiKhoanNganHang = CreateSubBtn("Tài khoản Ngân hàng", (s, e) => ShowForm<FormQuanLyTaiKhoanNganHang>());
             btnNhanVien = CreateSubBtn("Nhân viên", (s, e) => ShowForm<FormNhanVien>());
@@ -261,10 +333,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             pnlDanhMucSub.Controls.Add(btnKhachHang);
             pnlDanhMucSub.Controls.Add(btnNhomHang);
             pnlDanhMucSub.Controls.Add(btnHangHoa);
+
             pnlSubMenuContainer.Controls.Add(pnlDanhMucSub);
 
             // 3. NghiepVu SubMenu
             pnlNghiepVuSub = new Panel { Dock = DockStyle.Fill, Visible = false };
+
             btnYeuCauNhapKho = CreateSubBtn("Yêu cầu Nhập kho", (s, e) => ShowForm<FormYeuCauNhapKho>());
             btnChamCong = CreateSubBtn("Chấm công", (s, e) => ShowForm<FormTamUngChamCong>());
             btnBaoGia = CreateSubBtn("Báo giá", (s, e) => ShowForm<FormBangBaoGia>());
@@ -280,10 +354,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             pnlNghiepVuSub.Controls.Add(btnPhieuThu);
             pnlNghiepVuSub.Controls.Add(btnXuatKho);
             pnlNghiepVuSub.Controls.Add(btnNhapKho);
+
             pnlSubMenuContainer.Controls.Add(pnlNghiepVuSub);
 
             // 4. BaoCao SubMenu
             pnlBaoCaoSub = new Panel { Dock = DockStyle.Fill, Visible = false };
+
             btnBaoCaoLuong = CreateSubBtn("Báo cáo Lương", (s, e) => ShowForm<FormTinhLuong>());
             btnBaoCaoCongNo = CreateSubBtn("Báo cáo Công nợ", (s, e) => ShowForm<FormReportCongNo>());
             btnBaoCaoSoChiTietTK = CreateSubBtn("Sổ chi tiết tài khoản", (s, e) => ShowForm<FormSoChiTietTaiKhoan>());
@@ -301,6 +377,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             pnlBaoCaoSub.Controls.Add(btnBaoCaoTonKho);
             pnlBaoCaoSub.Controls.Add(btnBaoCaoXuatKho);
             pnlBaoCaoSub.Controls.Add(btnBaoCaoNhapKho);
+
             pnlSubMenuContainer.Controls.Add(pnlBaoCaoSub);
         }
 
@@ -369,7 +446,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             bool isKho = userRole == "Nhân viên Kho";
 
             btnHeThong.Visible = isAdmin;
-            btnDanhMuc.Visible = true; // Most roles have some access
+            btnDanhMuc.Visible = true;
             btnNghiepVu.Visible = true;
             btnBaoCao.Visible = true;
 
@@ -420,10 +497,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void ShowBaoCaoKho()
         {
             _currentForm?.Close();
-            // Placeholder for Report Logic
-            // var newForm = new FormBaoCaoKho(reportType) { ... };
-            // pnlContent.Controls.Add(newForm);
-            // ...
+            MessageBox.Show("Chức năng đang phát triển.", "Thông báo");
         }
     }
 }

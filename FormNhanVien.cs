@@ -258,5 +258,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         }
 
         private void BtnHuy_Click(object sender, EventArgs e) => SetState(FormState.View);
+
+
     }
 }
