@@ -1,16 +1,14 @@
 using System;
 using System.Data;
-using System.Drawing;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.Data;
-using DoAnLapTrinhQuanLy.Core;
-using System.Data.SqlClient;
+using DoAnLapTrinhQuanLy.Services;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     public partial class FormChonPhieuYeuCau : Form
     {
-        public long SelectedYeuCauID { get; private set; } = 0;
+        private readonly PhieuYeuCauService _service = new PhieuYeuCauService();
+        public long SelectedYeuCauID { get; private set; }
 
         public FormChonPhieuYeuCau()
         {
@@ -19,9 +17,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void FormChonPhieuYeuCau_Load(object sender, EventArgs e)
         {
-            ThemeManager.Apply(this);
-
-            // Set default date range (Last 30 days)
+            // Default Date Range: Last 30 Days
             dtpTuNgay.Value = DateTime.Now.AddDays(-30);
             dtpDenNgay.Value = DateTime.Now;
 
@@ -32,41 +28,48 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         {
             try
             {
-                // Query to get Approved requests (TRANGTHAI = 2) within date range
-                // Also excluding requests that are already imported (TRANGTHAI = 3) just in case, 
-                // though the requirement only specified TRANGTHAI = 2. 
-                // Adding TRANGTHAI = 2 ensures we only pick approved ones ready for import.
-                string sql = @"
-                    SELECT 
-                        ID, 
-                        NGAY_YEUCAU, 
-                        MANV_YEUCAU, 
-                        LYDO,
-                        CASE 
-                            WHEN TRANGTHAI = 1 THEN N'Chờ duyệt'
-                            WHEN TRANGTHAI = 2 THEN N'Đã duyệt'
-                            WHEN TRANGTHAI = 3 THEN N'Đã nhập'
-                            ELSE N'Khác'
-                        END as TRANGTHAI_TEXT
-                    FROM PHIEU_YEUCAU_NHAPKHO 
-                    WHERE TRANGTHAI = 2 
-                    AND NGAY_YEUCAU BETWEEN @TuNgay AND @DenNgay
-                    ORDER BY NGAY_YEUCAU DESC";
-
-                // Adjust EndDate to include the full day (23:59:59)
+                // Ensure End Date includes the whole day
                 DateTime tuNgay = dtpTuNgay.Value.Date;
                 DateTime denNgay = dtpDenNgay.Value.Date.AddDays(1).AddSeconds(-1);
 
-                DataTable dt = DbHelper.Query(sql,
-                    DbHelper.Param("@TuNgay", tuNgay),
-                    DbHelper.Param("@DenNgay", denNgay)
-                );
-
+                DataTable dt = _service.GetDanhSachDaDuyet(tuNgay, denNgay);
                 dgvDanhSach.DataSource = dt;
+
+                SetupGrid();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void SetupGrid()
+        {
+            if (dgvDanhSach.Columns.Contains("ID"))
+            {
+                dgvDanhSach.Columns["ID"].HeaderText = "Số Phiếu";
+                dgvDanhSach.Columns["ID"].Width = 100;
+            }
+            if (dgvDanhSach.Columns.Contains("NGAY_YEUCAU"))
+            {
+                dgvDanhSach.Columns["NGAY_YEUCAU"].HeaderText = "Ngày Yêu Cầu";
+                dgvDanhSach.Columns["NGAY_YEUCAU"].Width = 150;
+                dgvDanhSach.Columns["NGAY_YEUCAU"].DefaultCellStyle.Format = "dd/MM/yyyy";
+            }
+            if (dgvDanhSach.Columns.Contains("NGUOI_YEU_CAU"))
+            {
+                dgvDanhSach.Columns["NGUOI_YEU_CAU"].HeaderText = "Người Yêu Cầu";
+                dgvDanhSach.Columns["NGUOI_YEU_CAU"].Width = 200;
+            }
+            if (dgvDanhSach.Columns.Contains("LYDO"))
+            {
+                dgvDanhSach.Columns["LYDO"].HeaderText = "Lý Do";
+                dgvDanhSach.Columns["LYDO"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
+            if (dgvDanhSach.Columns.Contains("TRANGTHAI_TEXT"))
+            {
+                dgvDanhSach.Columns["TRANGTHAI_TEXT"].HeaderText = "Trạng Thái";
+                dgvDanhSach.Columns["TRANGTHAI_TEXT"].Width = 120;
             }
         }
 
@@ -75,24 +78,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             LoadData();
         }
 
-        private void btnChon_Click(object sender, EventArgs e)
-        {
-            ConfirmSelection();
-        }
-
-        private void dgvDanhSach_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
-                ConfirmSelection();
-            }
-        }
-
         private void ConfirmSelection()
         {
-            if (dgvDanhSach.CurrentRow != null)
+            if (dgvDanhSach.CurrentRow != null && dgvDanhSach.CurrentRow.Selected)
             {
-                if (long.TryParse(dgvDanhSach.CurrentRow.Cells["colID"].Value.ToString(), out long id))
+                // Must verify the cell is not null
+                var cell = dgvDanhSach.CurrentRow.Cells["ID"].Value;
+                if (cell != null && long.TryParse(cell.ToString(), out long id))
                 {
                     SelectedYeuCauID = id;
                     this.DialogResult = DialogResult.OK;
@@ -101,8 +93,18 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn một phiếu yêu cầu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng chọn một phiếu yêu cầu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        private void btnChon_Click(object sender, EventArgs e)
+        {
+            ConfirmSelection();
+        }
+
+        private void dgvDanhSach_DoubleClick(object sender, EventArgs e)
+        {
+            ConfirmSelection();
         }
 
         private void btnHuy_Click(object sender, EventArgs e)

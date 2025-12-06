@@ -87,7 +87,8 @@ namespace DoAnLapTrinhQuanLy.Controls
             {
                 using GraphicsPath pathSurface = GetFigurePath(rectSurface, BorderRadius);
                 using GraphicsPath pathBorder = GetFigurePath(rectBorder, BorderRadius - 1F);
-                using Pen penSurface = new Pen(this.Parent.BackColor, 2);
+                Color parentColor = this.Parent != null ? this.Parent.BackColor : SystemColors.Control;
+                using Pen penSurface = new Pen(parentColor, 2);
                 using Pen penBorder = new Pen(BorderColor, 1.6F);
 
                 penBorder.Alignment = PenAlignment.Inset;
@@ -125,7 +126,10 @@ namespace DoAnLapTrinhQuanLy.Controls
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            this.Parent.BackColorChanged += (s, args) => { if (this.DesignMode == false) this.Invalidate(); };
+            if (this.Parent != null)
+            {
+                this.Parent.BackColorChanged += (s, args) => { if (this.DesignMode == false) this.Invalidate(); };
+            }
         }
     }
 }

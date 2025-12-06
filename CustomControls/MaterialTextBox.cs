@@ -266,9 +266,10 @@ namespace DoAnLapTrinhQuanLy.Controls
                 var rectBorder = Rectangle.Inflate(rectBorderSmooth, -borderSize, -borderSize);
                 int smoothSize = borderSize > 0 ? borderSize : 1;
 
+                Color parentColor = this.Parent != null ? this.Parent.BackColor : SystemColors.Control;
                 using (GraphicsPath pathBorderSmooth = GetFigurePath(rectBorderSmooth, borderRadius))
                 using (GraphicsPath pathBorder = GetFigurePath(rectBorder, borderRadius - borderSize))
-                using (Pen penBorderSmooth = new Pen(this.Parent.BackColor, smoothSize))
+                using (Pen penBorderSmooth = new Pen(parentColor, smoothSize))
                 using (Pen penBorder = new Pen(borderColor, borderSize))
                 {
                     this.Region = new Region(pathBorderSmooth);

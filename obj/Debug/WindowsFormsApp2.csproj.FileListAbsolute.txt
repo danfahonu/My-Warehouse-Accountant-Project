@@ -406,8 +406,8 @@ d:\aa\obj\Debug\WindowsFormsApp2.csproj.CoreCompileInputs.cache
 d:\aa\obj\Debug\WindowsF.EA766B00.Up2Date
 d:\aa\obj\Debug\StoreGearVN.exe
 d:\aa\obj\Debug\StoreGearVN.pdb
-d:\aa\obj\Debug\StoreGearVN.exe.config
 d:\aa\obj\Debug\StoreGearVN.FormDoiMatKhau.resources
 d:\aa\obj\Debug\StoreGearVN.FormNhomHang.resources
 D:\aa\obj\Debug\DoAnLapTrinhQuanLy.GuiLayer.FormPhieuNhap.resources
 D:\aa\obj\Debug\DoAnLapTrinhQuanLy.GuiLayer.FormPhieuXuat.resources
+D:\aa\obj\Debug\StoreGearVN.exe.config

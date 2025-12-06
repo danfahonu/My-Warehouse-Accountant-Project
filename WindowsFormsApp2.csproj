@@ -168,6 +168,18 @@
     </Compile>
     <Compile Include="DbHelper.cs" />
     <Compile Include="DesignGuard.cs" />
+    <Compile Include="Services\NhomHangService.cs" />
+    <Compile Include="Services\HangHoaService.cs" />
+    <Compile Include="Services\PhieuNhapService.cs" />
+    <Compile Include="Services\PhieuYeuCauService.cs" />
+    <Compile Include="Services\YeuCauNhapKhoService.cs" />
+    <Compile Include="Services\PhieuXuatService.cs" />
+    <Compile Include="FormChonPhieuYeuCau.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormChonPhieuYeuCau.Designer.cs">
+      <DependentUpon>FormChonPhieuYeuCau.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormAttach.cs">
       <SubType>Form</SubType>
     </Compile>

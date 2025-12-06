@@ -2,350 +2,314 @@ using System;
 using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.Data;
-using DoAnLapTrinhQuanLy.Controls;
-using ThemeManager = DoAnLapTrinhQuanLy.Core.ThemeManager;
+using DoAnLapTrinhQuanLy.Services;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
-    public partial class FormDanhMucHangHoa : BaseForm
+    /// <summary>
+    /// Màn hình Quản lý Danh mục Hàng hóa.
+    /// Refactored: 3-Layer, Modern UI, Custom Controls.
+    /// </summary>
+    public partial class FormDanhMucHangHoa : Form
     {
-        // 1. Fields & Constants
-        private bool _isAdding;
-        private string _currentImagePath;
-        private DataTable _merchandiseTable;
+        private readonly HangHoaService _service = new HangHoaService();
+        private bool _isAdding = false;
+        private string _selectedImagePath = null; // Lưu đường dẫn ảnh tạm thời
 
         public FormDanhMucHangHoa()
         {
             InitializeComponent();
-            UseCustomTitleBar = false; // Disable inner title bar
+            ApplyInitialState();
         }
 
-        // 3. Data Loading & State
-        private async void FormDanhMucHangHoa_Load(object sender, EventArgs e)
+        private void ApplyInitialState()
         {
-            ThemeManager.Apply(this);
-            await LoadInitialDataAsync();
+            // Set default view state
+            SetInputMode(false);
+            picAnhDaiDien.Image = null;
         }
 
-        private async Task LoadInitialDataAsync()
+        private void FormDanhMucHangHoa_Load(object sender, EventArgs e)
+        {
+            LoadComboBoxNhomHang();
+            LoadDataGrid();
+        }
+
+        // ===================================
+        // DATA LOADING
+        // ===================================
+
+        private void LoadComboBoxNhomHang()
         {
             try
             {
-                this.Cursor = Cursors.WaitCursor;
-
-                // Load Categories
-                var dtNhom = await Task.Run(() => GetNhomHangData());
-                cboCategory.DataSource = dtNhom;
-                cboCategory.DisplayMember = "TENNHOM";
-                cboCategory.ValueMember = "MANHOM";
-                cboCategory.SelectedIndex = -1;
-
-                // Load Merchandise
-                _merchandiseTable = await Task.Run(() => GetData());
-                dgvMerchandise.DataSource = _merchandiseTable;
-
-                // Format Grid
-                if (dgvMerchandise.Columns["MAHH"] != null) dgvMerchandise.Columns["MAHH"].HeaderText = "Mã hàng";
-                if (dgvMerchandise.Columns["TENHH"] != null) dgvMerchandise.Columns["TENHH"].HeaderText = "Tên hàng";
-                if (dgvMerchandise.Columns["MANHOM"] != null) dgvMerchandise.Columns["MANHOM"].HeaderText = "Nhóm";
-                if (dgvMerchandise.Columns["DVT"] != null) dgvMerchandise.Columns["DVT"].HeaderText = "ĐVT";
-                if (dgvMerchandise.Columns["GIAVON"] != null)
-                {
-                    dgvMerchandise.Columns["GIAVON"].HeaderText = "Giá vốn";
-                    dgvMerchandise.Columns["GIAVON"].DefaultCellStyle.Format = "N0";
-                }
-                if (dgvMerchandise.Columns["GIABAN"] != null)
-                {
-                    dgvMerchandise.Columns["GIABAN"].HeaderText = "Giá bán";
-                    dgvMerchandise.Columns["GIABAN"].DefaultCellStyle.Format = "N0";
-                }
-                if (dgvMerchandise.Columns["TONKHO"] != null) dgvMerchandise.Columns["TONKHO"].HeaderText = "Tồn kho";
-                if (dgvMerchandise.Columns["ACTIVE"] != null) dgvMerchandise.Columns["ACTIVE"].HeaderText = "Đang kinh doanh";
-                if (dgvMerchandise.Columns["ANH"] != null) dgvMerchandise.Columns["ANH"].Visible = false;
-
-                SetInputMode(false);
+                DataTable dt = _service.LayDanhSachNhomHang();
+                cboNhomHang.DataSource = dt;
+                cboNhomHang.DisplayMember = "TENNHOM";
+                cboNhomHang.ValueMember = "MANHOM";
+                cboNhomHang.SelectedIndex = -1; // Clear selection
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi tải nhóm hàng: " + ex.Message);
             }
-            finally
+        }
+
+        private void LoadDataGrid()
+        {
+            try
             {
-                this.Cursor = Cursors.Default;
+                DataTable dt = _service.LayDanhSach();
+                dgvHangHoa.DataSource = dt;
+
+                // Format Columns
+                FormatGridColumn("MAHH", "Mã Hàng", 100);
+                FormatGridColumn("TENHH", "Tên Hàng Hóa", 250);
+                FormatGridColumn("TENNHOM", "Nhóm Hàng", 150);
+                FormatGridColumn("DVT", "ĐVT", 80);
+                FormatGridColumn("TONKHO", "Tồn Kho", 80, true);
+                FormatGridColumn("GIAVON", "Giá Vốn", 120, true);
+                FormatGridColumn("GIABAN", "Giá Bán", 120, true);
+
+                // Hide Internal Columns
+                if (dgvHangHoa.Columns["MANHOM"] != null) dgvHangHoa.Columns["MANHOM"].Visible = false;
+                if (dgvHangHoa.Columns["ANH"] != null) dgvHangHoa.Columns["ANH"].Visible = false;
+                if (dgvHangHoa.Columns["ACTIVE"] != null) dgvHangHoa.Columns["ACTIVE"].Visible = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải danh sách hàng hóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private DataTable GetData()
+        private void FormatGridColumn(string colName, string headerText, int width, bool isNumber = false)
         {
-            return DbHelper.Query("SELECT MAHH, TENHH, MANHOM, DVT, GIAVON, GIABAN, TONKHO, ANH, ACTIVE FROM DM_HANGHOA");
+            if (dgvHangHoa.Columns[colName] != null)
+            {
+                dgvHangHoa.Columns[colName].HeaderText = headerText;
+                dgvHangHoa.Columns[colName].Width = width;
+
+                if (isNumber)
+                {
+                    dgvHangHoa.Columns[colName].DefaultCellStyle.Format = "N0";
+                    dgvHangHoa.Columns[colName].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                }
+            }
         }
 
-        private DataTable GetNhomHangData()
-        {
-            return DbHelper.Query("SELECT MANHOM, TENNHOM FROM DM_NHOMHANG");
-        }
+        // ===================================
+        // UI STATES & LOGIC
+        // ===================================
 
         private void SetInputMode(bool enable)
         {
             // Inputs
-            txtMerchandiseCode.ReadOnly = !(_isAdding && enable); // Only editable when adding
-            txtMerchandiseName.ReadOnly = !enable;
-            cboCategory.Enabled = enable;
-            txtUnit.ReadOnly = !enable;
-            txtSellingPrice.ReadOnly = !enable;
+            txtMaHH.ReadOnly = !_isAdding;
+            txtTenHH.ReadOnly = !enable;
+            txtDVT.ReadOnly = !enable;
+            numGiaVon.Enabled = enable;
+            numGiaBan.Enabled = enable;
+            cboNhomHang.Enabled = enable;
             chkActive.Enabled = enable;
-            btnBrowseImage.Enabled = enable;
+            btnChonAnh.Enabled = enable;
 
-            // Buttons
+            // Actions
             btnLuu.Enabled = enable;
             btnHuy.Enabled = enable;
 
             btnThem.Enabled = !enable;
-            bool hasSelection = dgvMerchandise.CurrentRow != null;
-            btnSua.Enabled = !enable && hasSelection;
-            btnXoa.Enabled = !enable && hasSelection;
+            btnSua.Enabled = !enable;
+            btnXoa.Enabled = !enable;
         }
 
         private void ClearInputs()
         {
-            txtMerchandiseCode.Texts = "";
-            txtMerchandiseName.Texts = "";
-            cboCategory.SelectedIndex = -1;
-            txtUnit.Texts = "";
-            txtCostPrice.Texts = "0";
-            txtSellingPrice.Texts = "0";
+            txtMaHH.Text = "";
+            txtTenHH.Text = "";
+            txtDVT.Text = "";
+            numGiaVon.Value = 0;
+            numGiaBan.Value = 0;
+            cboNhomHang.SelectedIndex = -1;
             chkActive.Checked = true;
-
-            if (picProductImage.Image != null) picProductImage.Image.Dispose();
-            picProductImage.Image = null;
-            _currentImagePath = null;
+            picAnhDaiDien.Image = null;
+            _selectedImagePath = null;
         }
 
-        // 4. Search & Filter
-        private void ApplyFilter(string keyword)
+        // ===================================
+        // EVENT HANDLERS
+        // ===================================
+
+        private void btnChonAnh_Click(object sender, EventArgs e)
         {
-            if (_merchandiseTable == null) return;
-            keyword = keyword?.Trim().Replace("'", "''") ?? "";
-
-            if (string.IsNullOrEmpty(keyword))
+            using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                _merchandiseTable.DefaultView.RowFilter = "";
-            }
-            else
-            {
-                _merchandiseTable.DefaultView.RowFilter = $"MAHH LIKE '%{keyword}%' OR TENHH LIKE '%{keyword}%'";
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    _selectedImagePath = ofd.FileName;
+                    picAnhDaiDien.Image = Image.FromFile(_selectedImagePath);
+                }
             }
         }
 
-        private void TxtSearch_TextChanged(object sender, EventArgs e)
-        {
-            ApplyFilter(txtSearch.Texts);
-        }
-
-        // 5. Validation
-        private bool ValidateInputs(out decimal giaBan)
-        {
-            giaBan = 0;
-            if (string.IsNullOrWhiteSpace(txtMerchandiseCode.Texts))
-            {
-                MessageBox.Show("Mã hàng không được để trống.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(txtMerchandiseName.Texts))
-            {
-                MessageBox.Show("Tên hàng không được để trống.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
-            }
-            if (cboCategory.SelectedValue == null)
-            {
-                MessageBox.Show("Vui lòng chọn nhóm hàng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
-            }
-
-            if (!decimal.TryParse(txtSellingPrice.Texts, out giaBan))
-            {
-                giaBan = 0; // Accept 0 or invalid as 0
-            }
-
-            return true;
-        }
-
-        // 6. Event Handlers
-        private void BtnThem_Click(object sender, EventArgs e)
+        private void btnThem_Click(object sender, EventArgs e)
         {
             _isAdding = true;
             ClearInputs();
-            chkActive.Checked = true;
             SetInputMode(true);
-            txtMerchandiseCode.Focus();
+            txtMaHH.Focus();
         }
 
-        private void BtnSua_Click(object sender, EventArgs e)
+        private void btnSua_Click(object sender, EventArgs e)
         {
-            if (dgvMerchandise.CurrentRow == null) return;
+            if (string.IsNullOrEmpty(txtMaHH.Text))
+            {
+                MessageBox.Show("Vui lòng chọn hàng hóa cần sửa!");
+                return;
+            }
             _isAdding = false;
             SetInputMode(true);
-            txtMerchandiseName.Focus();
+            txtTenHH.Focus();
         }
 
-        private void BtnHuy_Click(object sender, EventArgs e)
+        private void btnXoa_Click(object sender, EventArgs e)
         {
-            // Revert
-            if (dgvMerchandise.CurrentRow != null)
+            if (string.IsNullOrEmpty(txtMaHH.Text))
             {
-                DgvMerchandise_SelectionChanged(null, null);
+                MessageBox.Show("Vui lòng chọn hàng hóa cần xóa!");
+                return;
             }
-            else
-            {
-                ClearInputs();
-            }
-            SetInputMode(false);
-            _isAdding = false;
-        }
 
-        private void BtnLuu_Click(object sender, EventArgs e)
-        {
-            if (!ValidateInputs(out decimal giaBan)) return;
-
-            try
-            {
-                if (_isAdding)
-                {
-                    // Check duplicate
-                    object count = DbHelper.Scalar("SELECT COUNT(*) FROM DM_HANGHOA WHERE MAHH = @MaHH", DbHelper.Param("@MaHH", txtMerchandiseCode.Texts));
-                    if (Convert.ToInt32(count) > 0)
-                    {
-                        MessageBox.Show("Mã hàng đã tồn tại, vui lòng nhập mã khác.", "Trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    string sql = @"INSERT INTO DM_HANGHOA (MAHH, TENHH, MANHOM, DVT, GIABAN, ANH, ACTIVE) 
-                                   VALUES (@MaHH, @TenHH, @MaNhom, @DVT, @GiaBan, @Anh, @Active)";
-
-                    DbHelper.Execute(sql,
-                        DbHelper.Param("@MaHH", txtMerchandiseCode.Texts),
-                        DbHelper.Param("@TenHH", txtMerchandiseName.Texts),
-                        DbHelper.Param("@MaNhom", cboCategory.SelectedValue),
-                        DbHelper.Param("@DVT", txtUnit.Texts),
-                        DbHelper.Param("@GiaBan", giaBan),
-                        DbHelper.Param("@Anh", _currentImagePath),
-                        DbHelper.Param("@Active", chkActive.Checked)
-                    );
-                }
-                else
-                {
-                    string sql = @"UPDATE DM_HANGHOA SET 
-                                   TENHH = @TenHH, MANHOM = @MaNhom, DVT = @DVT, GIABAN = @GiaBan, 
-                                   ANH = @Anh, ACTIVE = @Active 
-                                   WHERE MAHH = @MaHH";
-
-                    DbHelper.Execute(sql,
-                        DbHelper.Param("@TenHH", txtMerchandiseName.Texts),
-                        DbHelper.Param("@MaNhom", cboCategory.SelectedValue),
-                        DbHelper.Param("@DVT", txtUnit.Texts),
-                        DbHelper.Param("@GiaBan", giaBan),
-                        DbHelper.Param("@Anh", _currentImagePath),
-                        DbHelper.Param("@Active", chkActive.Checked),
-                        DbHelper.Param("@MaHH", txtMerchandiseCode.Texts)
-                    );
-                }
-
-                // Reload
-                _merchandiseTable = GetData();
-                dgvMerchandise.DataSource = _merchandiseTable;
-                ApplyFilter(txtSearch.Texts); // Re-apply filter if any
-
-                SetInputMode(false);
-                MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi lưu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void BtnXoa_Click(object sender, EventArgs e)
-        {
-            if (dgvMerchandise.CurrentRow == null) return;
-
-            if (MessageBox.Show("Bạn có chắc chắn muốn xóa hàng hóa này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show($"Bạn có chắc chắn xóa hàng '{txtTenHH.Text}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 try
                 {
-                    string maHH = dgvMerchandise.CurrentRow.Cells["MAHH"].Value.ToString();
-                    DbHelper.Execute("DELETE FROM DM_HANGHOA WHERE MAHH = @MaHH", DbHelper.Param("@MaHH", maHH));
-
-                    _merchandiseTable = GetData();
-                    dgvMerchandise.DataSource = _merchandiseTable;
-                    ApplyFilter(txtSearch.Texts);
-
-                    MessageBox.Show("Xóa thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (System.Data.SqlClient.SqlException ex)
-                {
-                    if (ex.Number == 547)
-                        MessageBox.Show("Hàng hóa đã phát sinh chứng từ, không thể xóa.", "Lỗi ràng buộc", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    else
-                        MessageBox.Show("Lỗi khi xóa hàng hóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (_service.Xoa(txtMaHH.Text))
+                    {
+                        MessageBox.Show("Xóa thành công!");
+                        LoadDataGrid();
+                        ClearInputs();
+                    }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "Lỗi nghiệp vụ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
 
-        private void BtnBrowseImage_Click(object sender, EventArgs e)
+        private void btnLuu_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog dlg = new OpenFileDialog())
+            // Validation
+            if (string.IsNullOrWhiteSpace(txtMaHH.Text) || string.IsNullOrWhiteSpace(txtTenHH.Text))
             {
-                dlg.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-                if (dlg.ShowDialog() == DialogResult.OK)
-                {
-                    if (picProductImage.Image != null) picProductImage.Image.Dispose();
-                    _currentImagePath = dlg.FileName;
-                    try
-                    {
-                        picProductImage.Image = Image.FromFile(_currentImagePath);
-                    }
-                    catch { /* Ignore invalid image */ }
-                }
+                MessageBox.Show("Mã và Tên hàng không được để trống!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-        }
 
-        private void DgvMerchandise_SelectionChanged(object sender, EventArgs e)
-        {
-            if (_isAdding) return;
-
-            if (dgvMerchandise.CurrentRow != null)
+            if (cboNhomHang.SelectedValue == null)
             {
-                var row = dgvMerchandise.CurrentRow;
-                txtMerchandiseCode.Texts = row.Cells["MAHH"].Value?.ToString();
-                txtMerchandiseName.Texts = row.Cells["TENHH"].Value?.ToString();
-                cboCategory.SelectedValue = row.Cells["MANHOM"].Value;
-                txtUnit.Texts = row.Cells["DVT"].Value?.ToString();
-                txtCostPrice.Texts = row.Cells["GIAVON"].Value != DBNull.Value ? Convert.ToDecimal(row.Cells["GIAVON"].Value).ToString("N0") : "0";
-                txtSellingPrice.Texts = row.Cells["GIABAN"].Value != DBNull.Value ? Convert.ToDecimal(row.Cells["GIABAN"].Value).ToString("N0") : "0";
-                chkActive.Checked = row.Cells["ACTIVE"].Value != DBNull.Value && Convert.ToBoolean(row.Cells["ACTIVE"].Value);
+                MessageBox.Show("Vui lòng chọn Nhóm hàng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-                // Image
-                if (picProductImage.Image != null) picProductImage.Image.Dispose();
-                _currentImagePath = row.Cells["ANH"].Value?.ToString();
+            try
+            {
+                string maNhom = cboNhomHang.SelectedValue.ToString();
 
-                if (!string.IsNullOrEmpty(_currentImagePath) && File.Exists(_currentImagePath))
+                // TODO: Xử lý lưu ảnh chuyên sâu (Copy vào folder / Convert Base64). 
+                // Ở đây tạm lưu đường dẫn hoặc chuỗi rỗng.
+                string pathAnh = _selectedImagePath ?? "";
+
+                bool result = false;
+
+                if (_isAdding)
                 {
-                    try { picProductImage.Image = Image.FromFile(_currentImagePath); }
-                    catch { picProductImage.Image = null; }
+                    result = _service.Them(
+                        txtMaHH.Text.Trim(),
+                        txtTenHH.Text.Trim(),
+                        maNhom,
+                        txtDVT.Text.Trim(),
+                        numGiaVon.Value,
+                        numGiaBan.Value,
+                        pathAnh,
+                        chkActive.Checked);
                 }
                 else
                 {
-                    picProductImage.Image = null;
+                    result = _service.Sua(
+                        txtMaHH.Text.Trim(),
+                        txtTenHH.Text.Trim(),
+                        maNhom,
+                        txtDVT.Text.Trim(),
+                        numGiaVon.Value,
+                        numGiaBan.Value,
+                        pathAnh,
+                        chkActive.Checked);
                 }
 
-                SetInputMode(false); // Ensure buttons update state
+                if (result)
+                {
+                    MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo");
+                    LoadDataGrid();
+                    SetInputMode(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnHuy_Click(object sender, EventArgs e)
+        {
+            SetInputMode(false);
+            _isAdding = false;
+            // Load lại dòng đang chọn
+            if (dgvHangHoa.CurrentRow != null)
+                dgvHangHoa_SelectionChanged(null, null);
+            else
+                ClearInputs();
+        }
+
+        private void dgvHangHoa_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvHangHoa.CurrentRow != null && dgvHangHoa.CurrentRow.Index >= 0)
+            {
+                var row = dgvHangHoa.CurrentRow;
+
+                txtMaHH.Text = row.Cells["MAHH"].Value?.ToString();
+                txtTenHH.Text = row.Cells["TENHH"].Value?.ToString();
+                txtDVT.Text = row.Cells["DVT"].Value?.ToString();
+
+                // Numeric Up Down safe set
+                if (decimal.TryParse(row.Cells["GIAVON"].Value?.ToString(), out decimal giaVon))
+                    numGiaVon.Value = giaVon;
+
+                if (decimal.TryParse(row.Cells["GIABAN"].Value?.ToString(), out decimal giaBan))
+                    numGiaBan.Value = giaBan;
+
+                // ComboBox safe set
+                string maNhom = row.Cells["MANHOM"].Value?.ToString();
+                if (!string.IsNullOrEmpty(maNhom))
+                    cboNhomHang.SelectedValue = maNhom;
+
+                // Checkbox
+                if (row.Cells["ACTIVE"].Value != DBNull.Value)
+                    chkActive.Checked = Convert.ToBoolean(row.Cells["ACTIVE"].Value);
+
+                // Image loading logic (Simple check)
+                string imgPath = row.Cells["ANH"].Value?.ToString();
+                if (!string.IsNullOrEmpty(imgPath) && File.Exists(imgPath))
+                {
+                    picAnhDaiDien.Image = Image.FromFile(imgPath);
+                    _selectedImagePath = imgPath;
+                }
+                else
+                {
+                    picAnhDaiDien.Image = null;
+                }
             }
         }
     }

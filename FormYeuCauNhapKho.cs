@@ -1,493 +1,343 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Transactions;
-using DoAnLapTrinhQuanLy.Data;
+using DoAnLapTrinhQuanLy.Services;
 using DoAnLapTrinhQuanLy.Core;
+using DoAnLapTrinhQuanLy.Data;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
-    public partial class FormYeuCauNhapKho : BaseForm
+    public partial class FormYeuCauNhapKho : System.Windows.Forms.Form
     {
-        private string _mode = "";
-        private DataTable dtChiTiet;
+        private readonly YeuCauNhapKhoService _service = new YeuCauNhapKhoService();
+        private DataTable _dtHangHoa;
+        private string _mode = ""; // "view", "add", "edit"
 
         public FormYeuCauNhapKho()
         {
             InitializeComponent();
-            UseCustomTitleBar = false;
         }
 
         private void FormYeuCauNhapKho_Load(object sender, EventArgs e)
         {
-            LoadComboBoxes();
-            LoadDanhSachPhieu();
-            SetInputMode(false);
-
-            StyleDataGridView(dgvDanhSach);
-            StyleDataGridView(dgvChiTiet);
-
-            // Wire events if not already wired in Designer
-            // We'll rely on Designer or these manual wirings if they were intended
-            // But to be safe, I'll add them here if they aren't duplicates.
-            // Actually, usually these are in Designer.cs. If I add them here, I might duplicate.
-            // But the previous code had them. I'll assume they are needed.
-            btnThem.Click -= btnThem_Click; btnThem.Click += btnThem_Click;
-            btnSua.Click -= btnSua_Click; btnSua.Click += btnSua_Click;
-            btnXoa.Click -= btnXoa_Click; btnXoa.Click += btnXoa_Click;
-            btnLuu.Click -= btnLuu_Click; btnLuu.Click += btnLuu_Click;
-            btnHuy.Click -= btnHuy_Click; btnHuy.Click += btnHuy_Click;
-            // dgvDanhSach.SelectionChanged -= dgvDanhSach_SelectionChanged; dgvDanhSach.SelectionChanged += dgvDanhSach_SelectionChanged;
-
-            btnDuyet.Visible = true;
-            btnTuChoi.Visible = true;
-            btnDuyet.Click -= btnDuyet_Click; btnDuyet.Click += btnDuyet_Click;
-            btnTuChoi.Click -= btnTuChoi_Click; btnTuChoi.Click += btnTuChoi_Click;
+            try
+            {
+                ApplyModernUI();
+                SetupGrids();
+                LoadComboBoxes();
+                LoadData();
+                SetMode("view");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khởi tạo: " + ex.Message);
+            }
         }
 
-        #region Core Logic (SetInputMode và Load)
-
-        private void SetInputMode(bool mode)
+        private void ApplyModernUI()
         {
-            bool canApprove = (Session.LoggedInUser.TenQuyen == "Administrator" || Session.LoggedInUser.TenQuyen == "Kế toán");
+            this.BackColor = Color.FromArgb(241, 245, 249); // Light Gray Background
+                                                            // Ensure child controls have transparent backgrounds where needed or consistent styling
+            foreach (Control c in this.Controls)
+            {
+                if (c is GroupBox gb)
+                {
+                    gb.ForeColor = Color.Black; // Reset text color
+                }
+            }
+        }
 
-            btnThem.Enabled = !mode;
-            btnSua.Enabled = !mode;
-            btnXoa.Enabled = !mode;
-            btnDuyet.Enabled = !mode && canApprove;
-            btnTuChoi.Enabled = !mode && canApprove;
+        private void SetupGrids()
+        {
+            // === Master Grid ===
+            dgvDanhSach.Columns.Clear();
+            dgvDanhSach.AutoGenerateColumns = false;
 
-            btnLuu.Enabled = mode;
-            btnHuy.Enabled = mode;
+            dgvDanhSach.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "ID", Width = 50 });
+            dgvDanhSach.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày YC", DataPropertyName = "NGAY_YEUCAU", Width = 100 });
+            dgvDanhSach.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Lý Do", DataPropertyName = "LYDO", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
+            dgvDanhSach.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Trạng Thái", DataPropertyName = "TRANGTHAI_TEXT", Width = 120 });
+            // Hidden State Column
+            dgvDanhSach.Columns.Add(new DataGridViewTextBoxColumn { Name = "colTrangThai", DataPropertyName = "TRANGTHAI", Visible = false });
 
-            dtpNgayYeuCau.Enabled = mode;
-            cboNhanVienYeuCau.Enabled = mode;
-            txtLyDo.ReadOnly = !mode;
+            // === Detail Grid ===
+            dgvChiTiet.Columns.Clear();
+            dgvChiTiet.AutoGenerateColumns = false;
 
-            cboTrangThai.Enabled = false;
-            dtpNgayDuyet.Enabled = false;
-            cboNhanVienDuyet.Enabled = false;
-            txtGhiChuDuyet.ReadOnly = !canApprove || mode;
+            _dtHangHoa = _service.LayDanhSachHangHoa();
 
-            dgvChiTiet.ReadOnly = !mode;
-            dgvChiTiet.AllowUserToAddRows = mode;
+            var colMaHH = new DataGridViewComboBoxColumn();
+            colMaHH.HeaderText = "Hàng Hóa";
+            colMaHH.Name = "colMaHH";
+            colMaHH.DataPropertyName = "MAHH";
+            colMaHH.DataSource = _dtHangHoa;
+            colMaHH.DisplayMember = "TENHH";
+            colMaHH.ValueMember = "MAHH";
+            colMaHH.Width = 250;
+            colMaHH.FlatStyle = FlatStyle.Flat;
+            dgvChiTiet.Columns.Add(colMaHH);
 
-            dgvDanhSach.Enabled = !mode;
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ĐVT", Name = "colDVT", DataPropertyName = "DVT", ReadOnly = true, Width = 80 });
+
+            var colSL = new DataGridViewTextBoxColumn { HeaderText = "Số Lượng", Name = "colSL", DataPropertyName = "SOLUONG_YEUCAU", Width = 100 };
+            colSL.DefaultCellStyle.Format = "N0";
+            dgvChiTiet.Columns.Add(colSL);
+
+            dgvChiTiet.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi Chú", Name = "colGhiChu", DataPropertyName = "GHICHU", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
+
+            dgvChiTiet.EditingControlShowing += DgvChiTiet_EditingControlShowing;
+            dgvChiTiet.CellValueChanged += DgvChiTiet_CellValueChanged;
+            dgvChiTiet.DataError += (s, e) => { }; // Suppress ComboBox errors
         }
 
         private void LoadComboBoxes()
         {
-            LoadNhanVienToCombo(cboNhanVienYeuCau, "Tải NV Yêu cầu");
-            LoadNhanVienToCombo(cboNhanVienDuyet, "Tải NV Duyệt");
-
-            cboTrangThai.Items.Clear();
-            cboTrangThai.Items.Add("0 - Mới tạo");
-            cboTrangThai.Items.Add("1 - Đã duyệt");
-            cboTrangThai.Items.Add("2 - Đã từ chối");
-            cboTrangThai.Items.Add("3 - Đã nhập kho"); // Thêm trạng thái mới
-            cboTrangThai.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboNhanVienYeuCau.DataSource = _service.LayDanhSachNhanVien();
+            cboNhanVienYeuCau.DisplayMember = "HOTEN";
+            cboNhanVienYeuCau.ValueMember = "MANV";
         }
 
-        private void LoadNhanVienToCombo(ComboBox cbo, string placeholder)
+        private void LoadData()
         {
-            try
-            {
-                DataTable dt = DbHelper.Query("SELECT MANV, HOTEN FROM NHANVIEN WHERE HOATDONG = 1 ORDER BY HOTEN");
-                DataRow dr = dt.NewRow();
-                dr["MANV"] = "";
-                dr["HOTEN"] = $"--- {placeholder} ---";
-                dt.Rows.InsertAt(dr, 0);
+            dgvDanhSach.DataSource = _service.LayDanhSach();
+        }
 
-                cbo.DataSource = dt;
-                cbo.DisplayMember = "HOTEN";
-                cbo.ValueMember = "MANV";
-                cbo.DropDownStyle = ComboBoxStyle.DropDownList;
-            }
-            catch (Exception ex)
+        private void SetMode(string mode)
+        {
+            _mode = mode;
+            bool isEditing = (mode == "add" || mode == "edit");
+
+            grpInfo.Enabled = isEditing;
+            dgvChiTiet.ReadOnly = !isEditing;
+            dgvChiTiet.AllowUserToAddRows = isEditing;
+            dgvChiTiet.AllowUserToDeleteRows = isEditing;
+            dgvDanhSach.Enabled = !isEditing;
+
+            btnThem.Enabled = !isEditing;
+            btnXoa.Enabled = !isEditing && IsCurrentRowEditable();
+            btnLuu.Enabled = isEditing;
+            btnHuy.Enabled = isEditing;
+
+            // Approval Buttons logic
+            bool canApprove = (Session.LoggedInUser?.TenQuyen == "Administrator" || Session.LoggedInUser?.TenQuyen == "Kế toán");
+            bool isPending = IsCurrentRowPending();
+
+            grpAction.Enabled = !isEditing;
+            btnDuyet.Enabled = !isEditing && isPending && canApprove;
+            btnTuChoi.Enabled = !isEditing && isPending && canApprove;
+            txtGhiChuDuyet.ReadOnly = !canApprove;
+
+            if (mode == "view" && dgvDanhSach.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Lỗi tải danh sách nhân viên: " + ex.Message);
+                ClearInputs();
             }
         }
 
-        private void LoadDanhSachPhieu()
+        private bool IsCurrentRowEditable()
         {
-            try
-            {
-                string query = @"
-                    SELECT ID, NGAY_YEUCAU, MANV_YEUCAU, TRANGTHAI, LYDO 
-                    FROM PHIEU_YEUCAU_NHAPKHO 
-                    ORDER BY NGAY_YEUCAU DESC, ID DESC";
-                dgvDanhSach.DataSource = DbHelper.Query(query);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải danh sách phiếu: " + ex.Message);
-            }
+            return IsCurrentRowPending();
+        }
+
+        private bool IsCurrentRowPending()
+        {
+            if (dgvDanhSach.CurrentRow == null) return false;
+            var val = dgvDanhSach.CurrentRow.Cells["colTrangThai"].Value;
+            return (val != null && Convert.ToInt32(val) == 0);
         }
 
         private void ClearInputs()
         {
-            txtID.Text = "(auto)";
+            txtID.Text = "(Tạo mới)";
             dtpNgayYeuCau.Value = DateTime.Now;
-
-            if (Session.LoggedInUser != null && !string.IsNullOrEmpty(Session.LoggedInUser.MaNV))
-            {
-                cboNhanVienYeuCau.SelectedValue = Session.LoggedInUser.MaNV;
-            }
-            else
-            {
-                cboNhanVienYeuCau.SelectedIndex = 0;
-            }
-
+            if (Session.LoggedInUser != null) cboNhanVienYeuCau.SelectedValue = Session.LoggedInUser.MaNV;
             txtLyDo.Text = "";
-            cboTrangThai.SelectedIndex = 0; // Mới tạo
-            dtpNgayDuyet.Value = DateTime.Now;
-            cboNhanVienDuyet.SelectedValue = "";
             txtGhiChuDuyet.Text = "";
-
-            // Tạo bảng chi tiết rỗng để bắt đầu nhập
-            dtChiTiet = new DataTable();
-            dtChiTiet.Columns.Add("MAHH", typeof(string));
-            dtChiTiet.Columns.Add("TENHH", typeof(string));
-            dtChiTiet.Columns.Add("DVT", typeof(string));
-            dtChiTiet.Columns.Add("SOLUONG_YEUCAU", typeof(int));
-            dtChiTiet.Columns.Add("GHICHU", typeof(string));
-            dgvChiTiet.DataSource = dtChiTiet;
+            dgvChiTiet.DataSource = null;
+            dgvChiTiet.Rows.Clear();
         }
 
-        private void BindData(long selectedId)
+        // === Event Handlers ===
+
+        private void dgvDanhSach_SelectionChanged(object sender, EventArgs e)
         {
-            try
+            if (_mode == "add" || _mode == "edit") return;
+
+            if (dgvDanhSach.CurrentRow != null)
             {
-                // 1. Tải Master
-                string queryMaster = "SELECT * FROM PHIEU_YEUCAU_NHAPKHO WHERE ID = @ID";
-                DataTable dtMaster = DbHelper.Query(queryMaster, DbHelper.Param("@ID", selectedId));
+                long id = Convert.ToInt64(dgvDanhSach.CurrentRow.Cells[0].Value);
+                LoadDetails(id);
 
-                if (dtMaster.Rows.Count > 0)
-                {
-                    DataRow r = dtMaster.Rows[0];
-                    txtID.Text = r["ID"].ToString();
-                    dtpNgayYeuCau.Value = (DateTime)r["NGAY_YEUCAU"];
-                    cboNhanVienYeuCau.SelectedValue = r["MANV_YEUCAU"].ToString();
-                    txtLyDo.Text = r["LYDO"].ToString();
-                    cboTrangThai.SelectedIndex = Convert.ToInt32(r["TRANGTHAI"]);
-
-                    dtpNgayDuyet.Value = r["NGAY_DUYET"] == DBNull.Value ? DateTime.Now : (DateTime)r["NGAY_DUYET"];
-                    cboNhanVienDuyet.SelectedValue = r["MANV_DUYET"] == DBNull.Value ? "" : r["MANV_DUYET"].ToString();
-                    txtGhiChuDuyet.Text = r["GHICHU_DUYET"].ToString();
-                }
-
-                // 2. Tải Detail
-                string queryDetail = @"
-                    SELECT ct.MAHH, hh.TENHH, hh.DVT, ct.SOLUONG_YEUCAU, ct.GHICHU 
-                    FROM PHIEU_YEUCAU_NHAPKHO_CT ct
-                    JOIN DM_HANGHOA hh ON ct.MAHH = hh.MAHH
-                    WHERE ct.ID_YEUCAU = @ID";
-                dtChiTiet = DbHelper.Query(queryDetail, DbHelper.Param("@ID", selectedId));
-                dgvChiTiet.DataSource = dtChiTiet;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải chi tiết phiếu: " + ex.Message);
+                // Update button states based on selection status
+                SetMode("view");
             }
         }
 
-        #endregion
+        private void LoadDetails(long id)
+        {
+            DataSet ds = _service.GetChiTietPhieu(id);
+            if (ds.Tables["Master"].Rows.Count > 0)
+            {
+                DataRow m = ds.Tables["Master"].Rows[0];
+                txtID.Text = m["ID"].ToString();
+                dtpNgayYeuCau.Value = (DateTime)m["NGAY_YEUCAU"];
+                cboNhanVienYeuCau.SelectedValue = m["MANV_YEUCAU"].ToString();
+                txtLyDo.Text = m["LYDO"].ToString();
+                txtGhiChuDuyet.Text = m["GHICHU_DUYET"].ToString();
+            }
 
-        #region Xử lý Sự kiện Nút bấm
+            // Bind Grid
+            // Convert DataTable to a List or just bind directly if columns match
+            // Since we use ComboBox, we need to be careful with binding.
+            // Let's manually populate to ensure safe combobox behavior or use binding source.
+            // Direct Binding is fine if columns map correctly.
+            dgvChiTiet.DataSource = ds.Tables["Detail"];
+        }
 
         private void btnThem_Click(object sender, EventArgs e)
         {
-            _mode = "add";
             ClearInputs();
-            SetInputMode(true);
-            dtpNgayYeuCau.Focus();
-        }
-
-        private void btnSua_Click(object sender, EventArgs e)
-        {
-            if (dgvDanhSach.CurrentRow == null) return;
-
-            int trangThai = Convert.ToInt32(dgvDanhSach.CurrentRow.Cells["TRANGTHAI"].Value);
-            if (trangThai != 0)
-            {
-                MessageBox.Show("Phiếu đã được xử lý, không thể sửa.");
-                return;
-            }
-
-            _mode = "edit";
-            SetInputMode(true);
-            dtpNgayYeuCau.Focus();
+            SetMode("add");
         }
 
         private void btnXoa_Click(object sender, EventArgs e)
         {
-            if (dgvDanhSach.CurrentRow == null) return;
-
-            int trangThai = Convert.ToInt32(dgvDanhSach.CurrentRow.Cells["TRANGTHAI"].Value);
-            if (trangThai != 0)
+            if (!IsCurrentRowEditable())
             {
-                MessageBox.Show("Phiếu đã được xử lý, không thể xóa.");
+                MessageBox.Show("Chỉ được xóa phiếu ở trạng thái chờ duyệt.");
                 return;
             }
 
-            if (MessageBox.Show("Bạn có chắc muốn xóa phiếu này?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show("Xóa phiếu này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 try
                 {
-                    long id = Convert.ToInt64(dgvDanhSach.CurrentRow.Cells["ID"].Value);
-                    DbHelper.Execute("DELETE FROM PHIEU_YEUCAU_NHAPKHO WHERE ID = @ID", DbHelper.Param("@ID", id));
-                    LoadDanhSachPhieu();
-                    ClearInputs();
+                    long id = Convert.ToInt64(txtID.Text);
+                    _service.XoaYeuCau(id);
+                    LoadData();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Lỗi khi xóa phiếu: " + ex.Message);
+                    MessageBox.Show(ex.Message);
                 }
             }
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            if (cboNhanVienYeuCau.SelectedValue == null || string.IsNullOrEmpty(cboNhanVienYeuCau.SelectedValue.ToString()))
+            List<ChiTietYeuCauDTO> details = new List<ChiTietYeuCauDTO>();
+            foreach (DataGridViewRow row in dgvChiTiet.Rows)
             {
-                MessageBox.Show("Vui lòng chọn người yêu cầu.");
-                return;
+                if (row.IsNewRow) continue;
+                string maHH = row.Cells["colMaHH"].Value?.ToString();
+                if (string.IsNullOrEmpty(maHH)) continue;
+
+                details.Add(new ChiTietYeuCauDTO
+                {
+                    MaHH = maHH,
+                    SoLuong = Convert.ToInt32(row.Cells["colSL"].Value ?? 0),
+                    GhiChu = row.Cells["colGhiChu"].Value?.ToString(),
+                    DVT = row.Cells["colDVT"].Value?.ToString()
+                });
             }
 
-            dgvChiTiet.EndEdit();
-            var validRows = (dgvChiTiet.DataSource as DataTable).AsEnumerable()
-                .Where(r => r.RowState != DataRowState.Deleted &&
-                            r["MAHH"] != DBNull.Value &&
-                            !string.IsNullOrEmpty(r["MAHH"].ToString()))
-                .ToList();
-
-            if (validRows.Count == 0)
+            if (details.Count == 0)
             {
-                MessageBox.Show("Phiếu yêu cầu phải có ít nhất 1 dòng hàng hóa.");
+                MessageBox.Show("Vui lòng nhập chi tiết hàng hóa.");
                 return;
             }
 
             try
             {
-                using (var scope = new TransactionScope())
-                {
-                    long phieuId;
-                    if (_mode == "add")
-                    {
-                        string queryMaster = @"
-                            INSERT INTO PHIEU_YEUCAU_NHAPKHO (NGAY_YEUCAU, MANV_YEUCAU, LYDO, TRANGTHAI)
-                            VALUES (@NGAY_YEUCAU, @MANV_YEUCAU, @LYDO, 0);
-                            SELECT SCOPE_IDENTITY();";
+                long id = (_mode == "add") ? 0 : Convert.ToInt64(txtID.Text);
+                string manv = cboNhanVienYeuCau.SelectedValue?.ToString();
 
-                        phieuId = Convert.ToInt64(DbHelper.ExecuteScalar(queryMaster,
-                            DbHelper.Param("@NGAY_YEUCAU", dtpNgayYeuCau.Value.Date),
-                            DbHelper.Param("@MANV_YEUCAU", cboNhanVienYeuCau.SelectedValue.ToString()),
-                            DbHelper.Param("@LYDO", txtLyDo.Text)
-                        ));
-                    }
-                    else
-                    {
-                        phieuId = Convert.ToInt64(txtID.Text);
-                        string queryMaster = @"
-                            UPDATE PHIEU_YEUCAU_NHAPKHO 
-                            SET NGAY_YEUCAU = @NGAY_YEUCAU, 
-                                MANV_YEUCAU = @MANV_YEUCAU, 
-                                LYDO = @LYDO
-                            WHERE ID = @ID";
-                        DbHelper.Execute(queryMaster,
-                            DbHelper.Param("@NGAY_YEUCAU", dtpNgayYeuCau.Value.Date),
-                            DbHelper.Param("@MANV_YEUCAU", cboNhanVienYeuCau.SelectedValue.ToString()),
-                            DbHelper.Param("@LYDO", txtLyDo.Text),
-                            DbHelper.Param("@ID", phieuId)
-                        );
+                _service.LuuYeuCau(id, dtpNgayYeuCau.Value, manv, txtLyDo.Text, details);
 
-                        DbHelper.Execute("DELETE FROM PHIEU_YEUCAU_NHAPKHO_CT WHERE ID_YEUCAU = @ID", DbHelper.Param("@ID", phieuId));
-                    }
-
-                    // Lưu Detail (KHÔNG ĐỤNG KHO)
-                    string queryDetail = @"
-                        INSERT INTO PHIEU_YEUCAU_NHAPKHO_CT (ID_YEUCAU, MAHH, SOLUONG_YEUCAU, GHICHU)
-                        VALUES (@ID_YEUCAU, @MAHH, @SOLUONG, @GHICHU)";
-
-                    foreach (DataRow row in validRows)
-                    {
-                        DbHelper.Execute(queryDetail,
-                            DbHelper.Param("@ID_YEUCAU", phieuId),
-                            DbHelper.Param("@MAHH", row["MAHH"].ToString()),
-                            DbHelper.Param("@SOLUONG", Convert.ToInt32(row["SOLUONG_YEUCAU"])),
-                            DbHelper.Param("@GHICHU", row["GHICHU"].ToString())
-                        );
-                    }
-
-                    scope.Complete();
-                }
-
-                MessageBox.Show("Đã lưu Phiếu Yêu Cầu thành công!");
-                LoadDanhSachPhieu();
-                SetInputMode(false);
-                _mode = "";
+                MessageBox.Show("Lưu thành công!");
+                LoadData();
+                SetMode("view");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi lưu phiếu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
         private void btnHuy_Click(object sender, EventArgs e)
         {
-            _mode = "";
-            SetInputMode(false);
-            if (dgvDanhSach.CurrentRow != null)
-                dgvDanhSach_SelectionChanged(null, null);
-            else
-                ClearInputs();
+            SetMode("view");
+            dgvDanhSach_SelectionChanged(null, null); // Reload selection
         }
 
         private void btnDuyet_Click(object sender, EventArgs e)
         {
-            ProcessApproval(1); // 1 = Đã duyệt
+            ProcessApproval(1);
         }
 
         private void btnTuChoi_Click(object sender, EventArgs e)
         {
-            ProcessApproval(2); // 2 = Đã từ chối
+            ProcessApproval(2);
         }
 
-        private void ProcessApproval(int newStatus)
+        private void btnThoat_Click(object sender, EventArgs e)
         {
-            if (dgvDanhSach.CurrentRow == null) return;
+            this.Close();
+        }
 
-            int trangThai = Convert.ToInt32(dgvDanhSach.CurrentRow.Cells["TRANGTHAI"].Value);
-            if (trangThai != 0)
-            {
-                MessageBox.Show("Phiếu này đã được xử lý rồi.");
-                return;
-            }
-
-            long id = Convert.ToInt64(txtID.Text);
-            string manv_duyet = Session.LoggedInUser.MaNV;
-            string ghiChu = txtGhiChuDuyet.Text;
-            string statusText = (newStatus == 1) ? "Duyệt" : "Từ chối";
-
-            if (MessageBox.Show($"Bạn có chắc muốn {statusText} phiếu {id}?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-            {
-                return;
-            }
-
+        private void ProcessApproval(int status)
+        {
             try
             {
-                string query = @"
-                    UPDATE PHIEU_YEUCAU_NHAPKHO
-                    SET TRANGTHAI = @TrangThai,
-                        MANV_DUYET = @MaNVDuyet,
-                        NGAY_DUYET = @NgayDuyet,
-                        GHICHU_DUYET = @GhiChu
-                    WHERE ID = @ID";
+                long id = Convert.ToInt64(txtID.Text);
+                string manv = Session.LoggedInUser?.MaNV;
 
-                DbHelper.Execute(query,
-                    DbHelper.Param("@TrangThai", newStatus),
-                    DbHelper.Param("@MaNVDuyet", manv_duyet),
-                    DbHelper.Param("@NgayDuyet", DateTime.Now.Date),
-                    DbHelper.Param("@GhiChu", ghiChu),
-                    DbHelper.Param("@ID", id)
-                );
-
-                MessageBox.Show($"Đã {statusText} phiếu thành công!");
-                LoadDanhSachPhieu();
-
-                foreach (DataGridViewRow row in dgvDanhSach.Rows)
+                if (status == 1)
                 {
-                    if (Convert.ToInt64(row.Cells["ID"].Value) == id)
-                    {
-                        row.Selected = true;
-                        dgvDanhSach.CurrentCell = row.Cells[0];
-                        break;
-                    }
+                    _service.DuyetYeuCau(id, manv, txtGhiChuDuyet.Text);
                 }
-                BindData(id);
+                else if (status == 2)
+                {
+                    _service.TuChoiYeuCau(id, manv, txtGhiChuDuyet.Text);
+                }
+
+                MessageBox.Show("Cập nhật trạng thái thành công!");
+                LoadData();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi {statusText} phiếu: " + ex.Message);
+                MessageBox.Show(ex.Message);
             }
         }
 
-        #endregion
-
-        #region Xử lý Sự kiện Grid
-
-        private void dgvDanhSach_SelectionChanged(object sender, EventArgs e)
+        // === Grid Helpers ===
+        private void DgvChiTiet_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            if (dgvDanhSach.CurrentRow != null && string.IsNullOrEmpty(_mode))
+            if (dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colMaHH"].Index && e.Control is ComboBox comboBox)
             {
-                long id = Convert.ToInt64(dgvDanhSach.CurrentRow.Cells["ID"].Value);
-                BindData(id);
-
-                int trangThai = Convert.ToInt32(dgvDanhSach.CurrentRow.Cells["TRANGTHAI"].Value);
-                bool canApprove = (Session.LoggedInUser.TenQuyen == "Administrator" || Session.LoggedInUser.TenQuyen == "Kế toán");
-                bool isNew = (trangThai == 0);
-
-                btnSua.Enabled = isNew;
-                btnXoa.Enabled = isNew;
-                btnDuyet.Enabled = isNew && canApprove;
-                btnTuChoi.Enabled = isNew && canApprove;
-                txtGhiChuDuyet.ReadOnly = !canApprove || !isNew;
-            }
-            else if (string.IsNullOrEmpty(_mode))
-            {
-                ClearInputs();
-                btnDuyet.Enabled = false;
-                btnTuChoi.Enabled = false;
-                btnSua.Enabled = false;
-                btnXoa.Enabled = false;
+                comboBox.DropDownStyle = ComboBoxStyle.DropDown;
+                comboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                comboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             }
         }
 
-        #endregion
-
-        #region UI Helpers
-
-        private void StyleDataGridView(DataGridView dgv)
+        private void DgvChiTiet_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            // === Style chung ===
-            dgv.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(22)))), ((int)(((byte)(38)))));
-            dgv.BorderStyle = BorderStyle.None;
-            dgv.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dgv.RowHeadersVisible = false;
-            dgv.EnableHeadersVisualStyles = false;
-            dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv.AllowUserToAddRows = false;
-            dgv.AllowUserToDeleteRows = false;
-
-            // === Style Header (Tiêu đề cột) ===
-            DataGridViewCellStyle headerStyle = new DataGridViewCellStyle();
-            headerStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(56)))));
-            headerStyle.ForeColor = Color.Gainsboro;
-            headerStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
-            headerStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dgv.ColumnHeadersDefaultCellStyle = headerStyle;
-
-            // === Style Cell (Ô dữ liệu) ===
-            DataGridViewCellStyle cellStyle = new DataGridViewCellStyle();
-            cellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(22)))), ((int)(((byte)(38)))));
-            cellStyle.ForeColor = Color.Gainsboro; // <-- Màu chữ sáng đây nè bà
-            cellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(157)))), ((int)(((byte)(170)))), ((int)(((byte)(242)))));
-            cellStyle.SelectionForeColor = Color.Black; // Màu chữ khi bôi đen
-            cellStyle.WrapMode = DataGridViewTriState.False;
-            cellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dgv.DefaultCellStyle = cellStyle;
+            if (e.RowIndex < 0) return;
+            if (dgvChiTiet.Columns[e.ColumnIndex].Name == "colMaHH")
+            {
+                string maHH = dgvChiTiet.Rows[e.RowIndex].Cells["colMaHH"].Value?.ToString();
+                if (!string.IsNullOrEmpty(maHH))
+                {
+                    DataRow[] rows = _dtHangHoa.Select($"MAHH = '{maHH}'");
+                    if (rows.Length > 0)
+                    {
+                        dgvChiTiet.Rows[e.RowIndex].Cells["colDVT"].Value = rows[0]["DVT"];
+                    }
+                }
+            }
         }
-
-        #endregion
     }
 }
