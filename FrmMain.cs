@@ -88,12 +88,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.Text = "SALEGEARVN - QUẢN LÝ BÁN HÀNG";
             this.Font = ThemeManager.BaseFont;
 
-            // 1. Sidebar (Left, 250px)
+            // 1. Sidebar (Left, 230px - Reduced from 250px)
             pnlSidebar = new Panel
             {
                 Dock = DockStyle.Left,
-                Width = 250,
-                BackColor = ThemeManager.SecondaryColor,
+                Width = 230,
+                BackColor = Color.FromArgb(30, 30, 30), // Darker as requested
                 Padding = new Padding(0, 0, 0, 0)
             };
 
@@ -104,17 +104,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
                 AutoScroll = true,
-                BackColor = ThemeManager.SecondaryColor,
+                BackColor = Color.FromArgb(30, 30, 30), // Match sidebar
                 Padding = new Padding(10, 20, 10, 10)
             };
             pnlSidebar.Controls.Add(flpSidebarButtons);
 
-            // 2. SubMenu Container (Left, after Sidebar)
+            // 2. SubMenu Container (Left, after Sidebar, 200px - Reduced from 220px)
             pnlSubMenuContainer = new Panel
             {
                 Dock = DockStyle.Left,
-                Width = 220,
-                BackColor = Color.FromArgb(35, 35, 38), // Slightly lighter than secondary
+                Width = 200,
+                BackColor = Color.FromArgb(45, 45, 48), // Lighter than Sidebar for depth
                 Visible = false
             };
 
@@ -149,24 +149,25 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             };
 
             // Add Controls to Form
+            // Note: The order of adding controls affects default Z-order (last added = top), 
+            // but we will explicitly set Z-order below.
             this.Controls.Add(pnlContent);
             this.Controls.Add(statusStrip);
-            this.Controls.Add(pnlSubMenuContainer);
-            this.Controls.Add(pnlHeader);
-            this.Controls.Add(pnlSidebar);
+            this.Controls.Add(pnlSubMenuContainer); // Inner Left
+            this.Controls.Add(pnlSidebar);          // Outer Left
+            this.Controls.Add(pnlHeader);           // Top
 
             // Correct Z-Order for Docking Priority:
-            // 1. Sidebar (Index 0, Topmost) -> Left Full Height
-            // 2. Header (Index 1) -> Top of Remaining (Right of Sidebar)
-            // 3. SubMenu (Index 2) -> Left of Remaining (Below Header, Right of Sidebar)
-            // 4. StatusStrip (Index 3) -> Bottom of Remaining
-            // 5. Content (Index 4) -> Fill Remaining
+            // Priority 1: Header (Full Width Top)
+            // Priority 2: StatusStrip (Full Width Bottom - Optional, but ensures visibility)
+            // Priority 3: Sidebar (Left, roughly between Header and Status)
+            // Priority 4: SubMenu (Left of content, right of Sidebar)
 
-            pnlContent.SendToBack(); // Puts it at the very bottom
-            statusStrip.BringToFront(); // Becomes Top
-            pnlSubMenuContainer.BringToFront(); // Becomes Top (Status pushed down)
-            pnlHeader.BringToFront(); // Becomes Top (SubMenu pushed down)
-            pnlSidebar.BringToFront(); // Becomes Top (Header pushed down)
+            pnlContent.SendToBack();       // 5. Content at bottom
+            pnlSubMenuContainer.BringToFront(); // 4. SubMenu
+            pnlSidebar.BringToFront();     // 3. Sidebar 
+            statusStrip.BringToFront();    // 2. Status Strip
+            pnlHeader.BringToFront();      // 1. Header (Highest Priority -> Spans Full Width)
 
             // Initialize Buttons
             InitializeSidebarButtons();
@@ -190,12 +191,28 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             {
                 PlaceholderText = "🔍 Search (Ctrl+P)",
                 Size = new Size(400, 35),
-                Location = new Point(300, 12),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, // Fixed: Stretches with window
+                // Location is set dynamically below
+                Anchor = AnchorStyles.None, // Fixed: Remove anchors to allow manual centering
                 BackColor = ThemeManager.TextBoxBackground,
                 BorderColor = ThemeManager.BorderColor
             };
             pnlHeader.Controls.Add(txtGlobalSearch);
+
+            // Centering Logic
+            void UpdateSearchPosition()
+            {
+                if (txtGlobalSearch != null && pnlHeader != null)
+                {
+                    int x = (pnlHeader.Width - txtGlobalSearch.Width) / 2;
+                    int y = (pnlHeader.Height - txtGlobalSearch.Height) / 2;
+                    txtGlobalSearch.Location = new Point(x, y);
+                }
+            }
+
+            pnlHeader.Resize += (s, e) => UpdateSearchPosition();
+
+            // Trigger initial layout
+            UpdateSearchPosition();
         }
 
         private void InitializeSidebarButtons()
@@ -206,10 +223,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 var btn = new ModernButton
                 {
                     Text = "  " + text,
-                    Width = 230, // Fit inside 250px sidebar with padding
+                    Width = 210, // Fit inside 230px sidebar with padding (230 - 20)
                     Height = 45,
                     BackColor = Color.Transparent,
-                    ForeColor = ThemeManager.TextColor,
+                    ForeColor = Color.WhiteSmoke, // Improve contrast on dark sidebar
                     TextAlign = ContentAlignment.MiddleLeft,
                     BorderRadius = 8,
                     Font = new Font("Segoe UI", 10, FontStyle.Bold),
@@ -283,7 +300,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     Dock = DockStyle.Top,
                     Height = 40,
                     BackColor = Color.Transparent,
-                    ForeColor = ThemeManager.TextColor,
+                    ForeColor = Color.WhiteSmoke, // Contrast for sub-menu
                     TextAlign = ContentAlignment.MiddleLeft,
                     Padding = new Padding(20, 0, 0, 0), // Indent
                     BorderRadius = 0,
@@ -291,7 +308,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 };
 
                 btn.FlatAppearance.BorderSize = 0;
-                btn.MouseEnter += (s, e) => btn.BackColor = Color.FromArgb(40, 40, 40);
+                btn.MouseEnter += (s, e) => btn.BackColor = Color.FromArgb(60, 60, 60);
                 btn.MouseLeave += (s, e) => btn.BackColor = Color.Transparent;
 
                 btn.Click += onClick;
@@ -306,8 +323,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             btnKetNoiCSDL = CreateSubBtn("Kết nối CSDL", (s, e) => new FormKetNoiCSDL().ShowDialog(this));
             btnAbout = CreateSubBtn("Thông tin phần mềm", (s, e) => new FormThongTinPhanMem().ShowDialog(this));
 
-            // Add in Normal Order (Top to Bottom) - Dock=Top stacks, but we rely on correct addition order or BringToFront if needed. 
-            // Standard Controls.Add appends to end. Index 0 is Topmost Z-order.
             pnlHeThongSub.Controls.Add(btnQuanLyHeThong);
             pnlHeThongSub.Controls.Add(btnCaiDat);
             pnlHeThongSub.Controls.Add(btnKetNoiCSDL);
