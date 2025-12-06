@@ -25,16 +25,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             InitializeComponent();
             _service = new NhanVienService();
 
-            // Events
-            this.Load += FormNhanVien_Load;
-            this.dgvNhanVien.SelectionChanged += DgvNhanVien_SelectionChanged;
 
-            this.btnThem.Click += BtnThem_Click;
-            this.btnSua.Click += BtnSua_Click;
-            this.btnLuu.Click += BtnLuu_Click;
-            this.btnXoa.Click += BtnXoa_Click;
-            this.btnHuy.Click += BtnHuy_Click;
-            this.btnChonAnh.Click += BtnChonAnh_Click;
         }
 
         private void FormNhanVien_Load(object sender, EventArgs e)
@@ -63,7 +54,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             {
                 case FormState.View:
                     SetInputsReadOnly(true);
-                    btnChonAnh.Enabled = false;
+                    btnBrowse.Enabled = false;
                     chkHoatDong.Enabled = false;
 
                     btnThem.Enabled = true;
@@ -83,7 +74,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     ClearInputs();
                     SetInputsReadOnly(false);
                     txtMaNV.Enabled = true;
-                    btnChonAnh.Enabled = true;
+                    btnBrowse.Enabled = true;
                     chkHoatDong.Enabled = true;
 
                     btnThem.Enabled = false;
@@ -99,7 +90,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 case FormState.Editing:
                     SetInputsReadOnly(false);
                     txtMaNV.Enabled = false; // Locked
-                    btnChonAnh.Enabled = true;
+                    btnBrowse.Enabled = true;
                     chkHoatDong.Enabled = true;
 
                     btnThem.Enabled = false;
@@ -109,7 +100,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     btnHuy.Enabled = true;
 
                     dgvNhanVien.Enabled = false;
-                    txtTenNV.Focus();
+                    txtHoTen.Focus();
                     break;
             }
         }
@@ -118,7 +109,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         {
             bool isEnabled = !isReadOnly;
             txtMaNV.Enabled = isEnabled;
-            txtTenNV.Enabled = isEnabled;
+            txtHoTen.Enabled = isEnabled;
             cboChucVu.Enabled = isEnabled; // Updated to ComboBox
             txtDiaChi.Enabled = isEnabled;
             txtSDT.Enabled = isEnabled;
@@ -128,21 +119,21 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void ClearInputs()
         {
             txtMaNV.Clear();
-            txtTenNV.Clear();
+            txtHoTen.Clear();
             cboChucVu.SelectedIndex = -1; // Updated to ComboBox
             txtDiaChi.Clear();
             txtSDT.Clear();
             txtEmail.Clear();
             chkHoatDong.Checked = true;
 
-            picAvatar.Image = null;
+            picHinhAnh.Image = null;
             _currentImagePath = null;
         }
 
         private void PopulateInputs(DataGridViewRow row)
         {
             txtMaNV.Texts = row.Cells["MANV"].Value?.ToString();
-            txtTenNV.Texts = row.Cells["HOTEN"].Value?.ToString();
+            txtHoTen.Texts = row.Cells["HOTEN"].Value?.ToString();
             cboChucVu.Text = row.Cells["CHUCVU"].Value?.ToString(); // Updated to ComboBox
             txtDiaChi.Texts = row.Cells["DIACHI"].Value?.ToString();
             txtSDT.Texts = row.Cells["SDT"].Value?.ToString();
@@ -163,16 +154,16 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             {
                 try
                 {
-                    picAvatar.Image = Image.FromFile(path);
+                    picHinhAnh.Image = Image.FromFile(path);
                 }
                 catch
                 {
-                    picAvatar.Image = null; // Error loading image
+                    picHinhAnh.Image = null; // Error loading image
                 }
             }
             else
             {
-                picAvatar.Image = null;
+                picHinhAnh.Image = null;
             }
         }
 
@@ -197,7 +188,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
-        private void BtnChonAnh_Click(object sender, EventArgs e)
+        private void BtnBrowse_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
@@ -220,7 +211,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtMaNV.Texts) || string.IsNullOrWhiteSpace(txtTenNV.Texts))
+                if (string.IsNullOrWhiteSpace(txtMaNV.Texts) || string.IsNullOrWhiteSpace(txtHoTen.Texts))
                 {
                     MessageBox.Show("Vui lòng nhập Mã và Tên nhân viên.", "Cảnh báo");
                     return;
@@ -233,12 +224,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                         MessageBox.Show("Mã nhân viên đã tồn tại.", "Lỗi");
                         return;
                     }
-                    _service.Insert(txtMaNV.Texts, txtTenNV.Texts, cboChucVu.Text, txtDiaChi.Texts, txtSDT.Texts, txtEmail.Texts, _currentImagePath, chkHoatDong.Checked);
+                    _service.Insert(txtMaNV.Texts, txtHoTen.Texts, cboChucVu.Text, txtDiaChi.Texts, txtSDT.Texts, txtEmail.Texts, _currentImagePath, chkHoatDong.Checked);
                     MessageBox.Show("Thêm thành công.");
                 }
                 else if (_currentState == FormState.Editing)
                 {
-                    _service.Update(txtMaNV.Texts, txtTenNV.Texts, cboChucVu.Text, txtDiaChi.Texts, txtSDT.Texts, txtEmail.Texts, _currentImagePath, chkHoatDong.Checked);
+                    _service.Update(txtMaNV.Texts, txtHoTen.Texts, cboChucVu.Text, txtDiaChi.Texts, txtSDT.Texts, txtEmail.Texts, _currentImagePath, chkHoatDong.Checked);
                     MessageBox.Show("Cập nhật thành công.");
                 }
 
