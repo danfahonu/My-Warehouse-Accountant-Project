@@ -1,62 +1,81 @@
 ﻿using System;
 using System.Data;
-using DoAnLapTrinhQuanLy.Data;
+using System.Data.SqlClient;
+using DoAnLapTrinhQuanLy.Data; // Using DbHelper Xịn
 
 namespace DoAnLapTrinhQuanLy.Services
 {
     public class NhaCungCapService
     {
-        // 1. Lấy danh sách
+        // 1. Get List
         public DataTable GetAll()
         {
-            string sql = "SELECT MA_NCC, TEN_NCC, DIACHI_NCC, SDT, EMAIL, MSTHUE, GHICHU FROM DM_NHACUNGCAP";
-            return DbHelper.Query(sql);
+            return DbHelper.Query("SELECT * FROM DM_NHACUNGCAP ORDER BY TEN_NCC");
         }
 
-        // 2. Thêm mới
-        public bool Add(string ma, string ten, string sdt, string diachi)
+        // 2. Add New
+        public void Add(string ma, string ten, string sdt, string diachi, string email, string mst, string ghichu)
         {
-            // Check trùng mã
-            string check = "SELECT COUNT(*) FROM DM_NHACUNGCAP WHERE MANCC = @Ma";
-            if (Convert.ToInt32(DbHelper.Scalar(check, DbHelper.Param("@Ma", ma))) > 0)
-                throw new Exception($"Mã NCC '{ma}' đã tồn tại!");
+            // Check for duplicate ID in DM_NHACUNGCAP
+            string check = "SELECT COUNT(*) FROM DM_NHACUNGCAP WHERE MA_NCC = @Ma";
+            int count = Convert.ToInt32(DbHelper.ExecuteScalar(check, DbHelper.Param("@Ma", ma)));
+
+            if (count > 0) throw new Exception($"Mã NCC '{ma}' đã tồn tại!");
 
             string sql = @"INSERT INTO DM_NHACUNGCAP (MA_NCC, TEN_NCC, DIACHI_NCC, SDT, EMAIL, MSTHUE, GHICHU) 
-                       VALUES (@MA_NCC, @TEN_NCC, @DIACHI_NCC, @SDT, @EMAIL, @MSTHUE, @GHICHU)";
+                           VALUES (@Ma, @Ten, @DiaChi, @Sdt, @Email, @Mst, @GhiChu)";
 
-            return DbHelper.Execute(sql,
+            DbHelper.Execute(sql,
                 DbHelper.Param("@Ma", ma),
                 DbHelper.Param("@Ten", ten),
+                DbHelper.Param("@DiaChi", diachi),
                 DbHelper.Param("@Sdt", sdt),
-                DbHelper.Param("@DiaChi", diachi)) > 0;
+                DbHelper.Param("@Email", email ?? ""),
+                DbHelper.Param("@Mst", mst ?? ""),
+                DbHelper.Param("@GhiChu", ghichu ?? "")
+            );
         }
 
-        // 3. Cập nhật
-        public bool Update(string ma, string ten, string sdt, string diachi)
+        // 3. Update
+        public void Update(string ma, string ten, string sdt, string diachi, string email, string mst, string ghichu)
         {
             string sql = @"UPDATE DM_NHACUNGCAP 
-                       SET TEN_NCC = @TEN_NCC, DIACHI_NCC = @DIACHI_NCC, SDT = @SDT, EMAIL = @EMAIL, MSTHUE = @MSTHUE, GHICHU = @GHICHU 
-                       WHERE MA_NCC = @MA_NCC";
+                           SET TEN_NCC = @Ten, 
+                               DIACHI_NCC = @DiaChi, 
+                               SDT = @Sdt, 
+                               EMAIL = @Email, 
+                               MSTHUE = @Mst, 
+                               GHICHU = @GhiChu
+                           WHERE MA_NCC = @Ma";
 
-            return DbHelper.Execute(sql,
+            DbHelper.Execute(sql,
+                DbHelper.Param("@Ma", ma),
                 DbHelper.Param("@Ten", ten),
-                DbHelper.Param("@Sdt", sdt),
                 DbHelper.Param("@DiaChi", diachi),
-                DbHelper.Param("@Ma", ma)) > 0;
+                DbHelper.Param("@Sdt", sdt),
+                DbHelper.Param("@Email", email ?? ""),
+                DbHelper.Param("@Mst", mst ?? ""),
+                DbHelper.Param("@GhiChu", ghichu ?? "")
+            );
         }
 
-        // 4. Xóa
-        public bool Delete(string ma)
+        // 4. Delete (Corrected Logic)
+        public void Delete(string ma)
         {
-            // Kiểm tra ràng buộc (Ví dụ: Đã có phiếu nhập chưa)
-            // Lưu ý: Tùy bảng PHIEU của bà lưu NCC vào cột nào (MAKH hay cột khác), sửa lại cho khớp
-            string check = "SELECT COUNT(*) FROM PHIEU WHERE MAKH = @Ma";
-            int count = Convert.ToInt32(DbHelper.Scalar(check, DbHelper.Param("@Ma", ma)));
+            // Check foreign key constraint in PHIEU table
+            // Based on your schema: [PHIEU] has column [MA_NCC]
+            string checkSql = "SELECT COUNT(*) FROM PHIEU WHERE MA_NCC = @Ma";
 
-            if (count > 0) throw new Exception($"Nhà cung cấp này đã có {count} phiếu giao dịch. Không thể xóa!");
+            int count = Convert.ToInt32(DbHelper.ExecuteScalar(checkSql, DbHelper.Param("@Ma", ma)));
 
-            string sql = "DELETE FROM DM_NHACUNGCAP WHERE MANCC = @Ma";
-            return DbHelper.Execute(sql, DbHelper.Param("@Ma", ma)) > 0;
+            if (count > 0)
+            {
+                throw new Exception($"Nhà cung cấp này đã có {count} phiếu giao dịch. Không thể xóa!");
+            }
+
+            // If no transactions exist, safe to delete from DM_NHACUNGCAP
+            string sql = "DELETE FROM DM_NHACUNGCAP WHERE MA_NCC = @Ma";
+            DbHelper.Execute(sql, DbHelper.Param("@Ma", ma));
         }
     }
 }

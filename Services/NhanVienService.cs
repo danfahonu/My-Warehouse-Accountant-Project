@@ -7,65 +7,67 @@ namespace DoAnLapTrinhQuanLy.Services
 {
     public class NhanVienService
     {
-        // 1. Lấy danh sách
+        // 1. Lấy danh sách nhân viên
         public DataTable GetAll()
         {
             string sql = "SELECT MANV, HOTEN, CHUCVU, DIACHI, SDT, EMAIL, ANH, HOATDONG FROM NHANVIEN WHERE HOATDONG = 1 ORDER BY HOTEN";
             return DbHelper.Query(sql);
         }
 
-        // 2. Thêm mới (Có hình ảnh)
-        public bool Add(string ma, string ten, string chucVu, string diaChi, string sdt, string email, byte[] anh)
+        // 2. Lấy danh sách Chức vụ (để đổ vào ComboBox)
+        public DataTable GetChucVu()
         {
-            // Check trùng mã
+            // Lấy cột CHUCVU từ bảng HESOLUONG làm danh sách chuẩn
+            return DbHelper.Query("SELECT CHUCVU FROM HESOLUONG");
+        }
+
+        // 3. Thêm mới
+        public void Add(string ma, string ten, string chucVu, string diaChi, string sdt, string email, byte[] anh)
+        {
             string check = "SELECT COUNT(*) FROM NHANVIEN WHERE MANV = @Ma";
-            if (Convert.ToInt32(DbHelper.Scalar(check, DbHelper.Param("@Ma", ma))) > 0)
+            if (Convert.ToInt32(DbHelper.ExecuteScalar(check, DbHelper.Param("@Ma", ma))) > 0)
                 throw new Exception($"Mã nhân viên '{ma}' đã tồn tại!");
 
             string sql = @"INSERT INTO NHANVIEN (MANV, HOTEN, CHUCVU, DIACHI, SDT, EMAIL, ANH, HOATDONG) 
                            VALUES (@Ma, @Ten, @ChucVu, @DiaChi, @Sdt, @Email, @Anh, 1)";
 
             SqlParameter paramAnh = new SqlParameter("@Anh", SqlDbType.VarBinary);
-            if (anh != null) paramAnh.Value = anh;
-            else paramAnh.Value = DBNull.Value;
+            paramAnh.Value = (object)anh ?? DBNull.Value;
 
-            return DbHelper.Execute(sql,
+            DbHelper.Execute(sql,
                 DbHelper.Param("@Ma", ma),
                 DbHelper.Param("@Ten", ten),
-                DbHelper.Param("@ChucVu", chucVu),
+                DbHelper.Param("@ChucVu", chucVu), // Giá trị từ ComboBox
                 DbHelper.Param("@DiaChi", diaChi),
                 DbHelper.Param("@Sdt", sdt),
                 DbHelper.Param("@Email", email),
-                paramAnh) > 0;
+                paramAnh);
         }
 
-        // 3. Cập nhật
-        public bool Update(string ma, string ten, string chucVu, string diaChi, string sdt, string email, byte[] anh)
+        // 4. Cập nhật
+        public void Update(string ma, string ten, string chucVu, string diaChi, string sdt, string email, byte[] anh)
         {
             string sql = @"UPDATE NHANVIEN 
                            SET HOTEN = @Ten, CHUCVU = @ChucVu, DIACHI = @DiaChi, SDT = @Sdt, EMAIL = @Email, ANH = @Anh
                            WHERE MANV = @Ma";
 
             SqlParameter paramAnh = new SqlParameter("@Anh", SqlDbType.VarBinary);
-            if (anh != null) paramAnh.Value = anh;
-            else paramAnh.Value = DBNull.Value;
+            paramAnh.Value = (object)anh ?? DBNull.Value;
 
-            return DbHelper.Execute(sql,
+            DbHelper.Execute(sql,
                 DbHelper.Param("@Ten", ten),
                 DbHelper.Param("@ChucVu", chucVu),
                 DbHelper.Param("@DiaChi", diaChi),
                 DbHelper.Param("@Sdt", sdt),
                 DbHelper.Param("@Email", email),
                 paramAnh,
-                DbHelper.Param("@Ma", ma)) > 0;
+                DbHelper.Param("@Ma", ma));
         }
 
-        // 4. Xóa (Soft Delete - Update HOATDONG = 0)
-        public bool Delete(string ma)
+        // 5. Xóa
+        public void Delete(string ma)
         {
-            // Xóa mềm
-            string sql = "UPDATE NHANVIEN SET HOATDONG = 0 WHERE MANV = @Ma";
-            return DbHelper.Execute(sql, DbHelper.Param("@Ma", ma)) > 0;
+            DbHelper.Execute("UPDATE NHANVIEN SET HOATDONG = 0 WHERE MANV = @Ma", DbHelper.Param("@Ma", ma));
         }
     }
 }

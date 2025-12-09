@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
-using DoAnLapTrinhQuanLy.Data; // Chứa DbHelper
+using DoAnLapTrinhQuanLy.Data; // Sử dụng DbHelper Xịn
 
 namespace DoAnLapTrinhQuanLy.Services
 {
@@ -15,52 +15,72 @@ namespace DoAnLapTrinhQuanLy.Services
         }
 
         // 2. Thêm mới (Add)
-        public bool Add(string ma, string ten, string sdt, string diachi)
+        public void Add(string ma, string ten, string sdt, string diachi, string email, string ghichu)
         {
             // Kiểm tra trùng mã
             string checkSql = "SELECT COUNT(*) FROM DANHMUCKHACHHANG WHERE MAKH = @Ma";
-            int count = Convert.ToInt32(DbHelper.Scalar(checkSql, DbHelper.Param("@Ma", ma)));
+            int count = Convert.ToInt32(DbHelper.ExecuteScalar(checkSql, DbHelper.Param("@Ma", ma)));
+
             if (count > 0) throw new Exception($"Mã khách hàng '{ma}' đã tồn tại!");
 
-            string sql = @"INSERT INTO DANHMUCKHACHHANG (MAKH, TENKH, SDT, DIACHI, ACTIVE) 
-                           VALUES (@Ma, @Ten, @Sdt, @Diachi, 1)";
+            string sql = @"INSERT INTO DANHMUCKHACHHANG (MAKH, TENKH, SDT, DIACHI, EMAIL, GHICHU, NGAYTAO) 
+                           VALUES (@Ma, @Ten, @Sdt, @DiaChi, @Email, @GhiChu, GETDATE())";
 
-            return DbHelper.Execute(sql,
+            DbHelper.Execute(sql,
                 DbHelper.Param("@Ma", ma),
                 DbHelper.Param("@Ten", ten),
                 DbHelper.Param("@Sdt", sdt),
-                DbHelper.Param("@Diachi", diachi)
-            ) > 0;
+                DbHelper.Param("@DiaChi", diachi),
+                DbHelper.Param("@Email", email ?? ""),
+                DbHelper.Param("@GhiChu", ghichu ?? "")
+            );
         }
 
         // 3. Cập nhật (Update)
-        public bool Update(string ma, string ten, string sdt, string diachi)
+        public void Update(string ma, string ten, string sdt, string diachi, string email, string ghichu)
         {
             string sql = @"UPDATE DANHMUCKHACHHANG 
-                           SET TENKH = @Ten, SDT = @Sdt, DIACHI = @Diachi 
+                           SET TENKH = @Ten, 
+                               SDT = @Sdt, 
+                               DIACHI = @DiaChi, 
+                               EMAIL = @Email, 
+                               GHICHU = @GhiChu 
                            WHERE MAKH = @Ma";
 
-            return DbHelper.Execute(sql,
+            DbHelper.Execute(sql,
+                DbHelper.Param("@Ma", ma),
                 DbHelper.Param("@Ten", ten),
                 DbHelper.Param("@Sdt", sdt),
-                DbHelper.Param("@Diachi", diachi),
-                DbHelper.Param("@Ma", ma)
-            ) > 0;
+                DbHelper.Param("@DiaChi", diachi),
+                DbHelper.Param("@Email", email ?? ""),
+                DbHelper.Param("@GhiChu", ghichu ?? "")
+            );
         }
 
-        // 4. Xóa (Delete)
-        public bool Delete(string ma)
+        // 4. Xóa (Delete) - ĐÃ SỬA LOGIC KIỂM TRA
+        public void Delete(string ma)
         {
-            // Kiểm tra xem khách đã có giao dịch chưa (tránh lỗi khóa ngoại)
+            // Kiểm tra xem khách hàng này có trong bảng PHIEU không?
+            // (Dựa trên cấu trúc bảng PHIEU: SOPHIEU, NGAYLAP, ..., MAKH)
             string checkSql = "SELECT COUNT(*) FROM PHIEU WHERE MAKH = @Ma";
-            int count = Convert.ToInt32(DbHelper.Scalar(checkSql, DbHelper.Param("@Ma", ma)));
+
+            int count = Convert.ToInt32(DbHelper.ExecuteScalar(checkSql, DbHelper.Param("@Ma", ma)));
+
             if (count > 0)
             {
                 throw new Exception($"Khách hàng này đã có {count} phiếu giao dịch. Không thể xóa!");
             }
 
+            // Nếu không có phiếu nào thì xóa
             string sql = "DELETE FROM DANHMUCKHACHHANG WHERE MAKH = @Ma";
-            return DbHelper.Execute(sql, DbHelper.Param("@Ma", ma)) > 0;
+            DbHelper.Execute(sql, DbHelper.Param("@Ma", ma));
+        }
+
+        // 5. Tìm kiếm
+        public DataTable Search(string keyword)
+        {
+            string sql = "SELECT * FROM DANHMUCKHACHHANG WHERE TENKH LIKE @Key OR SDT LIKE @Key OR EMAIL LIKE @Key";
+            return DbHelper.Query(sql, DbHelper.Param("@Key", "%" + keyword + "%"));
         }
     }
 }

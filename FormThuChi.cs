@@ -13,6 +13,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         public FormThuChi()
         {
             InitializeComponent();
+            // --- 3 DÒNG THẦN THÁNH ---
+            this.TopLevel = false;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.Dock = DockStyle.Fill;
         }
 
         private void FormThuChi_Load(object sender, EventArgs e)
@@ -27,45 +31,30 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             try
             {
                 DataTable dt = _service.GetAll();
-
                 if (cboFilterLoai.SelectedIndex > 0)
                 {
                     string loai = cboFilterLoai.SelectedIndex == 1 ? "T" : "C";
                     dt.DefaultView.RowFilter = $"LOAI = '{loai}'";
                 }
-                else
-                {
-                    dt.DefaultView.RowFilter = "";
-                }
 
                 dgvDanhSach.DataSource = dt;
 
-                // Format cột
                 if (dgvDanhSach.Columns.Contains("SOPTC")) dgvDanhSach.Columns["SOPTC"].HeaderText = "Số Phiếu";
-                if (dgvDanhSach.Columns.Contains("NGAYLAP"))
-                {
-                    dgvDanhSach.Columns["NGAYLAP"].HeaderText = "Ngày Lập";
-                    dgvDanhSach.Columns["NGAYLAP"].DefaultCellStyle.Format = "dd/MM/yyyy";
-                }
+                if (dgvDanhSach.Columns.Contains("NGAYLAP")) dgvDanhSach.Columns["NGAYLAP"].HeaderText = "Ngày Lập";
                 if (dgvDanhSach.Columns.Contains("SOTIEN"))
                 {
                     dgvDanhSach.Columns["SOTIEN"].HeaderText = "Số Tiền";
                     dgvDanhSach.Columns["SOTIEN"].DefaultCellStyle.Format = "N0";
                 }
 
-                // Ẩn cột ID
-                if (dgvDanhSach.Columns.Contains("LOAI")) dgvDanhSach.Columns["LOAI"].Visible = false;
-                if (dgvDanhSach.Columns.Contains("MAKH")) dgvDanhSach.Columns["MAKH"].Visible = false;
-                if (dgvDanhSach.Columns.Contains("MA_NCC")) dgvDanhSach.Columns["MA_NCC"].Visible = false;
-
-                // Ẩn tên cột Join nếu muốn grid gọn hơn
-                if (dgvDanhSach.Columns.Contains("TEN_NCC")) dgvDanhSach.Columns["TEN_NCC"].Visible = false;
-                if (dgvDanhSach.Columns.Contains("TENKH")) dgvDanhSach.Columns["TENKH"].Visible = false;
+                // Ẩn cột không cần
+                string[] hiddenCols = { "LOAI", "MAKH", "MA_NCC", "TEN_NCC", "TENKH", "SOTK_NO", "SOTK_CO", "LYDO", "MANV" };
+                foreach (string col in hiddenCols)
+                    if (dgvDanhSach.Columns.Contains(col)) dgvDanhSach.Columns[col].Visible = false;
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Lỗi tải: " + ex.Message); }
         }
 
-        // --- CÁC HÀM KHÁC GIỮ NGUYÊN, CHỈ SỬA HÀM NÀY ---
         private void radDoiTuong_CheckedChanged(object sender, EventArgs e)
         {
             if (radKhachHang.Checked)
@@ -77,8 +66,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             else
             {
                 cboDoiTuong.DataSource = _service.GetNhaCungCap();
-
-                // --- SỬA TÊN CỘT Ở ĐÂY CHO KHỚP DB ---
                 cboDoiTuong.DisplayMember = "TEN_NCC";
                 cboDoiTuong.ValueMember = "MA_NCC";
             }
@@ -96,18 +83,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             btnThem.Visible = !isEditing;
             btnSua.Visible = !isEditing && dgvDanhSach.Rows.Count > 0;
             btnXoa.Visible = !isEditing && dgvDanhSach.Rows.Count > 0;
-
             btnLuu.Visible = isEditing;
             btnHuy.Visible = isEditing;
 
-            if (_mode == "view" && dgvDanhSach.CurrentRow != null)
-            {
-                DisplayDetail(dgvDanhSach.CurrentRow);
-            }
-            else if (_mode == "add")
-            {
-                ClearInputs();
-            }
+            if (_mode == "view" && dgvDanhSach.CurrentRow != null) DisplayDetail(dgvDanhSach.CurrentRow);
+            else if (_mode == "add") ClearInputs();
         }
 
         private void ClearInputs()
@@ -142,7 +122,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 else
                 {
                     radNhaCungCap.Checked = true;
-                    // Sửa tên cột khi binding ngược lại
                     cboDoiTuong.SelectedValue = row.Cells["MA_NCC"].Value;
                 }
             }
@@ -151,25 +130,21 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void cboLoaiPhieu_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboLoaiPhieu.SelectedIndex == 0) // Thu
-            {
-                txtTkNo.Text = "1111";
-                txtTkCo.Text = "131";
+            if (cboLoaiPhieu.SelectedIndex == 0)
+            { // Thu
+                txtTkNo.Text = "1111"; txtTkCo.Text = "131";
                 if (txtSoPhieu.Text.StartsWith("PC")) txtSoPhieu.Text = txtSoPhieu.Text.Replace("PC", "PT");
             }
-            else // Chi
-            {
-                txtTkNo.Text = "331";
-                txtTkCo.Text = "1111";
+            else
+            { // Chi
+                txtTkNo.Text = "331"; txtTkCo.Text = "1111";
                 if (txtSoPhieu.Text.StartsWith("PT")) txtSoPhieu.Text = txtSoPhieu.Text.Replace("PT", "PC");
             }
         }
 
-        // --- BUTTON EVENTS ---
         private void dgvDanhSach_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvDanhSach.CurrentRow != null && _mode == "view")
-                DisplayDetail(dgvDanhSach.CurrentRow);
+            if (dgvDanhSach.CurrentRow != null && _mode == "view") DisplayDetail(dgvDanhSach.CurrentRow);
         }
 
         private void cboFilterLoai_SelectedIndexChanged(object sender, EventArgs e) => LoadData();
@@ -196,21 +171,20 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     LoadData();
                     SetMode("view");
                 }
-                catch (Exception ex) { MessageBox.Show("Lỗi xóa: " + ex.Message); }
+                catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
             }
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
             if (cboDoiTuong.SelectedValue == null) { MessageBox.Show("Chưa chọn đối tượng!"); return; }
-
             try
             {
                 string loai = cboLoaiPhieu.SelectedIndex == 0 ? "T" : "C";
                 string maDoiTuong = cboDoiTuong.SelectedValue.ToString();
                 bool isKH = radKhachHang.Checked;
                 decimal tien = decimal.Parse(txtSoTien.Text);
-                string maNV = "ADMIN";
+                string maNV = "ADMIN"; // Sau này lấy từ UserData
 
                 if (_mode == "add")
                     _service.Add(txtSoPhieu.Text, dtpNgayLap.Value, loai, maDoiTuong, isKH, tien, txtLyDo.Text, txtTkNo.Text, txtTkCo.Text, maNV);
@@ -221,7 +195,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 LoadData();
                 SetMode("view");
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi lưu: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
         }
 
         private void btnHuy_Click(object sender, EventArgs e)

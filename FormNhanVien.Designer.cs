@@ -20,23 +20,26 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblTitle = new System.Windows.Forms.Label();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
 
-            // --- TRÁI ---
+            // --- LEFT ---
             this.grpList = new System.Windows.Forms.GroupBox();
             this.dgvDanhSach = new System.Windows.Forms.DataGridView();
             this.pnlSearch = new System.Windows.Forms.Panel();
             this.txtTimKiem = new System.Windows.Forms.TextBox();
             this.lblTimKiem = new System.Windows.Forms.Label();
 
-            // --- PHẢI ---
+            // --- RIGHT ---
             this.grpDetail = new System.Windows.Forms.GroupBox();
 
-            // Controls
+            // Controls Detail
             this.txtMaNV = new System.Windows.Forms.TextBox();
             this.lblMaNV = new System.Windows.Forms.Label();
             this.txtHoTen = new System.Windows.Forms.TextBox();
             this.lblHoTen = new System.Windows.Forms.Label();
-            this.txtChucVu = new System.Windows.Forms.TextBox();
+
+            // Thay TextBox bằng ComboBox Chức Vụ
+            this.cboChucVu = new System.Windows.Forms.ComboBox();
             this.lblChucVu = new System.Windows.Forms.Label();
+
             this.txtSDT = new System.Windows.Forms.TextBox();
             this.lblSDT = new System.Windows.Forms.Label();
             this.txtEmail = new System.Windows.Forms.TextBox();
@@ -49,7 +52,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnChonHinh = new System.Windows.Forms.Button();
             this.btnXoaHinh = new System.Windows.Forms.Button();
 
-            // BUTTONS
+            // Buttons
             this.pnlButtons = new System.Windows.Forms.Panel();
             this.flowLayoutPanelBtn = new System.Windows.Forms.FlowLayoutPanel();
             this.btnThoat = new System.Windows.Forms.Button();
@@ -105,8 +108,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.Location = new System.Drawing.Point(0, 50);
             this.splitContainer.Name = "splitContainer";
+            // Panel 1
             this.splitContainer.Panel1.Controls.Add(this.grpList);
             this.splitContainer.Panel1.Padding = new System.Windows.Forms.Padding(10);
+            // Panel 2
             this.splitContainer.Panel2.Controls.Add(this.grpDetail);
             this.splitContainer.Panel2.Controls.Add(this.pnlButtons);
             this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(10);
@@ -114,7 +119,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.splitContainer.SplitterDistance = 450;
             this.splitContainer.TabIndex = 1;
 
-            // --- TRÁI: LIST ---
+            // Left
             this.grpList.Controls.Add(this.dgvDanhSach);
             this.grpList.Controls.Add(this.pnlSearch);
             this.grpList.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -147,10 +152,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             headerStyle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.dgvDanhSach.ColumnHeadersDefaultCellStyle = headerStyle;
             this.dgvDanhSach.EnableHeadersVisualStyles = false;
-
             this.dgvDanhSach.SelectionChanged += new System.EventHandler(this.dgvDanhSach_SelectionChanged);
 
-            // --- PHẢI: DETAIL ---
+            // Right: Detail
             this.grpDetail.Controls.Add(this.btnXoaHinh);
             this.grpDetail.Controls.Add(this.btnChonHinh);
             this.grpDetail.Controls.Add(this.picAvatar);
@@ -160,7 +164,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.grpDetail.Controls.Add(this.lblEmail);
             this.grpDetail.Controls.Add(this.txtSDT);
             this.grpDetail.Controls.Add(this.lblSDT);
-            this.grpDetail.Controls.Add(this.txtChucVu);
+            this.grpDetail.Controls.Add(this.cboChucVu); // ComboBox
             this.grpDetail.Controls.Add(this.lblChucVu);
             this.grpDetail.Controls.Add(this.txtHoTen);
             this.grpDetail.Controls.Add(this.lblHoTen);
@@ -169,7 +173,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.grpDetail.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpDetail.Text = "Thông tin chi tiết";
 
-            // Control Details (Dùng số cứng tuyệt đối)
+            // --- TỌA ĐỘ CỨNG ---
 
             // Mã NV (y=40)
             this.lblMaNV.Location = new System.Drawing.Point(20, 40); this.lblMaNV.Text = "Mã NV:"; this.lblMaNV.AutoSize = true;
@@ -179,9 +183,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblHoTen.Location = new System.Drawing.Point(20, 85); this.lblHoTen.Text = "Họ Tên:"; this.lblHoTen.AutoSize = true;
             this.txtHoTen.Location = new System.Drawing.Point(110, 82); this.txtHoTen.Size = new System.Drawing.Size(250, 25);
 
-            // Chức vụ (y=130)
+            // Chức vụ (y=130) - ComboBox
             this.lblChucVu.Location = new System.Drawing.Point(20, 130); this.lblChucVu.Text = "Chức vụ:"; this.lblChucVu.AutoSize = true;
-            this.txtChucVu.Location = new System.Drawing.Point(110, 127); this.txtChucVu.Size = new System.Drawing.Size(250, 25);
+            this.cboChucVu.Location = new System.Drawing.Point(110, 127); this.cboChucVu.Size = new System.Drawing.Size(250, 25);
+            this.cboChucVu.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList; // Chỉ cho chọn
 
             // SĐT (y=175)
             this.lblSDT.Location = new System.Drawing.Point(20, 175); this.lblSDT.Text = "Điện thoại:"; this.lblSDT.AutoSize = true;
@@ -195,28 +200,23 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblDiaChi.Location = new System.Drawing.Point(20, 265); this.lblDiaChi.Text = "Địa chỉ:"; this.lblDiaChi.AutoSize = true;
             this.txtDiaChi.Location = new System.Drawing.Point(110, 262); this.txtDiaChi.Size = new System.Drawing.Size(480, 25);
 
-            // Hình ảnh (Bên phải)
+            // Ảnh (y=37, x=400)
             this.picAvatar.Location = new System.Drawing.Point(400, 37);
             this.picAvatar.Size = new System.Drawing.Size(150, 150);
             this.picAvatar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picAvatar.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picAvatar.BackColor = System.Drawing.Color.White;
 
-            // Nút Chọn hình
             this.btnChonHinh.Text = "Chọn...";
             this.btnChonHinh.Location = new System.Drawing.Point(400, 195);
             this.btnChonHinh.Size = new System.Drawing.Size(70, 30);
-            this.btnChonHinh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnChonHinh.Click += new System.EventHandler(this.btnChonHinh_Click);
 
-            // Nút Xóa hình
             this.btnXoaHinh.Text = "Xóa";
             this.btnXoaHinh.Location = new System.Drawing.Point(480, 195);
             this.btnXoaHinh.Size = new System.Drawing.Size(70, 30);
-            this.btnXoaHinh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnXoaHinh.Click += new System.EventHandler(this.btnXoaHinh_Click);
 
-            // BUTTONS
+            // Buttons
             this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlButtons.Height = 70;
             this.pnlButtons.Controls.Add(this.flowLayoutPanelBtn);
@@ -231,13 +231,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.flowLayoutPanelBtn.Controls.Add(this.btnSua);
             this.flowLayoutPanelBtn.Controls.Add(this.btnThem);
 
-            // Nút bấm
-            this.btnThoat.Text = "Thoát"; this.btnThoat.Size = new System.Drawing.Size(90, 40); this.btnThoat.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnThoat.BackColor = System.Drawing.Color.Gray; this.btnThoat.ForeColor = System.Drawing.Color.White; this.btnThoat.Margin = new System.Windows.Forms.Padding(5); this.btnThoat.Click += new System.EventHandler(this.btnThoat_Click);
-            this.btnHuy.Text = "Hủy"; this.btnHuy.Size = new System.Drawing.Size(90, 40); this.btnHuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnHuy.BackColor = System.Drawing.Color.Orange; this.btnHuy.ForeColor = System.Drawing.Color.White; this.btnHuy.Margin = new System.Windows.Forms.Padding(5); this.btnHuy.Click += new System.EventHandler(this.btnHuy_Click);
-            this.btnLuu.Text = "Lưu"; this.btnLuu.Size = new System.Drawing.Size(90, 40); this.btnLuu.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnLuu.BackColor = System.Drawing.Color.FromArgb(0, 122, 204); this.btnLuu.ForeColor = System.Drawing.Color.White; this.btnLuu.Margin = new System.Windows.Forms.Padding(5); this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
-            this.btnXoa.Text = "Xóa"; this.btnXoa.Size = new System.Drawing.Size(90, 40); this.btnXoa.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnXoa.BackColor = System.Drawing.Color.FromArgb(220, 53, 69); this.btnXoa.ForeColor = System.Drawing.Color.White; this.btnXoa.Margin = new System.Windows.Forms.Padding(5); this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
-            this.btnSua.Text = "Sửa"; this.btnSua.Size = new System.Drawing.Size(90, 40); this.btnSua.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnSua.BackColor = System.Drawing.Color.Teal; this.btnSua.ForeColor = System.Drawing.Color.White; this.btnSua.Margin = new System.Windows.Forms.Padding(5); this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
-            this.btnThem.Text = "Thêm"; this.btnThem.Size = new System.Drawing.Size(90, 40); this.btnThem.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnThem.BackColor = System.Drawing.Color.ForestGreen; this.btnThem.ForeColor = System.Drawing.Color.White; this.btnThem.Margin = new System.Windows.Forms.Padding(5); this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
+            // Style Nút
+            this.btnThoat.Text = "Thoát"; this.btnThoat.Size = new System.Drawing.Size(80, 40); this.btnThoat.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnThoat.BackColor = System.Drawing.Color.Gray; this.btnThoat.ForeColor = System.Drawing.Color.White; this.btnThoat.Click += new System.EventHandler(this.btnThoat_Click);
+            this.btnHuy.Text = "Hủy"; this.btnHuy.Size = new System.Drawing.Size(80, 40); this.btnHuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnHuy.BackColor = System.Drawing.Color.Orange; this.btnHuy.ForeColor = System.Drawing.Color.White; this.btnHuy.Click += new System.EventHandler(this.btnHuy_Click);
+            this.btnLuu.Text = "Lưu"; this.btnLuu.Size = new System.Drawing.Size(80, 40); this.btnLuu.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnLuu.BackColor = System.Drawing.Color.RoyalBlue; this.btnLuu.ForeColor = System.Drawing.Color.White; this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
+            this.btnXoa.Text = "Xóa"; this.btnXoa.Size = new System.Drawing.Size(80, 40); this.btnXoa.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnXoa.BackColor = System.Drawing.Color.Crimson; this.btnXoa.ForeColor = System.Drawing.Color.White; this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
+            this.btnSua.Text = "Sửa"; this.btnSua.Size = new System.Drawing.Size(80, 40); this.btnSua.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnSua.BackColor = System.Drawing.Color.DeepSkyBlue; this.btnSua.ForeColor = System.Drawing.Color.White; this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
+            this.btnThem.Text = "Thêm"; this.btnThem.Size = new System.Drawing.Size(80, 40); this.btnThem.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnThem.BackColor = System.Drawing.Color.LimeGreen; this.btnThem.ForeColor = System.Drawing.Color.White; this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
 
             this.pnlHeader.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
@@ -270,8 +270,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private System.Windows.Forms.Panel pnlButtons;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelBtn;
 
-        private System.Windows.Forms.TextBox txtMaNV, txtHoTen, txtChucVu, txtSDT, txtEmail, txtDiaChi;
-        private System.Windows.Forms.Label lblMaNV, lblHoTen, lblNgaySinh, lblSDT, lblChucVu, lblEmail, lblDiaChi;
+        private System.Windows.Forms.TextBox txtMaNV, txtHoTen, txtSDT, txtEmail, txtDiaChi;
+        private System.Windows.Forms.Label lblMaNV, lblHoTen, lblSDT, lblChucVu, lblEmail, lblDiaChi;
+        private System.Windows.Forms.ComboBox cboChucVu; // ĐÃ ĐỔI
 
         private System.Windows.Forms.PictureBox picAvatar;
         private System.Windows.Forms.Button btnChonHinh, btnXoaHinh;

@@ -11,17 +11,34 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
     {
         private readonly NhanVienService _service = new NhanVienService();
         private string _mode = "";
-        private byte[] _currentImageBytes = null; // Biến giữ ảnh
+        private byte[] _currentImageBytes = null;
 
         public FormNhanVien()
         {
             InitializeComponent();
+            // --- 3 DÒNG THẦN THÁNH ---
+            this.TopLevel = false;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.Dock = DockStyle.Fill;
         }
 
         private void FormNhanVien_Load(object sender, EventArgs e)
         {
+            LoadComboBoxChucVu(); // Load chức vụ trước
             LoadData();
             SetMode("view");
+        }
+
+        private void LoadComboBoxChucVu()
+        {
+            try
+            {
+                cboChucVu.DataSource = _service.GetChucVu();
+                cboChucVu.DisplayMember = "CHUCVU";
+                cboChucVu.ValueMember = "CHUCVU";
+                cboChucVu.SelectedIndex = -1;
+            }
+            catch { }
         }
 
         private void LoadData()
@@ -30,23 +47,17 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             {
                 dgvDanhSach.DataSource = _service.GetAll();
 
-                // Map tên cột chuẩn
                 if (dgvDanhSach.Columns.Contains("MANV")) dgvDanhSach.Columns["MANV"].HeaderText = "Mã NV";
-                if (dgvDanhSach.Columns.Contains("HOTEN"))
-                {
-                    dgvDanhSach.Columns["HOTEN"].HeaderText = "Họ Tên";
-                    dgvDanhSach.Columns["HOTEN"].Width = 150;
-                }
+                if (dgvDanhSach.Columns.Contains("HOTEN")) dgvDanhSach.Columns["HOTEN"].HeaderText = "Họ Tên";
                 if (dgvDanhSach.Columns.Contains("CHUCVU")) dgvDanhSach.Columns["CHUCVU"].HeaderText = "Chức vụ";
                 if (dgvDanhSach.Columns.Contains("SDT")) dgvDanhSach.Columns["SDT"].HeaderText = "SĐT";
 
-                // Ẩn cột không cần
-                if (dgvDanhSach.Columns.Contains("DIACHI")) dgvDanhSach.Columns["DIACHI"].Visible = false;
-                if (dgvDanhSach.Columns.Contains("EMAIL")) dgvDanhSach.Columns["EMAIL"].Visible = false;
-                if (dgvDanhSach.Columns.Contains("ANH")) dgvDanhSach.Columns["ANH"].Visible = false;
-                if (dgvDanhSach.Columns.Contains("HOATDONG")) dgvDanhSach.Columns["HOATDONG"].Visible = false;
+                // Ẩn bớt
+                string[] hidden = { "DIACHI", "EMAIL", "ANH", "HOATDONG" };
+                foreach (var c in hidden)
+                    if (dgvDanhSach.Columns.Contains(c)) dgvDanhSach.Columns[c].Visible = false;
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Lỗi tải: " + ex.Message); }
         }
 
         private void SetMode(string mode)
@@ -60,176 +71,98 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             btnThem.Visible = !isEditing;
             btnSua.Visible = !isEditing && dgvDanhSach.Rows.Count > 0;
             btnXoa.Visible = !isEditing && dgvDanhSach.Rows.Count > 0;
-
             btnLuu.Visible = isEditing;
             btnHuy.Visible = isEditing;
-
             btnChonHinh.Visible = isEditing;
             btnXoaHinh.Visible = isEditing;
 
-            if (_mode == "view" && dgvDanhSach.CurrentRow != null)
-            {
-                DisplayDetail(dgvDanhSach.CurrentRow);
-            }
-            else if (_mode == "add")
-            {
-                ClearInputs();
-            }
+            if (_mode == "view" && dgvDanhSach.CurrentRow != null) DisplayDetail(dgvDanhSach.CurrentRow);
+            else if (_mode == "add") ClearInputs();
         }
 
         private void ClearInputs()
         {
-            txtMaNV.Text = "";
+            txtMaNV.Text = "NV" + DateTime.Now.ToString("ddHHmm");
             txtHoTen.Text = "";
-            txtChucVu.Text = "";
-            txtSDT.Text = "";
-            txtEmail.Text = "";
-            txtDiaChi.Text = "";
-            picAvatar.Image = null;
-            _currentImageBytes = null;
+            cboChucVu.SelectedIndex = -1; // Reset combobox
+            txtSDT.Text = ""; txtEmail.Text = ""; txtDiaChi.Text = "";
+            picAvatar.Image = null; _currentImageBytes = null;
         }
 
         private void DisplayDetail(DataGridViewRow row)
         {
             try
             {
-                txtMaNV.Text = row.Cells["MANV"].Value.ToString();
-                txtHoTen.Text = row.Cells["HOTEN"].Value.ToString();
-                txtChucVu.Text = row.Cells["CHUCVU"].Value.ToString();
-                txtSDT.Text = row.Cells["SDT"].Value.ToString();
-                txtEmail.Text = row.Cells["EMAIL"].Value.ToString();
-                txtDiaChi.Text = row.Cells["DIACHI"].Value.ToString();
+                txtMaNV.Text = row.Cells["MANV"].Value?.ToString();
+                txtHoTen.Text = row.Cells["HOTEN"].Value?.ToString();
+                cboChucVu.SelectedValue = row.Cells["CHUCVU"].Value?.ToString(); // Chọn đúng chức vụ
+                txtSDT.Text = row.Cells["SDT"].Value?.ToString();
+                txtEmail.Text = row.Cells["EMAIL"].Value?.ToString();
+                txtDiaChi.Text = row.Cells["DIACHI"].Value?.ToString();
 
-                // Hiển thị ảnh
                 if (row.Cells["ANH"].Value != DBNull.Value)
                 {
                     _currentImageBytes = (byte[])row.Cells["ANH"].Value;
-                    using (MemoryStream ms = new MemoryStream(_currentImageBytes))
-                    {
-                        picAvatar.Image = Image.FromStream(ms);
-                    }
+                    using (MemoryStream ms = new MemoryStream(_currentImageBytes)) picAvatar.Image = Image.FromStream(ms);
                 }
                 else
                 {
-                    _currentImageBytes = null;
-                    picAvatar.Image = null;
+                    _currentImageBytes = null; picAvatar.Image = null;
                 }
             }
-            catch { picAvatar.Image = null; _currentImageBytes = null; }
-        }
-
-        // --- EVENTS ---
-
-        private void dgvDanhSach_SelectionChanged(object sender, EventArgs e)
-        {
-            if (dgvDanhSach.CurrentRow != null && _mode == "view")
-                DisplayDetail(dgvDanhSach.CurrentRow);
-        }
-
-        private void btnThem_Click(object sender, EventArgs e)
-        {
-            SetMode("add");
-            txtMaNV.Text = "NV" + DateTime.Now.ToString("ddHHmm");
-            txtHoTen.Focus();
-        }
-
-        private void btnSua_Click(object sender, EventArgs e)
-        {
-            SetMode("edit");
-            txtMaNV.ReadOnly = true;
-            txtHoTen.Focus();
-        }
-
-        private void btnXoa_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("Xóa nhân viên này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
-            {
-                try
-                {
-                    _service.Delete(txtMaNV.Text);
-                    LoadData();
-                    SetMode("view");
-                }
-                catch (Exception ex) { MessageBox.Show("Lỗi xóa: " + ex.Message); }
-            }
+            catch { }
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtHoTen.Text)) { MessageBox.Show("Chưa nhập họ tên!"); return; }
+            if (string.IsNullOrWhiteSpace(txtHoTen.Text)) { MessageBox.Show("Chưa nhập tên!"); return; }
+            if (cboChucVu.SelectedIndex == -1) { MessageBox.Show("Chưa chọn chức vụ!"); return; } // Bắt lỗi chưa chọn
 
             try
             {
-                string currentMa = txtMaNV.Text;
+                string chucVu = cboChucVu.SelectedValue.ToString(); // Lấy giá trị từ Combo
 
                 if (_mode == "add")
-                    _service.Add(currentMa, txtHoTen.Text, txtChucVu.Text, txtDiaChi.Text, txtSDT.Text, txtEmail.Text, _currentImageBytes);
+                    _service.Add(txtMaNV.Text, txtHoTen.Text, chucVu, txtDiaChi.Text, txtSDT.Text, txtEmail.Text, _currentImageBytes);
                 else if (_mode == "edit")
-                    _service.Update(currentMa, txtHoTen.Text, txtChucVu.Text, txtDiaChi.Text, txtSDT.Text, txtEmail.Text, _currentImageBytes);
+                    _service.Update(txtMaNV.Text, txtHoTen.Text, chucVu, txtDiaChi.Text, txtSDT.Text, txtEmail.Text, _currentImageBytes);
 
                 MessageBox.Show("Lưu thành công!");
                 LoadData();
                 SetMode("view");
-
-                // Giữ dòng vừa chọn
-                foreach (DataGridViewRow row in dgvDanhSach.Rows)
-                {
-                    if (row.Cells["MANV"].Value.ToString() == currentMa)
-                    {
-                        row.Selected = true;
-                        dgvDanhSach.CurrentCell = row.Cells[0];
-                        DisplayDetail(row);
-                        break;
-                    }
-                }
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi lưu: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
         }
 
-        private void btnHuy_Click(object sender, EventArgs e)
+        // Các nút khác giữ nguyên
+        private void dgvDanhSach_SelectionChanged(object sender, EventArgs e) { if (dgvDanhSach.CurrentRow != null && _mode == "view") DisplayDetail(dgvDanhSach.CurrentRow); }
+        private void btnThem_Click(object sender, EventArgs e) { ClearInputs(); SetMode("add"); txtHoTen.Focus(); }
+        private void btnSua_Click(object sender, EventArgs e) { SetMode("edit"); txtMaNV.ReadOnly = true; txtHoTen.Focus(); }
+        private void btnXoa_Click(object sender, EventArgs e)
         {
-            SetMode("view");
-            dgvDanhSach_SelectionChanged(null, null);
-        }
-
-        private void btnThoat_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void txtTimKiem_TextChanged(object sender, EventArgs e)
-        {
-            if (dgvDanhSach.DataSource is DataTable dt)
+            if (MessageBox.Show("Xóa?", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                dt.DefaultView.RowFilter = $"HOTEN LIKE '%{txtTimKiem.Text}%' OR SDT LIKE '%{txtTimKiem.Text}%'";
+                _service.Delete(txtMaNV.Text); LoadData(); SetMode("view");
             }
         }
+        private void btnHuy_Click(object sender, EventArgs e) { SetMode("view"); dgvDanhSach_SelectionChanged(null, null); }
+        private void btnThoat_Click(object sender, EventArgs e) => this.Close();
 
-        // --- XỬ LÝ ẢNH AN TOÀN ---
         private void btnChonHinh_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "Image|*.jpg;*.png" })
             {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    try
-                    {
-                        _currentImageBytes = File.ReadAllBytes(ofd.FileName);
-                        using (MemoryStream ms = new MemoryStream(_currentImageBytes))
-                        {
-                            picAvatar.Image = Image.FromStream(ms);
-                        }
-                    }
-                    catch (Exception ex) { MessageBox.Show("Lỗi hình ảnh: " + ex.Message); }
+                    _currentImageBytes = File.ReadAllBytes(ofd.FileName);
+                    picAvatar.Image = Image.FromFile(ofd.FileName);
                 }
             }
         }
-
-        private void btnXoaHinh_Click(object sender, EventArgs e)
+        private void btnXoaHinh_Click(object sender, EventArgs e) { picAvatar.Image = null; _currentImageBytes = null; }
+        private void txtTimKiem_TextChanged(object sender, EventArgs e)
         {
-            picAvatar.Image = null;
-            _currentImageBytes = null;
+            (dgvDanhSach.DataSource as DataTable).DefaultView.RowFilter = $"HOTEN LIKE '%{txtTimKiem.Text}%'";
         }
     }
 }
