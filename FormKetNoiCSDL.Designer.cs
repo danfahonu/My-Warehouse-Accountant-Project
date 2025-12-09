@@ -27,10 +27,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblPassword = new System.Windows.Forms.Label();
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.panelButtons = new System.Windows.Forms.Panel();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnTest = new System.Windows.Forms.Button();
-            this.btnAttachDB = new System.Windows.Forms.Button();
             this.btnThoat = new System.Windows.Forms.Button();
+            this.btnAttachDB = new System.Windows.Forms.Button();
+            this.btnTest = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.grpInfo.SuspendLayout();
             this.infoPanel.SuspendLayout();
@@ -79,7 +79,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.infoPanel.Controls.Add(this.lblPassword, 0, 4);
             this.infoPanel.Controls.Add(this.txtPassword, 1, 4);
             this.infoPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.infoPanel.Location = new System.Drawing.Point(3, 19);
+            this.infoPanel.Location = new System.Drawing.Point(3, 27);
             this.infoPanel.Name = "infoPanel";
             this.infoPanel.Padding = new System.Windows.Forms.Padding(5);
             this.infoPanel.RowCount = 5;
@@ -88,16 +88,16 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.infoPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.infoPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.infoPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
-            this.infoPanel.Size = new System.Drawing.Size(438, 222);
+            this.infoPanel.Size = new System.Drawing.Size(438, 214);
             this.infoPanel.TabIndex = 0;
             // 
             // lblServer
             // 
             this.lblServer.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblServer.AutoSize = true;
-            this.lblServer.Location = new System.Drawing.Point(8, 15);
+            this.lblServer.Location = new System.Drawing.Point(8, 10);
             this.lblServer.Name = "lblServer";
-            this.lblServer.Size = new System.Drawing.Size(43, 15);
+            this.lblServer.Size = new System.Drawing.Size(61, 25);
             this.lblServer.TabIndex = 0;
             this.lblServer.Text = "Server";
             // 
@@ -106,16 +106,16 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtServer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtServer.Location = new System.Drawing.Point(128, 8);
             this.txtServer.Name = "txtServer";
-            this.txtServer.Size = new System.Drawing.Size(302, 23);
+            this.txtServer.Size = new System.Drawing.Size(302, 31);
             this.txtServer.TabIndex = 1;
             // 
             // lblDBName
             // 
             this.lblDBName.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblDBName.AutoSize = true;
-            this.lblDBName.Location = new System.Drawing.Point(8, 50);
+            this.lblDBName.Location = new System.Drawing.Point(8, 40);
             this.lblDBName.Name = "lblDBName";
-            this.lblDBName.Size = new System.Drawing.Size(76, 15);
+            this.lblDBName.Size = new System.Drawing.Size(86, 35);
             this.lblDBName.TabIndex = 2;
             this.lblDBName.Text = "Tên Database";
             // 
@@ -124,16 +124,16 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtDBName.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtDBName.Location = new System.Drawing.Point(128, 43);
             this.txtDBName.Name = "txtDBName";
-            this.txtDBName.Size = new System.Drawing.Size(302, 23);
+            this.txtDBName.Size = new System.Drawing.Size(302, 31);
             this.txtDBName.TabIndex = 3;
             // 
             // lblAuth
             // 
             this.lblAuth.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAuth.AutoSize = true;
-            this.lblAuth.Location = new System.Drawing.Point(8, 85);
+            this.lblAuth.Location = new System.Drawing.Point(8, 80);
             this.lblAuth.Name = "lblAuth";
-            this.lblAuth.Size = new System.Drawing.Size(75, 15);
+            this.lblAuth.Size = new System.Drawing.Size(80, 25);
             this.lblAuth.TabIndex = 4;
             this.lblAuth.Text = "Xác thực";
             // 
@@ -143,7 +143,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.cboAuthMode.FormattingEnabled = true;
             this.cboAuthMode.Location = new System.Drawing.Point(128, 78);
             this.cboAuthMode.Name = "cboAuthMode";
-            this.cboAuthMode.Size = new System.Drawing.Size(302, 23);
+            this.cboAuthMode.Size = new System.Drawing.Size(302, 33);
             this.cboAuthMode.TabIndex = 5;
             this.cboAuthMode.SelectedIndexChanged += new System.EventHandler(this.cboAuthMode_SelectedIndexChanged);
             // 
@@ -151,9 +151,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             this.lblUser.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblUser.AutoSize = true;
-            this.lblUser.Location = new System.Drawing.Point(8, 120);
+            this.lblUser.Location = new System.Drawing.Point(8, 115);
             this.lblUser.Name = "lblUser";
-            this.lblUser.Size = new System.Drawing.Size(61, 15);
+            this.lblUser.Size = new System.Drawing.Size(86, 25);
             this.lblUser.TabIndex = 6;
             this.lblUser.Text = "Tài khoản";
             // 
@@ -162,16 +162,16 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtUser.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtUser.Location = new System.Drawing.Point(128, 113);
             this.txtUser.Name = "txtUser";
-            this.txtUser.Size = new System.Drawing.Size(302, 23);
+            this.txtUser.Size = new System.Drawing.Size(302, 31);
             this.txtUser.TabIndex = 7;
             // 
             // lblPassword
             // 
             this.lblPassword.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new System.Drawing.Point(8, 155);
+            this.lblPassword.Location = new System.Drawing.Point(8, 164);
             this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(57, 15);
+            this.lblPassword.Size = new System.Drawing.Size(86, 25);
             this.lblPassword.TabIndex = 8;
             this.lblPassword.Text = "Mật khẩu";
             // 
@@ -181,7 +181,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtPassword.Location = new System.Drawing.Point(128, 148);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '•';
-            this.txtPassword.Size = new System.Drawing.Size(302, 23);
+            this.txtPassword.Size = new System.Drawing.Size(302, 31);
             this.txtPassword.TabIndex = 9;
             // 
             // panelButtons
@@ -196,25 +196,15 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.panelButtons.Size = new System.Drawing.Size(444, 44);
             this.panelButtons.TabIndex = 1;
             // 
-            // btnSave
+            // btnThoat
             // 
-            this.btnSave.Location = new System.Drawing.Point(234, 6);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(95, 32);
-            this.btnSave.TabIndex = 0;
-            this.btnSave.Text = "Lưu và Thoát";
-            this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // btnTest
-            // 
-            this.btnTest.Location = new System.Drawing.Point(133, 6);
-            this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(95, 32);
-            this.btnTest.TabIndex = 1;
-            this.btnTest.Text = "Kiểm tra";
-            this.btnTest.UseVisualStyleBackColor = true;
-            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
+            this.btnThoat.Location = new System.Drawing.Point(335, 6);
+            this.btnThoat.Name = "btnThoat";
+            this.btnThoat.Size = new System.Drawing.Size(95, 32);
+            this.btnThoat.TabIndex = 3;
+            this.btnThoat.Text = "Thoát";
+            this.btnThoat.UseVisualStyleBackColor = true;
+            this.btnThoat.Click += new System.EventHandler(this.btnThoat_Click);
             // 
             // btnAttachDB
             // 
@@ -226,23 +216,33 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.btnAttachDB.UseVisualStyleBackColor = true;
             this.btnAttachDB.Click += new System.EventHandler(this.btnAttachDB_Click);
             // 
-            // btnThoat
+            // btnTest
             // 
-            this.btnThoat.Location = new System.Drawing.Point(335, 6);
-            this.btnThoat.Name = "btnThoat";
-            this.btnThoat.Size = new System.Drawing.Size(95, 32);
-            this.btnThoat.TabIndex = 3;
-            this.btnThoat.Text = "Thoát";
-            this.btnThoat.UseVisualStyleBackColor = true;
-            this.btnThoat.Click += new System.EventHandler(this.btnThoat_Click);
+            this.btnTest.Location = new System.Drawing.Point(133, 6);
+            this.btnTest.Name = "btnTest";
+            this.btnTest.Size = new System.Drawing.Size(95, 32);
+            this.btnTest.TabIndex = 1;
+            this.btnTest.Text = "Kiểm tra";
+            this.btnTest.UseVisualStyleBackColor = true;
+            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
+            // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(234, 6);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(95, 32);
+            this.btnSave.TabIndex = 0;
+            this.btnSave.Text = "Lưu và Thoát";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // FormKetNoiCSDL
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(470, 320);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;

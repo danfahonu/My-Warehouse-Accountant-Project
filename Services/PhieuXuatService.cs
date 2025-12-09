@@ -18,15 +18,14 @@ namespace DoAnLapTrinhQuanLy.Services
 
     public class PhieuXuatService
     {
-        // 1. Get Customers
         public DataTable LayDanhSachKhachHang()
         {
             return DbHelper.Query("SELECT MAKH, TENKH, DIACHI, SDT FROM DANHMUCKHACHHANG ORDER BY TENKH");
         }
 
-        // 2. Get Products (Using View vw_TonKhoHienTai)
         public DataTable LayDanhSachHangHoa()
         {
+            // Lấy thêm tồn kho
             string sql = @"
                 SELECT h.MAHH, h.TENHH, h.DVT, h.GIABAN, ISNULL(t.TON_HIEN_TAI, 0) AS TONKHO
                 FROM DM_HANGHOA h
@@ -36,7 +35,6 @@ namespace DoAnLapTrinhQuanLy.Services
             return DbHelper.Query(sql);
         }
 
-        // 3. Stock Check
         public int CheckTonKho(string maHH)
         {
             string sql = "SELECT ISNULL(TON_HIEN_TAI, 0) FROM vw_TonKhoHienTai WHERE MAHH = @MaHH";
@@ -44,25 +42,25 @@ namespace DoAnLapTrinhQuanLy.Services
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        // 4. MAIN TRANSACTION (Strict SP Logic)
+        // --- HÀM LƯU CHÍNH ---
         public long LuuPhieuXuat(DateTime ngayLap, string maKH, string ghiChu, bool isThanhToan, List<PhieuXuatChiTietDTO> listChiTiet)
         {
             if (listChiTiet == null || listChiTiet.Count == 0)
-                throw new ArgumentException("Danh sách hàng hóa không được để trống.");
+                throw new ArgumentException("Danh sách hàng hóa rỗng.");
 
-            // A. Pre-Validation
+            // 1. Kiểm tra tồn kho
             foreach (var item in listChiTiet)
             {
                 int currentStock = CheckTonKho(item.MaHH);
                 if (currentStock < item.SoLuong)
-                    throw new Exception($"Hàng hóa '{item.TenHH}' không đủ tồn kho (Có: {currentStock:N0}, Cần: {item.SoLuong:N0}).");
+                    throw new Exception($"Hàng '{item.TenHH}' không đủ tồn (Có: {currentStock}, Cần: {item.SoLuong}).");
             }
 
             long newSoPhieu = 0;
 
             DbHelper.ExecuteTran((conn, tran) =>
             {
-                // B1. Insert Header
+                // 2. Insert Header
                 string sqlHeader = @"INSERT INTO PHIEU (NGAYLAP, LOAI, MAKH, GHICHU, TRANGTHAI) 
                                      VALUES (@Ngay, 'X', @MaKH, @GhiChu, 1);
                                      SELECT SCOPE_IDENTITY();";
@@ -75,12 +73,12 @@ namespace DoAnLapTrinhQuanLy.Services
 
                 decimal totalRevenue = 0;
 
-                // B2. Details & FIFO SP
+                // 3. Insert Detail & Chạy FIFO
                 foreach (var item in listChiTiet)
                 {
                     totalRevenue += item.ThanhTien;
 
-                    // Insert Detail (GIAVON = 0 initially)
+                    // Lưu chi tiết
                     string sqlDetail = @"INSERT INTO PHIEU_CT (SOPHIEU, MAHH, SL, DONGIA, GIAVON) 
                                          VALUES (@SoPhieu, @MaHH, @SL, @DonGia, 0)";
 
@@ -91,7 +89,7 @@ namespace DoAnLapTrinhQuanLy.Services
                         DbHelper.Param("@DonGia", item.DonGiaBan)
                     );
 
-                    // Call SP to run FIFO and calculate/update Cost
+                    // Chạy FIFO
                     using (SqlCommand cmd = new SqlCommand("sp_XuatKho_FIFO", conn, tran))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
@@ -102,34 +100,27 @@ namespace DoAnLapTrinhQuanLy.Services
                     }
                 }
 
-                // B3. Calculate Total COGS from DB
+                // 4. Lấy tổng giá vốn
                 object totalCostObj = DbHelper.ScalarInTran(conn, tran,
                     "SELECT ISNULL(SUM(GIAVON * SL), 0) FROM PHIEU_CT WHERE SOPHIEU = @SoPhieu",
                     DbHelper.Param("@SoPhieu", newSoPhieu));
                 decimal totalCOGS = Convert.ToDecimal(totalCostObj);
 
-                // B4. Accounting
-                // Revenue (Credit 511, Debit 131/111)
-                string tkNo = isThanhToan ? "111" : "131";
+                // --- 5. HẠCH TOÁN (GHI SỔ KÉP ĐỂ TRÁNH LỖI NULL/EMPTY) ---
+
                 string descRiv = $"Doanh thu phiếu xuất #{newSoPhieu}";
-
-                DbHelper.ExecuteInTran(conn, tran,
-                    "INSERT INTO BUTTOAN_KETOAN (NGAY_HT, TK_NO, TK_CO, SOTIEN, DIEN_GIAI) VALUES (@Ngay, @TkNo, '', @Tien, @Desc)",
-                    DbHelper.Param("@Ngay", ngayLap), DbHelper.Param("@TkNo", tkNo), DbHelper.Param("@Tien", totalRevenue), DbHelper.Param("@Desc", descRiv));
-
-                DbHelper.ExecuteInTran(conn, tran,
-                    "INSERT INTO BUTTOAN_KETOAN (NGAY_HT, TK_NO, TK_CO, SOTIEN, DIEN_GIAI) VALUES (@Ngay, '', '511', @Tien, @Desc)",
-                    DbHelper.Param("@Ngay", ngayLap), DbHelper.Param("@Tien", totalRevenue), DbHelper.Param("@Desc", descRiv));
-
-                // COGS (Credit 156, Debit 632)
                 string descCogs = $"Giá vốn phiếu xuất #{newSoPhieu}";
-                DbHelper.ExecuteInTran(conn, tran,
-                    "INSERT INTO BUTTOAN_KETOAN (NGAY_HT, TK_NO, TK_CO, SOTIEN, DIEN_GIAI) VALUES (@Ngay, '632', '156', @Tien, @Desc)",
-                    DbHelper.Param("@Ngay", ngayLap), DbHelper.Param("@Tien", totalCOGS), DbHelper.Param("@Desc", descCogs));
 
-                // Receipt if Paid
+                // A. Ghi Doanh Thu: Nợ 131 / Có 511
+                InsertButToan(conn, tran, ngayLap, "131", "511", totalRevenue, descRiv);
+
+                // B. Ghi Giá Vốn: Nợ 632 / Có 156
+                InsertButToan(conn, tran, ngayLap, "632", "156", totalCOGS, descCogs);
+
+                // C. Nếu Thanh Toán: Ghi Nợ 1111 / Có 131
                 if (isThanhToan)
                 {
+                    // Tạo phiếu thu
                     string sqlReceipt = @"INSERT INTO PHIEUTHUCHI (NGAYLAP, LOAI, MAKH, SOTIEN, LYDO)
                                            VALUES (@Ngay, 'T', @MaKH, @SoTien, @LyDo)";
                     DbHelper.ExecuteInTran(conn, tran, sqlReceipt,
@@ -138,12 +129,33 @@ namespace DoAnLapTrinhQuanLy.Services
                        DbHelper.Param("@SoTien", totalRevenue),
                        DbHelper.Param("@LyDo", $"Thu tiền ngay phiếu xuất #{newSoPhieu}")
                    );
+
+                    // Hạch toán: Thu tiền mặt (1111), Giảm nợ khách (131)
+                    string descPay = $"Thu tiền phiếu xuất #{newSoPhieu}";
+                    InsertButToan(conn, tran, ngayLap, "1111", "131", totalRevenue, descPay);
                 }
 
                 return 1;
             });
 
             return newSoPhieu;
+        }
+
+        // Hàm chèn bút toán an toàn
+        private void InsertButToan(SqlConnection conn, SqlTransaction tran, DateTime ngay, string tkNo, string tkCo, decimal tien, string dienGiai)
+        {
+            // Lưu ý: Cột SOTIEN, DIEN_GIAI, TK_NO, TK_CO phải khớp với tên cột trong bảng BUTTOAN_KETOAN của bà
+            // Ở đây tui giả định tên cột là TK_NO và TK_CO (nếu khác bà sửa lại nhé)
+            string sql = @"INSERT INTO BUTTOAN_KETOAN (NGAY_HT, TK_NO, TK_CO, SOTIEN, DIEN_GIAI) 
+                           VALUES (@Ngay, @TkNo, @TkCo, @Tien, @Desc)";
+
+            DbHelper.ExecuteInTran(conn, tran, sql,
+                DbHelper.Param("@Ngay", ngay),
+                DbHelper.Param("@TkNo", tkNo),
+                DbHelper.Param("@TkCo", tkCo),
+                DbHelper.Param("@Tien", tien),
+                DbHelper.Param("@Desc", dienGiai)
+            );
         }
     }
 }

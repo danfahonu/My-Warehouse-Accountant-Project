@@ -51,9 +51,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             this.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Location = new System.Drawing.Point(3, 7);
+            this.lblTitle.Location = new System.Drawing.Point(3, 0);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(59, 15);
+            this.lblTitle.Size = new System.Drawing.Size(56, 30);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "Phần mềm";
             // 
@@ -61,9 +61,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             this.lblVersion.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblVersion.AutoSize = true;
-            this.lblVersion.Location = new System.Drawing.Point(3, 37);
+            this.lblVersion.Location = new System.Drawing.Point(3, 32);
             this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(46, 15);
+            this.lblVersion.Size = new System.Drawing.Size(90, 25);
             this.lblVersion.TabIndex = 1;
             this.lblVersion.Text = "Phiên bản";
             // 
@@ -71,9 +71,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             this.lblAuthor.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAuthor.AutoSize = true;
-            this.lblAuthor.Location = new System.Drawing.Point(3, 67);
+            this.lblAuthor.Location = new System.Drawing.Point(3, 62);
             this.lblAuthor.Name = "lblAuthor";
-            this.lblAuthor.Size = new System.Drawing.Size(43, 15);
+            this.lblAuthor.Size = new System.Drawing.Size(65, 25);
             this.lblAuthor.TabIndex = 2;
             this.lblAuthor.Text = "Tác giả";
             // 
@@ -83,7 +83,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtTitle.Location = new System.Drawing.Point(103, 3);
             this.txtTitle.Name = "txtTitle";
             this.txtTitle.ReadOnly = true;
-            this.txtTitle.Size = new System.Drawing.Size(274, 23);
+            this.txtTitle.Size = new System.Drawing.Size(274, 31);
             this.txtTitle.TabIndex = 3;
             // 
             // txtVersion
@@ -92,7 +92,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtVersion.Location = new System.Drawing.Point(103, 33);
             this.txtVersion.Name = "txtVersion";
             this.txtVersion.ReadOnly = true;
-            this.txtVersion.Size = new System.Drawing.Size(274, 23);
+            this.txtVersion.Size = new System.Drawing.Size(274, 31);
             this.txtVersion.TabIndex = 4;
             // 
             // txtAuthor
@@ -101,13 +101,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtAuthor.Location = new System.Drawing.Point(103, 63);
             this.txtAuthor.Name = "txtAuthor";
             this.txtAuthor.ReadOnly = true;
-            this.txtAuthor.Size = new System.Drawing.Size(274, 23);
+            this.txtAuthor.Size = new System.Drawing.Size(274, 31);
             this.txtAuthor.TabIndex = 5;
             // 
             // btnThoat
             // 
             this.btnThoat.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.btnThoat.Location = new System.Drawing.Point(279, 114);
+            this.btnThoat.Location = new System.Drawing.Point(279, 103);
             this.btnThoat.Name = "btnThoat";
             this.btnThoat.Size = new System.Drawing.Size(98, 33);
             this.btnThoat.TabIndex = 6;
@@ -117,11 +117,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             // 
             // FormThongTinPhanMem
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(400, 170);
             this.Controls.Add(this.table);
-            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormThongTinPhanMem";

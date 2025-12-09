@@ -7,120 +7,83 @@ using DoAnLapTrinhQuanLy.Services;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
-    /// <summary>
-    /// Màn hình Quản lý Danh mục Hàng hóa.
-    /// Refactored: 3-Layer, Modern UI, Custom Controls.
-    /// </summary>
     public partial class FormDanhMucHangHoa : Form
     {
         private readonly HangHoaService _service = new HangHoaService();
-        private bool _isAdding = false;
-        private string _selectedImagePath = null; // Lưu đường dẫn ảnh tạm thời
+        private string _mode = "";
+
+        // --- QUAN TRỌNG: Biến này dùng để giữ dữ liệu ảnh gốc ---
+        private byte[] _currentImageBytes = null;
 
         public FormDanhMucHangHoa()
         {
             InitializeComponent();
-            ApplyInitialState();
-        }
-
-        private void ApplyInitialState()
-        {
-            // Set default view state
-            SetInputMode(false);
-            picAnhDaiDien.Image = null;
         }
 
         private void FormDanhMucHangHoa_Load(object sender, EventArgs e)
         {
-            LoadComboBoxNhomHang();
-            LoadDataGrid();
+            LoadCombobox();
+            LoadData();
+            SetMode("view");
         }
 
-        // ===================================
-        // DATA LOADING
-        // ===================================
+        private void LoadCombobox()
+        {
+            cboNhomHang.DataSource = _service.GetNhomHang();
+            cboNhomHang.DisplayMember = "TENNHOM";
+            cboNhomHang.ValueMember = "MANHOM";
+            cboNhomHang.SelectedIndex = -1;
+        }
 
-        private void LoadComboBoxNhomHang()
+        private void LoadData()
         {
             try
             {
-                DataTable dt = _service.LayDanhSachNhomHang();
-                cboNhomHang.DataSource = dt;
-                cboNhomHang.DisplayMember = "TENNHOM";
-                cboNhomHang.ValueMember = "MANHOM";
-                cboNhomHang.SelectedIndex = -1; // Clear selection
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải nhóm hàng: " + ex.Message);
-            }
-        }
+                dgvDanhSach.DataSource = _service.GetAll();
 
-        private void LoadDataGrid()
-        {
-            try
-            {
-                DataTable dt = _service.LayDanhSach();
-                dgvHangHoa.DataSource = dt;
-
-                // Format Columns
-                FormatGridColumn("MAHH", "Mã Hàng", 100);
-                FormatGridColumn("TENHH", "Tên Hàng Hóa", 250);
-                FormatGridColumn("TENNHOM", "Nhóm Hàng", 150);
-                FormatGridColumn("DVT", "ĐVT", 80);
-                FormatGridColumn("TONKHO", "Tồn Kho", 80, true);
-                FormatGridColumn("GIAVON", "Giá Vốn", 120, true);
-                FormatGridColumn("GIABAN", "Giá Bán", 120, true);
-
-                // Hide Internal Columns
-                if (dgvHangHoa.Columns["MANHOM"] != null) dgvHangHoa.Columns["MANHOM"].Visible = false;
-                if (dgvHangHoa.Columns["ANH"] != null) dgvHangHoa.Columns["ANH"].Visible = false;
-                if (dgvHangHoa.Columns["ACTIVE"] != null) dgvHangHoa.Columns["ACTIVE"].Visible = false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải danh sách hàng hóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void FormatGridColumn(string colName, string headerText, int width, bool isNumber = false)
-        {
-            if (dgvHangHoa.Columns[colName] != null)
-            {
-                dgvHangHoa.Columns[colName].HeaderText = headerText;
-                dgvHangHoa.Columns[colName].Width = width;
-
-                if (isNumber)
+                // Định dạng cột (Giữ nguyên như cũ)
+                if (dgvDanhSach.Columns.Contains("MAHH")) dgvDanhSach.Columns["MAHH"].HeaderText = "Mã HH";
+                if (dgvDanhSach.Columns.Contains("TENHH"))
                 {
-                    dgvHangHoa.Columns[colName].DefaultCellStyle.Format = "N0";
-                    dgvHangHoa.Columns[colName].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                    dgvDanhSach.Columns["TENHH"].HeaderText = "Tên Hàng Hóa";
+                    dgvDanhSach.Columns["TENHH"].Width = 200;
                 }
+                if (dgvDanhSach.Columns.Contains("DVT")) dgvDanhSach.Columns["DVT"].HeaderText = "ĐVT";
+
+                // Ẩn cột kỹ thuật
+                if (dgvDanhSach.Columns.Contains("MANHOM")) dgvDanhSach.Columns["MANHOM"].Visible = false;
+                if (dgvDanhSach.Columns.Contains("ACTIVE")) dgvDanhSach.Columns["ACTIVE"].Visible = false;
+                if (dgvDanhSach.Columns.Contains("ANH")) dgvDanhSach.Columns["ANH"].Visible = false; // Ẩn cột Binary đi
             }
+            catch (Exception ex) { MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message); }
         }
 
-        // ===================================
-        // UI STATES & LOGIC
-        // ===================================
-
-        private void SetInputMode(bool enable)
+        private void SetMode(string mode)
         {
-            // Inputs
-            txtMaHH.ReadOnly = !_isAdding;
-            txtTenHH.ReadOnly = !enable;
-            txtDVT.ReadOnly = !enable;
-            numGiaVon.Enabled = enable;
-            numGiaBan.Enabled = enable;
-            cboNhomHang.Enabled = enable;
-            chkActive.Enabled = enable;
-            btnChonAnh.Enabled = enable;
+            _mode = mode;
+            bool isEditing = (_mode == "add" || _mode == "edit");
 
-            // Actions
-            btnLuu.Enabled = enable;
-            btnHuy.Enabled = enable;
+            grpDetail.Enabled = isEditing;
+            grpList.Enabled = !isEditing;
 
-            btnThem.Enabled = !enable;
-            btnSua.Enabled = !enable;
-            btnXoa.Enabled = !enable;
+            btnThem.Visible = !isEditing;
+            btnSua.Visible = !isEditing && dgvDanhSach.Rows.Count > 0;
+            btnXoa.Visible = !isEditing && dgvDanhSach.Rows.Count > 0;
+
+            btnLuu.Visible = isEditing;
+            btnHuy.Visible = isEditing;
+
+            btnChonHinh.Visible = isEditing;
+            btnXoaHinh.Visible = isEditing;
+
+            if (_mode == "view" && dgvDanhSach.CurrentRow != null)
+            {
+                DisplayDetail(dgvDanhSach.CurrentRow);
+            }
+            else if (_mode == "add")
+            {
+                ClearInputs();
+            }
         }
 
         private void ClearInputs()
@@ -128,188 +91,216 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             txtMaHH.Text = "";
             txtTenHH.Text = "";
             txtDVT.Text = "";
-            numGiaVon.Value = 0;
-            numGiaBan.Value = 0;
+            txtGiaVon.Text = "0";
+            txtGiaBan.Text = "0";
+            txtTonKho.Text = "0";
             cboNhomHang.SelectedIndex = -1;
-            chkActive.Checked = true;
-            picAnhDaiDien.Image = null;
-            _selectedImagePath = null;
+
+            // Xóa ảnh và biến chứa ảnh
+            picHinhAnh.Image = null;
+            _currentImageBytes = null;
         }
 
-        // ===================================
-        // EVENT HANDLERS
-        // ===================================
+        private void DisplayDetail(DataGridViewRow row)
+        {
+            try
+            {
+                txtMaHH.Text = row.Cells["MAHH"].Value.ToString();
+                txtTenHH.Text = row.Cells["TENHH"].Value.ToString();
+                txtDVT.Text = row.Cells["DVT"].Value.ToString();
 
-        private void btnChonAnh_Click(object sender, EventArgs e)
+                txtGiaVon.Text = row.Cells["GIAVON"].Value != DBNull.Value ? Convert.ToDecimal(row.Cells["GIAVON"].Value).ToString("N0") : "0";
+                txtGiaBan.Text = row.Cells["GIABAN"].Value != DBNull.Value ? Convert.ToDecimal(row.Cells["GIABAN"].Value).ToString("N0") : "0";
+                txtTonKho.Text = row.Cells["TONKHO"].Value != DBNull.Value ? Convert.ToDecimal(row.Cells["TONKHO"].Value).ToString("N0") : "0";
+
+                cboNhomHang.SelectedValue = row.Cells["MANHOM"].Value.ToString();
+
+                // --- XỬ LÝ HIỂN THỊ ẢNH ---
+                if (row.Cells["ANH"].Value != DBNull.Value)
+                {
+                    // 1. Lấy dữ liệu từ Grid lưu vào biến nhớ (QUAN TRỌNG: Để khi Sửa ko bị mất ảnh)
+                    _currentImageBytes = (byte[])row.Cells["ANH"].Value;
+
+                    // 2. Hiển thị lên PictureBox
+                    using (MemoryStream ms = new MemoryStream(_currentImageBytes))
+                    {
+                        picHinhAnh.Image = Image.FromStream(ms);
+                    }
+                }
+                else
+                {
+                    _currentImageBytes = null;
+                    picHinhAnh.Image = null;
+                }
+            }
+            catch
+            {
+                // Nếu ảnh lỗi thì reset về rỗng để không crash app
+                picHinhAnh.Image = null;
+                _currentImageBytes = null;
+            }
+        }
+
+        // --- NÚT CHỌN HÌNH (SỬA LẠI ĐỂ LƯU VÀO BIẾN TOÀN CỤC) ---
+        // --- NÚT CHỌN HÌNH (PHIÊN BẢN MỚI: TỰ ĐỘNG NÉN ẢNH) ---
+        private void btnChonHinh_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    _selectedImagePath = ofd.FileName;
-                    picAnhDaiDien.Image = Image.FromFile(_selectedImagePath);
+                    try
+                    {
+                        // 1. Load ảnh gốc lên
+                        using (var originalImage = Image.FromFile(ofd.FileName))
+                        {
+                            // 2. Resize ảnh nếu quá to (Max chiều rộng/cao là 800px)
+                            // Giúp giảm dung lượng từ vài MB xuống vài chục KB -> App chạy nhanh hơn
+                            int maxWidth = 800;
+                            int maxHeight = 800;
+                            var newSize = CalculateResizedDimensions(originalImage, maxWidth, maxHeight);
+
+                            using (var resizedImage = new Bitmap(originalImage, newSize))
+                            {
+                                // 3. Hiển thị lên PictureBox
+                                picHinhAnh.Image = new Bitmap(resizedImage);
+
+                                // 4. Lưu vào biến _currentImageBytes (Dạng JPEG cho nhẹ)
+                                using (var ms = new MemoryStream())
+                                {
+                                    resizedImage.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                    _currentImageBytes = ms.ToArray();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Lỗi xử lý ảnh: " + ex.Message);
+                    }
                 }
             }
         }
 
+        // Hàm phụ trợ để tính kích thước mới (Giữ nguyên tỷ lệ khung hình)
+        private Size CalculateResizedDimensions(Image image, int maxWidth, int maxHeight)
+        {
+            var ratioX = (double)maxWidth / image.Width;
+            var ratioY = (double)maxHeight / image.Height;
+            var ratio = Math.Min(ratioX, ratioY);
+
+            // Nếu ảnh nhỏ hơn kích thước tối đa thì giữ nguyên
+            if (ratio > 1) return new Size(image.Width, image.Height);
+
+            var newWidth = (int)(image.Width * ratio);
+            var newHeight = (int)(image.Height * ratio);
+            return new Size(newWidth, newHeight);
+        }
+
+        private void btnXoaHinh_Click(object sender, EventArgs e)
+        {
+            picHinhAnh.Image = null;
+            _currentImageBytes = null; // Xóa dữ liệu trong biến nhớ
+        }
+
+        // --- CÁC SỰ KIỆN KHÁC ---
+
+        private void dgvDanhSach_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvDanhSach.CurrentRow != null && _mode == "view")
+                DisplayDetail(dgvDanhSach.CurrentRow);
+        }
+
         private void btnThem_Click(object sender, EventArgs e)
         {
-            _isAdding = true;
-            ClearInputs();
-            SetInputMode(true);
-            txtMaHH.Focus();
+            SetMode("add");
+            txtMaHH.Text = "HH" + DateTime.Now.ToString("ddHHmm");
+            txtTenHH.Focus();
         }
 
         private void btnSua_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtMaHH.Text))
-            {
-                MessageBox.Show("Vui lòng chọn hàng hóa cần sửa!");
-                return;
-            }
-            _isAdding = false;
-            SetInputMode(true);
+            SetMode("edit");
+            txtMaHH.ReadOnly = true;
             txtTenHH.Focus();
         }
 
         private void btnXoa_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtMaHH.Text))
-            {
-                MessageBox.Show("Vui lòng chọn hàng hóa cần xóa!");
-                return;
-            }
-
-            if (MessageBox.Show($"Bạn có chắc chắn xóa hàng '{txtTenHH.Text}'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show("Xóa hàng hóa này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 try
                 {
-                    if (_service.Xoa(txtMaHH.Text))
-                    {
-                        MessageBox.Show("Xóa thành công!");
-                        LoadDataGrid();
-                        ClearInputs();
-                    }
+                    _service.Delete(txtMaHH.Text);
+                    LoadData();
+                    SetMode("view");
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Lỗi nghiệp vụ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                catch (Exception ex) { MessageBox.Show("Lỗi xóa: " + ex.Message); }
             }
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
-            // Validation
-            if (string.IsNullOrWhiteSpace(txtMaHH.Text) || string.IsNullOrWhiteSpace(txtTenHH.Text))
-            {
-                MessageBox.Show("Mã và Tên hàng không được để trống!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (cboNhomHang.SelectedValue == null)
-            {
-                MessageBox.Show("Vui lòng chọn Nhóm hàng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(txtTenHH.Text)) { MessageBox.Show("Chưa nhập tên hàng!"); return; }
+            if (cboNhomHang.SelectedValue == null) { MessageBox.Show("Chưa chọn nhóm hàng!"); return; }
 
             try
             {
+                decimal gv = 0, gb = 0;
+                decimal.TryParse(txtGiaVon.Text, out gv);
+                decimal.TryParse(txtGiaBan.Text, out gb);
                 string maNhom = cboNhomHang.SelectedValue.ToString();
 
-                // TODO: Xử lý lưu ảnh chuyên sâu (Copy vào folder / Convert Base64). 
-                // Ở đây tạm lưu đường dẫn hoặc chuỗi rỗng.
-                string pathAnh = _selectedImagePath ?? "";
+                // Lưu lại mã hàng đang thao tác để lát nữa tìm lại
+                string currentMaHH = txtMaHH.Text;
 
-                bool result = false;
+                // Lấy dữ liệu ảnh từ biến toàn cục (đã được nén/xử lý ở bước chọn hình)
+                // Nếu không chọn hình mới thì biến này vẫn giữ hình cũ hoặc null
+                byte[] imgData = _currentImageBytes;
 
-                if (_isAdding)
-                {
-                    result = _service.Them(
-                        txtMaHH.Text.Trim(),
-                        txtTenHH.Text.Trim(),
-                        maNhom,
-                        txtDVT.Text.Trim(),
-                        numGiaVon.Value,
-                        numGiaBan.Value,
-                        pathAnh,
-                        chkActive.Checked);
-                }
-                else
-                {
-                    result = _service.Sua(
-                        txtMaHH.Text.Trim(),
-                        txtTenHH.Text.Trim(),
-                        maNhom,
-                        txtDVT.Text.Trim(),
-                        numGiaVon.Value,
-                        numGiaBan.Value,
-                        pathAnh,
-                        chkActive.Checked);
-                }
+                if (_mode == "add")
+                    _service.Add(currentMaHH, txtTenHH.Text, txtDVT.Text, gv, gb, maNhom, imgData);
+                else if (_mode == "edit")
+                    _service.Update(currentMaHH, txtTenHH.Text, txtDVT.Text, gv, gb, maNhom, imgData);
 
-                if (result)
+                MessageBox.Show("Lưu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                LoadData(); // Load lại lưới
+                SetMode("view");
+
+                // --- ĐOẠN NÀY ĐỂ FIX LỖI MẤT HÌNH ---
+                // Tự động tìm và chọn lại dòng vừa lưu để hiện hình lên
+                foreach (DataGridViewRow row in dgvDanhSach.Rows)
                 {
-                    MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo");
-                    LoadDataGrid();
-                    SetInputMode(false);
+                    if (row.Cells["MAHH"].Value.ToString() == currentMaHH)
+                    {
+                        row.Selected = true;
+                        dgvDanhSach.CurrentCell = row.Cells[0]; // Kích hoạt sự kiện SelectionChanged
+                        DisplayDetail(row); // Gọi hiển thị chi tiết ngay lập tức
+                        break;
+                    }
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            catch (Exception ex) { MessageBox.Show("Lỗi lưu: " + ex.Message); }
         }
 
         private void btnHuy_Click(object sender, EventArgs e)
         {
-            SetInputMode(false);
-            _isAdding = false;
-            // Load lại dòng đang chọn
-            if (dgvHangHoa.CurrentRow != null)
-                dgvHangHoa_SelectionChanged(null, null);
-            else
-                ClearInputs();
+            SetMode("view");
+            dgvDanhSach_SelectionChanged(null, null);
         }
 
-        private void dgvHangHoa_SelectionChanged(object sender, EventArgs e)
+        private void btnThoat_Click(object sender, EventArgs e)
         {
-            if (dgvHangHoa.CurrentRow != null && dgvHangHoa.CurrentRow.Index >= 0)
+            this.Close();
+        }
+
+        private void txtTimKiem_TextChanged(object sender, EventArgs e)
+        {
+            if (dgvDanhSach.DataSource is DataTable dt)
             {
-                var row = dgvHangHoa.CurrentRow;
-
-                txtMaHH.Text = row.Cells["MAHH"].Value?.ToString();
-                txtTenHH.Text = row.Cells["TENHH"].Value?.ToString();
-                txtDVT.Text = row.Cells["DVT"].Value?.ToString();
-
-                // Numeric Up Down safe set
-                if (decimal.TryParse(row.Cells["GIAVON"].Value?.ToString(), out decimal giaVon))
-                    numGiaVon.Value = giaVon;
-
-                if (decimal.TryParse(row.Cells["GIABAN"].Value?.ToString(), out decimal giaBan))
-                    numGiaBan.Value = giaBan;
-
-                // ComboBox safe set
-                string maNhom = row.Cells["MANHOM"].Value?.ToString();
-                if (!string.IsNullOrEmpty(maNhom))
-                    cboNhomHang.SelectedValue = maNhom;
-
-                // Checkbox
-                if (row.Cells["ACTIVE"].Value != DBNull.Value)
-                    chkActive.Checked = Convert.ToBoolean(row.Cells["ACTIVE"].Value);
-
-                // Image loading logic (Simple check)
-                string imgPath = row.Cells["ANH"].Value?.ToString();
-                if (!string.IsNullOrEmpty(imgPath) && File.Exists(imgPath))
-                {
-                    picAnhDaiDien.Image = Image.FromFile(imgPath);
-                    _selectedImagePath = imgPath;
-                }
-                else
-                {
-                    picAnhDaiDien.Image = null;
-                }
+                dt.DefaultView.RowFilter = $"TENHH LIKE '%{txtTimKiem.Text}%' OR MAHH LIKE '%{txtTimKiem.Text}%'";
             }
         }
     }

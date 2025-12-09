@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
 using DoAnLapTrinhQuanLy.Data;
@@ -7,58 +7,65 @@ namespace DoAnLapTrinhQuanLy.Services
 {
     public class NhanVienService
     {
+        // 1. Lấy danh sách
         public DataTable GetAll()
         {
-            return DbHelper.Query("SELECT * FROM NHANVIEN");
+            string sql = "SELECT MANV, HOTEN, CHUCVU, DIACHI, SDT, EMAIL, ANH, HOATDONG FROM NHANVIEN WHERE HOATDONG = 1 ORDER BY HOTEN";
+            return DbHelper.Query(sql);
         }
 
-        public bool CheckTonTai(string maNV)
+        // 2. Thêm mới (Có hình ảnh)
+        public bool Add(string ma, string ten, string chucVu, string diaChi, string sdt, string email, byte[] anh)
         {
-            string query = "SELECT COUNT(*) FROM NHANVIEN WHERE MANV = @MaNV";
-            SqlParameter[] parameters = { new SqlParameter("@MaNV", maNV) };
-            object result = DbHelper.ExecuteScalar(query, parameters);
-            return result != null && Convert.ToInt32(result) > 0;
+            // Check trùng mã
+            string check = "SELECT COUNT(*) FROM NHANVIEN WHERE MANV = @Ma";
+            if (Convert.ToInt32(DbHelper.Scalar(check, DbHelper.Param("@Ma", ma))) > 0)
+                throw new Exception($"Mã nhân viên '{ma}' đã tồn tại!");
+
+            string sql = @"INSERT INTO NHANVIEN (MANV, HOTEN, CHUCVU, DIACHI, SDT, EMAIL, ANH, HOATDONG) 
+                           VALUES (@Ma, @Ten, @ChucVu, @DiaChi, @Sdt, @Email, @Anh, 1)";
+
+            SqlParameter paramAnh = new SqlParameter("@Anh", SqlDbType.VarBinary);
+            if (anh != null) paramAnh.Value = anh;
+            else paramAnh.Value = DBNull.Value;
+
+            return DbHelper.Execute(sql,
+                DbHelper.Param("@Ma", ma),
+                DbHelper.Param("@Ten", ten),
+                DbHelper.Param("@ChucVu", chucVu),
+                DbHelper.Param("@DiaChi", diaChi),
+                DbHelper.Param("@Sdt", sdt),
+                DbHelper.Param("@Email", email),
+                paramAnh) > 0;
         }
 
-        public void Insert(string maNV, string hoTen, string chucVu, string diaChi, string sdt, string email, string anh, bool hoatDong)
+        // 3. Cập nhật
+        public bool Update(string ma, string ten, string chucVu, string diaChi, string sdt, string email, byte[] anh)
         {
-            string query = "INSERT INTO NHANVIEN (MANV, HOTEN, CHUCVU, DIACHI, SDT, EMAIL, ANH, HOATDONG) " +
-                           "VALUES (@MaNV, @HoTen, @ChucVu, @DiaChi, @SDT, @Email, @Anh, @HoatDong)";
-            SqlParameter[] parameters = {
-                new SqlParameter("@MaNV", maNV),
-                new SqlParameter("@HoTen", hoTen),
-                new SqlParameter("@ChucVu", chucVu),
-                new SqlParameter("@DiaChi", diaChi),
-                new SqlParameter("@SDT", sdt),
-                new SqlParameter("@Email", email),
-                new SqlParameter("@Anh", anh ?? (object)DBNull.Value),
-                new SqlParameter("@HoatDong", hoatDong)
-            };
-            DbHelper.Execute(query, parameters);
+            string sql = @"UPDATE NHANVIEN 
+                           SET HOTEN = @Ten, CHUCVU = @ChucVu, DIACHI = @DiaChi, SDT = @Sdt, EMAIL = @Email, ANH = @Anh
+                           WHERE MANV = @Ma";
+
+            SqlParameter paramAnh = new SqlParameter("@Anh", SqlDbType.VarBinary);
+            if (anh != null) paramAnh.Value = anh;
+            else paramAnh.Value = DBNull.Value;
+
+            return DbHelper.Execute(sql,
+                DbHelper.Param("@Ten", ten),
+                DbHelper.Param("@ChucVu", chucVu),
+                DbHelper.Param("@DiaChi", diaChi),
+                DbHelper.Param("@Sdt", sdt),
+                DbHelper.Param("@Email", email),
+                paramAnh,
+                DbHelper.Param("@Ma", ma)) > 0;
         }
 
-        public void Update(string maNV, string hoTen, string chucVu, string diaChi, string sdt, string email, string anh, bool hoatDong)
+        // 4. Xóa (Soft Delete - Update HOATDONG = 0)
+        public bool Delete(string ma)
         {
-            string query = "UPDATE NHANVIEN SET HOTEN = @HoTen, CHUCVU = @ChucVu, DIACHI = @DiaChi, SDT = @SDT, " +
-                           "EMAIL = @Email, ANH = @Anh, HOATDONG = @HoatDong WHERE MANV = @MaNV";
-            SqlParameter[] parameters = {
-                new SqlParameter("@MaNV", maNV),
-                new SqlParameter("@HoTen", hoTen),
-                new SqlParameter("@ChucVu", chucVu),
-                new SqlParameter("@DiaChi", diaChi),
-                new SqlParameter("@SDT", sdt),
-                new SqlParameter("@Email", email),
-                new SqlParameter("@Anh", anh ?? (object)DBNull.Value),
-                new SqlParameter("@HoatDong", hoatDong)
-            };
-            DbHelper.Execute(query, parameters);
-        }
-
-        public void Delete(string maNV)
-        {
-            string query = "DELETE FROM NHANVIEN WHERE MANV = @MaNV";
-            SqlParameter[] parameters = { new SqlParameter("@MaNV", maNV) };
-            DbHelper.Execute(query, parameters);
+            // Xóa mềm
+            string sql = "UPDATE NHANVIEN SET HOATDONG = 0 WHERE MANV = @Ma";
+            return DbHelper.Execute(sql, DbHelper.Param("@Ma", ma)) > 0;
         }
     }
 }

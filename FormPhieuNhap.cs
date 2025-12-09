@@ -10,9 +10,14 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     public partial class FormPhieuNhap : Form
     {
+        // Service
         private readonly PhieuNhapService _service = new PhieuNhapService();
-        private DataTable _dtHangHoa;
-        private long _idYeuCau = 0;
+        private readonly NhaCungCapService _nccService = new NhaCungCapService();
+        private readonly HangHoaService _hangHoaService = new HangHoaService();
+
+        // Biến cục bộ
+        private DataTable _dtHangHoa; // Cache danh sách hàng để tra cứu nhanh trên lưới
+        private long _idYeuCau = 0;   // Lưu ID phiếu yêu cầu (nếu có)
 
         public FormPhieuNhap()
         {
@@ -22,124 +27,71 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void FormPhieuNhap_Load(object sender, EventArgs e)
         {
             LoadData();
-            InitGrid();
-            ClearInputs();
+            // InitGrid(); // Không cần gọi nếu Designer đã làm, nhưng để chắc chắn thì cứ để
+            ClearInputs(); // Gọi hàm làm mới form
         }
 
         private void LoadData()
         {
-            // Load Suppliers
-            cboNhaCungCap.DataSource = _service.LayDanhSachNhaCungCap();
-            cboNhaCungCap.DisplayMember = "TEN_NCC";
-            cboNhaCungCap.ValueMember = "MA_NCC";
-            cboNhaCungCap.SelectedIndex = -1;
+            try
+            {
+                // 1. Load Nhà cung cấp
+                cboNhaCungCap.DataSource = _nccService.GetAll();
+                cboNhaCungCap.DisplayMember = "TEN_NCC";
+                cboNhaCungCap.ValueMember = "MA_NCC";
+                cboNhaCungCap.SelectedIndex = -1;
 
-            // Cache Products for Grid ComboBox
-            _dtHangHoa = _service.LayDanhSachHangHoa();
+                // 2. Load Hàng hóa vào Cache & Gán cho cột ComboBox trên lưới
+                _dtHangHoa = _hangHoaService.GetAll();
+
+                colMaHH.DataSource = _dtHangHoa;
+                colMaHH.DisplayMember = "TENHH";
+                colMaHH.ValueMember = "MAHH";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+            }
         }
 
-        private void InitGrid()
-        {
-            dgvChiTiet.AutoGenerateColumns = false;
-            dgvChiTiet.Columns.Clear(); // Avoid duplication
-
-            // Col 1: Product (ComboBox)
-            var colMaHH = new DataGridViewComboBoxColumn();
-            colMaHH.HeaderText = "Hàng hóa";
-            colMaHH.Name = "colMaHH";
-            colMaHH.DataPropertyName = "MAHH";
-            colMaHH.DataSource = _dtHangHoa;
-            colMaHH.DisplayMember = "TENHH";
-            colMaHH.ValueMember = "MAHH";
-            colMaHH.Width = 300;
-            colMaHH.FlatStyle = FlatStyle.Flat;
-            dgvChiTiet.Columns.Add(colMaHH);
-
-            // Col 2: Unit
-            var colDVT = new DataGridViewTextBoxColumn();
-            colDVT.HeaderText = "ĐVT";
-            colDVT.Name = "colDVT";
-            colDVT.ReadOnly = true;
-            colDVT.Width = 80;
-            dgvChiTiet.Columns.Add(colDVT);
-
-            // Col 3: Quantity
-            var colSL = new DataGridViewTextBoxColumn();
-            colSL.HeaderText = "Số Lượng";
-            colSL.Name = "colSL";
-            colSL.DataPropertyName = "SL";
-            colSL.Width = 100;
-            colSL.DefaultCellStyle.Format = "N0";
-            colSL.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgvChiTiet.Columns.Add(colSL);
-
-            // Col 4: Price
-            var colGia = new DataGridViewTextBoxColumn();
-            colGia.HeaderText = "Đơn Giá";
-            colGia.Name = "colGia";
-            colGia.DataPropertyName = "DONGIA";
-            colGia.Width = 120;
-            colGia.DefaultCellStyle.Format = "N0";
-            colGia.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dgvChiTiet.Columns.Add(colGia);
-
-            // Col 5: Amount (ReadOnly)
-            var colThanhTien = new DataGridViewTextBoxColumn();
-            colThanhTien.HeaderText = "Thành Tiền";
-            colThanhTien.Name = "colThanhTien";
-            colThanhTien.ReadOnly = true;
-            colThanhTien.Width = 150;
-            colThanhTien.DefaultCellStyle.Format = "N0";
-            colThanhTien.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            colThanhTien.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            dgvChiTiet.Columns.Add(colThanhTien);
-
-            // Col 6: Notes (GhiChu)
-            var colGhiChu = new DataGridViewTextBoxColumn();
-            colGhiChu.HeaderText = "Ghi Chú";
-            colGhiChu.Name = "colGhiChu";
-            colGhiChu.DataPropertyName = "GHICHU";
-            colGhiChu.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dgvChiTiet.Columns.Add(colGhiChu);
-
-            // Events
-            dgvChiTiet.EditingControlShowing += DgvChiTiet_EditingControlShowing;
-            dgvChiTiet.CellValueChanged += DgvChiTiet_CellValueChanged;
-            dgvChiTiet.RowsAdded += (s, e) => TinhTongTien();
-            dgvChiTiet.RowsRemoved += (s, e) => TinhTongTien();
-        }
-
+        // --- ĐÂY LÀ HÀM BỊ THIẾU NÈ BÀ ---
         private void ClearInputs()
         {
-            txtSoPhieu.Text = "";
-            dtpNgayNhap.Value = DateTime.Now;
-            cboNhaCungCap.SelectedIndex = -1;
-            txtGhiChu.Text = "";
-            dgvChiTiet.Rows.Clear();
-            lblTongTien.Text = "0 đ";
+            txtSoPhieu.Text = "";           // Mã phiếu trống (chờ sinh tự động)
+            txtGhiChu.Text = "";            // Ghi chú trống
+            dgvChiTiet.Rows.Clear();        // Xóa sạch lưới
+            lblTongTien.Text = "0 đ";       // Tổng tiền về 0
             chkThanhToan.Checked = false;
-            _idYeuCau = 0;
+            _idYeuCau = 0;                  // Reset ID yêu cầu
 
-            // Reset UI State
-            dgvChiTiet.Columns["colMaHH"].ReadOnly = false;
+            cboNhaCungCap.SelectedIndex = -1;
+            dtpNgayNhap.Value = DateTime.Now;
+
+            // Mở khóa các nút
             btnLuu.Enabled = true;
             btnIn.Enabled = false;
+
+            // Mở khóa lưới để nhập liệu
+            dgvChiTiet.ReadOnly = false;
+            dgvChiTiet.AllowUserToAddRows = true;
         }
+        // ------------------------------------
 
-        // --- GRID LOGIC ---
+        // --- XỬ LÝ SỰ KIỆN TRÊN GRID (LOGIC NHẬP LIỆU EXCEL) ---
 
-        private void DgvChiTiet_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        private void dgvChiTiet_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            // Smart Combo Box behavior
+            // Xử lý ComboBox: Cho phép gõ tìm kiếm (Suggest)
             if (dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colMaHH"].Index && e.Control is ComboBox comboBox)
             {
                 comboBox.DropDownStyle = ComboBoxStyle.DropDown;
                 comboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 comboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             }
-            // Number validation
-            if (dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colSL"].Index ||
-                dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colGia"].Index)
+
+            // Xử lý ô Số: Chỉ cho nhập số
+            if (dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colSoLuong"].Index ||
+                dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colDonGia"].Index)
             {
                 e.Control.KeyPress -= Numeric_KeyPress;
                 e.Control.KeyPress += Numeric_KeyPress;
@@ -151,49 +103,67 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) e.Handled = true;
         }
 
-        private void DgvChiTiet_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        private void dgvChiTiet_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            // Auto-fill Unit & Price when Product selected
+            DataGridViewRow row = dgvChiTiet.Rows[e.RowIndex];
+
+            // 1. Khi chọn Hàng Hóa -> Tự điền ĐVT, Giá Nhập gợi ý
             if (dgvChiTiet.Columns[e.ColumnIndex].Name == "colMaHH")
             {
-                string maHH = dgvChiTiet.Rows[e.RowIndex].Cells["colMaHH"].Value?.ToString();
+                string maHH = row.Cells["colMaHH"].Value?.ToString();
                 if (!string.IsNullOrEmpty(maHH))
                 {
-                    DataRow[] rows = _dtHangHoa.Select($"MAHH = '{maHH}'");
-                    if (rows.Length > 0)
+                    DataRow[] found = _dtHangHoa.Select($"MAHH = '{maHH}'");
+                    if (found.Length > 0)
                     {
-                        dgvChiTiet.Rows[e.RowIndex].Cells["colDVT"].Value = rows[0]["DVT"];
-                        // Only auto-fill price/qty if empty (to avoid overwriting loaded data)
-                        if (DBNull.Value.Equals(dgvChiTiet.Rows[e.RowIndex].Cells["colGia"].Value))
-                            dgvChiTiet.Rows[e.RowIndex].Cells["colGia"].Value = rows[0]["GIAVON"];
+                        row.Cells["colDVT"].Value = found[0]["DVT"];
 
-                        if (DBNull.Value.Equals(dgvChiTiet.Rows[e.RowIndex].Cells["colSL"].Value))
-                            dgvChiTiet.Rows[e.RowIndex].Cells["colSL"].Value = 1;
+                        // Nếu chưa có giá -> Lấy giá vốn cũ
+                        if (row.Cells["colDonGia"].Value == null || Convert.ToDecimal(row.Cells["colDonGia"].Value) == 0)
+                            row.Cells["colDonGia"].Value = found[0]["GIAVON"];
+
+                        // Nếu chưa có SL -> Mặc định 1
+                        if (row.Cells["colSoLuong"].Value == null)
+                            row.Cells["colSoLuong"].Value = 1;
                     }
                 }
             }
 
-            // Calculate Row Total
-            if (dgvChiTiet.Columns[e.ColumnIndex].Name == "colSL" ||
-                dgvChiTiet.Columns[e.ColumnIndex].Name == "colGia" ||
+            // 2. Tính Thành Tiền = SL * Giá
+            if (dgvChiTiet.Columns[e.ColumnIndex].Name == "colSoLuong" ||
+                dgvChiTiet.Columns[e.ColumnIndex].Name == "colDonGia" ||
                 dgvChiTiet.Columns[e.ColumnIndex].Name == "colMaHH")
             {
-                decimal sl = 0;
-                decimal gia = 0;
-                var cellSL = dgvChiTiet.Rows[e.RowIndex].Cells["colSL"].Value;
-                var cellGia = dgvChiTiet.Rows[e.RowIndex].Cells["colGia"].Value;
+                decimal sl = 0, gia = 0;
+                if (row.Cells["colSoLuong"].Value != null) decimal.TryParse(row.Cells["colSoLuong"].Value.ToString(), out sl);
+                if (row.Cells["colDonGia"].Value != null) decimal.TryParse(row.Cells["colDonGia"].Value.ToString(), out gia);
 
-                if (cellSL != null) decimal.TryParse(cellSL.ToString(), out sl);
-                if (cellGia != null) decimal.TryParse(cellGia.ToString(), out gia);
-
-                dgvChiTiet.Rows[e.RowIndex].Cells["colThanhTien"].Value = sl * gia;
-                TinhTongTien();
+                row.Cells["colThanhTien"].Value = sl * gia;
+                TinhTongCong();
             }
         }
 
-        private void TinhTongTien()
+        private void dgvChiTiet_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Xử lý nút Xóa (Cột button 'colXoa')
+            if (e.RowIndex >= 0 && dgvChiTiet.Columns[e.ColumnIndex].Name == "colXoa")
+            {
+                if (!dgvChiTiet.Rows[e.RowIndex].IsNewRow)
+                {
+                    dgvChiTiet.Rows.RemoveAt(e.RowIndex);
+                    TinhTongCong();
+                }
+            }
+        }
+
+        private void dgvChiTiet_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            e.Cancel = true; // Chặn lỗi crash khi chọn combobox sai
+        }
+
+        private void TinhTongCong()
         {
             decimal tong = 0;
             foreach (DataGridViewRow row in dgvChiTiet.Rows)
@@ -204,65 +174,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             lblTongTien.Text = tong.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) + " đ";
         }
 
-        // --- SMART IMPORT LOGIC ---
+        // --- CÁC NÚT CHỨC NĂNG ---
 
-        private void btnChonPhieuYeuCau_Click(object sender, EventArgs e)
+        private void btnThem_Click(object sender, EventArgs e)
         {
-            using (var f = new FormChonPhieuYeuCau())
-            {
-                if (f.ShowDialog() == DialogResult.OK)
-                {
-                    _idYeuCau = f.SelectedYeuCauID;
-                    LoadPhieuYeuCauDetails(_idYeuCau);
-                }
-            }
+            ClearInputs(); // Nút "Tạo mới" gọi hàm ClearInputs
         }
-
-        private void LoadPhieuYeuCauDetails(long idYeuCau)
-        {
-            try
-            {
-                ClearInputs(); // Reset form
-                _idYeuCau = idYeuCau; // Set ID back
-
-                DataTable dt = _service.GetChiTietYeuCau(idYeuCau);
-                bool hasItems = false;
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    decimal slConLai = Convert.ToDecimal(row["SL_CON_LAI"]);
-                    if (slConLai <= 0) continue;
-
-                    hasItems = true;
-                    int idx = dgvChiTiet.Rows.Add();
-                    var gridRow = dgvChiTiet.Rows[idx];
-
-                    gridRow.Cells["colMaHH"].Value = row["MAHH"].ToString();
-                    gridRow.Cells["colDVT"].Value = row["DVT"].ToString();
-                    gridRow.Cells["colSL"].Value = slConLai; // Load remaining
-                    gridRow.Cells["colGia"].Value = row["GIAVON"];
-
-                    // Lock Product Column
-                    gridRow.Cells["colMaHH"].ReadOnly = true;
-                }
-
-                if (hasItems)
-                {
-                    MessageBox.Show($"Đã tải dữ liệu từ Phiếu Yêu Cầu #{idYeuCau}", "Thông báo");
-                }
-                else
-                {
-                    MessageBox.Show($"Phiếu yêu cầu #{idYeuCau} đã được nhập đủ!", "Thông báo");
-                    _idYeuCau = 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải phiếu yêu cầu: " + ex.Message);
-            }
-        }
-
-        // --- ACTIONS ---
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
@@ -276,20 +193,15 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             foreach (DataGridViewRow row in dgvChiTiet.Rows)
             {
                 if (row.IsNewRow) continue;
-                var maHH = row.Cells["colMaHH"].Value?.ToString();
-                if (string.IsNullOrEmpty(maHH)) continue;
-
-                decimal sl = 0;
-                decimal gia = 0;
-                if (row.Cells["colSL"].Value != null) decimal.TryParse(row.Cells["colSL"].Value.ToString(), out sl);
-                if (row.Cells["colGia"].Value != null) decimal.TryParse(row.Cells["colGia"].Value.ToString(), out gia);
+                if (row.Cells["colMaHH"].Value == null) continue;
 
                 listChiTiet.Add(new PhieuNhapChiTietDTO
                 {
-                    MaHH = maHH,
-                    SoLuong = (int)sl,
-                    DonGia = gia,
-                    DVT = row.Cells["colDVT"].Value?.ToString()
+                    MaHH = row.Cells["colMaHH"].Value.ToString(),
+                    SoLuong = Convert.ToInt32(row.Cells["colSoLuong"].Value ?? 0),
+                    DonGia = Convert.ToDecimal(row.Cells["colDonGia"].Value ?? 0),
+                    DVT = row.Cells["colDVT"].Value?.ToString(),
+                    GhiChu = row.Cells["colGhiChuHang"].Value?.ToString()
                 });
             }
 
@@ -311,44 +223,76 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     listChiTiet
                 );
 
-                MessageBox.Show("Lưu phiếu nhập thành công!", "Thông báo");
+                MessageBox.Show("Lưu thành công! Số phiếu: " + soPhieu);
                 txtSoPhieu.Text = soPhieu.ToString();
 
+                // Khóa form sau khi lưu thành công
                 btnLuu.Enabled = false;
                 btnIn.Enabled = true;
+                dgvChiTiet.ReadOnly = true;
+                dgvChiTiet.AllowUserToAddRows = false;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi hệ thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
-        }
-
-        private void btnThem_Click(object sender, EventArgs e)
-        {
-            ClearInputs();
         }
 
         private void btnIn_Click(object sender, EventArgs e)
         {
-            if (long.TryParse(txtSoPhieu.Text, out long soPhieu))
+            if (!string.IsNullOrEmpty(txtSoPhieu.Text))
             {
-                DataTable dt = _service.GetPhieuPrintInfo(soPhieu);
-                if (dt.Rows.Count > 0)
-                {
-                    DataRow r = dt.Rows[0];
-                    string msg = $"--- IN PHIẾU NHẬP ---\n" +
-                                 $"Số: {r["SOPHIEU"]}\n" +
-                                 $"NCC: {r["TEN_NCC"]}\n" +
-                                 $"Ngày: {Convert.ToDateTime(r["NGAYLAP"]):dd/MM/yyyy}\n" +
-                                 $"Tổng tiền: {Convert.ToDecimal(r["TONGTIEN"]):N0}";
-                    MessageBox.Show(msg, "Print Preview");
-                }
+                MessageBox.Show("Đang in phiếu số: " + txtSoPhieu.Text);
+                // new FormInPhieu(long.Parse(txtSoPhieu.Text)).ShowDialog();
             }
         }
 
         private void btnHuy_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void btnChonPhieuYeuCau_Click(object sender, EventArgs e)
+        {
+            using (var f = new FormChonPhieuYeuCau())
+            {
+                if (f.ShowDialog() == DialogResult.OK)
+                {
+                    _idYeuCau = f.SelectedYeuCauID;
+                    LoadChiTietYeuCau(_idYeuCau);
+                }
+            }
+        }
+
+        private void LoadChiTietYeuCau(long idYeuCau)
+        {
+            try
+            {
+                dgvChiTiet.Rows.Clear();
+                DataTable dt = _service.GetChiTietYeuCau(idYeuCau);
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    decimal slCon = Convert.ToDecimal(row["SL_CON_LAI"]);
+                    if (slCon <= 0) continue;
+
+                    string maHH = row["MAHH"].ToString();
+                    decimal gia = Convert.ToDecimal(row["GIAVON"]);
+
+                    int idx = dgvChiTiet.Rows.Add();
+                    dgvChiTiet.Rows[idx].Cells["colMaHH"].Value = maHH;
+                    dgvChiTiet.Rows[idx].Cells["colDVT"].Value = row["DVT"].ToString();
+                    dgvChiTiet.Rows[idx].Cells["colSoLuong"].Value = slCon;
+                    dgvChiTiet.Rows[idx].Cells["colDonGia"].Value = gia;
+
+                    // Trigger tính tiền
+                    dgvChiTiet_CellValueChanged(dgvChiTiet, new DataGridViewCellEventArgs(dgvChiTiet.Columns["colSoLuong"].Index, idx));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải yêu cầu: " + ex.Message);
+            }
         }
     }
 }

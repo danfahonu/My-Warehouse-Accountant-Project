@@ -5,118 +5,81 @@ using DoAnLapTrinhQuanLy.Data;
 
 namespace DoAnLapTrinhQuanLy.Services
 {
-    /// <summary>
-    /// Service xử lý nghiệp vụ cho Danh mục Hàng Hóa.
-    /// Chứa các phương thức CRUD và truy vấn liên quan đến Hàng hóa.
-    /// </summary>
     public class HangHoaService
     {
-        /// <summary>
-        /// Lấy danh sách hàng hóa kèm theo Tên Nhóm và Tồn kho hiện tại.
-        /// </summary>
-        /// <returns>DataTable chi tiết hàng hóa</returns>
-        public DataTable LayDanhSach()
+        // 1. Lấy danh sách (Có cột ANH và TONKHO)
+        public DataTable GetAll()
         {
-            // JOIN DM_HANGHOA với DM_NHOMHANG để lấy tên nhóm
-            // LEFT JOIN view TonKhoHienTai để lấy số lượng tồn (nếu null thì là 0)
             string sql = @"
-                SELECT 
-                    hh.MAHH, 
-                    hh.TENHH, 
-                    hh.MANHOM, 
-                    nh.TENNHOM, 
-                    hh.DVT, 
-                    hh.GIAVON, 
-                    hh.GIABAN, 
-                    hh.ANH, 
-                    hh.ACTIVE, 
-                    ISNULL(tk.TON_HIEN_TAI, 0) AS TONKHO
-                FROM DM_HANGHOA hh
-                LEFT JOIN DM_NHOMHANG nh ON hh.MANHOM = nh.MANHOM
-                LEFT JOIN vw_TonKhoHienTai tk ON hh.MAHH = tk.MAHH
-                ORDER BY hh.TENHH";
-            
+                SELECT h.MAHH, h.TENHH, h.DVT, h.GIAVON, h.GIABAN, h.MANHOM, 
+                       n.TENNHOM, h.ACTIVE, h.ANH, h.TONKHO
+                FROM DM_HANGHOA h
+                LEFT JOIN DM_NHOMHANG n ON h.MANHOM = n.MANHOM
+                WHERE h.ACTIVE = 1
+                ORDER BY h.TENHH";
             return DbHelper.Query(sql);
         }
 
-        /// <summary>
-        /// Lấy danh sách nhóm hàng để đổ vào ComboBox.
-        /// </summary>
-        /// <returns>DataTable (MANHOM, TENNHOM)</returns>
-        public DataTable LayDanhSachNhomHang()
+        // 2. Lấy nhóm hàng
+        public DataTable GetNhomHang()
         {
-            string sql = "SELECT MANHOM, TENNHOM FROM DM_NHOMHANG ORDER BY TENNHOM";
-            return DbHelper.Query(sql);
+            return DbHelper.Query("SELECT MANHOM, TENNHOM FROM DM_NHOMHANG");
         }
 
-        /// <summary>
-        /// Thêm mới hàng hóa.
-        /// </summary>
-        public bool Them(string ma, string ten, string maNhom, string dvt, decimal giaVon, decimal giaBan, string anh, bool active)
+        // 3. Thêm mới (Lưu cột ANH)
+        public bool Add(string ma, string ten, string dvt, decimal giaVon, decimal giaBan, string maNhom, byte[] hinhAnh)
         {
-            // Validate: check trùng mã
-            string checkSql = "SELECT COUNT(*) FROM DM_HANGHOA WHERE MAHH = @Ma";
-            if (Convert.ToInt32(DbHelper.Scalar(checkSql, DbHelper.Param("@Ma", ma))) > 0)
-            {
+            string check = "SELECT COUNT(*) FROM DM_HANGHOA WHERE MAHH = @Ma";
+            if (Convert.ToInt32(DbHelper.Scalar(check, DbHelper.Param("@Ma", ma))) > 0)
                 throw new Exception($"Mã hàng '{ma}' đã tồn tại!");
-            }
 
-            string sql = @"
-                INSERT INTO DM_HANGHOA (MAHH, TENHH, MANHOM, DVT, GIAVON, GIABAN, ANH, ACTIVE)
-                VALUES (@Ma, @Ten, @MaNhom, @Dvt, @GiaVon, @GiaBan, @Anh, @Active)";
+            // Lưu ý: Mặc định TONKHO = 0 khi tạo mới
+            string sql = @"INSERT INTO DM_HANGHOA (MAHH, TENHH, DVT, GIAVON, GIABAN, MANHOM, ANH, TONKHO, ACTIVE) 
+                           VALUES (@Ma, @Ten, @Dvt, @GiaVon, @GiaBan, @MaNhom, @Hinh, 0, 1)";
+
+            SqlParameter paramHinh = new SqlParameter("@Hinh", SqlDbType.VarBinary);
+            if (hinhAnh != null) paramHinh.Value = hinhAnh;
+            else paramHinh.Value = DBNull.Value;
 
             return DbHelper.Execute(sql,
                 DbHelper.Param("@Ma", ma),
                 DbHelper.Param("@Ten", ten),
-                DbHelper.Param("@MaNhom", maNhom),
                 DbHelper.Param("@Dvt", dvt),
                 DbHelper.Param("@GiaVon", giaVon),
                 DbHelper.Param("@GiaBan", giaBan),
-                DbHelper.Param("@Anh", anh ?? (object)DBNull.Value),
-                DbHelper.Param("@Active", active)
-            ) > 0;
+                DbHelper.Param("@MaNhom", maNhom),
+                paramHinh) > 0;
         }
 
-        /// <summary>
-        /// Cập nhật thông tin hàng hóa.
-        /// </summary>
-        public bool Sua(string ma, string ten, string maNhom, string dvt, decimal giaVon, decimal giaBan, string anh, bool active)
+        // 4. Cập nhật (Lưu cột ANH)
+        public bool Update(string ma, string ten, string dvt, decimal giaVon, decimal giaBan, string maNhom, byte[] hinhAnh)
         {
-            string sql = @"
-                UPDATE DM_HANGHOA
-                SET TENHH = @Ten, 
-                    MANHOM = @MaNhom, 
-                    DVT = @Dvt, 
-                    GIAVON = @GiaVon, 
-                    GIABAN = @GiaBan, 
-                    ANH = @Anh, 
-                    ACTIVE = @Active
-                WHERE MAHH = @Ma";
+            string sql = @"UPDATE DM_HANGHOA 
+                           SET TENHH = @Ten, DVT = @Dvt, GIAVON = @GiaVon, GIABAN = @GiaBan, MANHOM = @MaNhom, ANH = @Hinh
+                           WHERE MAHH = @Ma";
+
+            SqlParameter paramHinh = new SqlParameter("@Hinh", SqlDbType.VarBinary);
+            if (hinhAnh != null) paramHinh.Value = hinhAnh;
+            else paramHinh.Value = DBNull.Value;
 
             return DbHelper.Execute(sql,
                 DbHelper.Param("@Ten", ten),
-                DbHelper.Param("@MaNhom", maNhom),
                 DbHelper.Param("@Dvt", dvt),
                 DbHelper.Param("@GiaVon", giaVon),
                 DbHelper.Param("@GiaBan", giaBan),
-                DbHelper.Param("@Anh", anh ?? (object)DBNull.Value),
-                DbHelper.Param("@Active", active),
-                DbHelper.Param("@Ma", ma)
-            ) > 0;
+                DbHelper.Param("@MaNhom", maNhom),
+                paramHinh,
+                DbHelper.Param("@Ma", ma)) > 0;
         }
 
-        /// <summary>
-        /// Xóa hàng hóa.
-        /// </summary>
-        public bool Xoa(string ma)
+        // 5. Xóa
+        public bool Delete(string ma)
         {
-            // Check lịch sử giao dịch (PHIEU_CT) trước khi xóa
-            string checkSql = "SELECT COUNT(*) FROM PHIEU_CT WHERE MAHH = @Ma";
-            int count = Convert.ToInt32(DbHelper.Scalar(checkSql, DbHelper.Param("@Ma", ma)));
-            if (count > 0)
-            {
-                throw new Exception($"Không thể xóa hàng hóa này vì đã có {count} giao dịch liên quan.");
-            }
+            // Kiểm tra ràng buộc
+            string check = "SELECT COUNT(*) FROM PHIEU_CT WHERE MAHH = @Ma";
+            int count = Convert.ToInt32(DbHelper.Scalar(check, DbHelper.Param("@Ma", ma)));
+
+            if (count > 0) throw new Exception($"Hàng hóa này đang có {count} giao dịch. Không thể xóa!");
 
             string sql = "DELETE FROM DM_HANGHOA WHERE MAHH = @Ma";
             return DbHelper.Execute(sql, DbHelper.Param("@Ma", ma)) > 0;

@@ -1,6 +1,6 @@
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
-    partial class FormNhanVien
+    partial class FormThuChi
     {
         private System.ComponentModel.IContainer components = null;
 
@@ -24,30 +24,39 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.grpList = new System.Windows.Forms.GroupBox();
             this.dgvDanhSach = new System.Windows.Forms.DataGridView();
             this.pnlSearch = new System.Windows.Forms.Panel();
-            this.txtTimKiem = new System.Windows.Forms.TextBox();
-            this.lblTimKiem = new System.Windows.Forms.Label();
+            this.cboFilterLoai = new System.Windows.Forms.ComboBox(); // Lọc xem Thu hay Chi
+            this.lblFilter = new System.Windows.Forms.Label();
 
             // --- PHẢI ---
             this.grpDetail = new System.Windows.Forms.GroupBox();
 
-            // Controls
-            this.txtMaNV = new System.Windows.Forms.TextBox();
-            this.lblMaNV = new System.Windows.Forms.Label();
-            this.txtHoTen = new System.Windows.Forms.TextBox();
-            this.lblHoTen = new System.Windows.Forms.Label();
-            this.txtChucVu = new System.Windows.Forms.TextBox();
-            this.lblChucVu = new System.Windows.Forms.Label();
-            this.txtSDT = new System.Windows.Forms.TextBox();
-            this.lblSDT = new System.Windows.Forms.Label();
-            this.txtEmail = new System.Windows.Forms.TextBox();
-            this.lblEmail = new System.Windows.Forms.Label();
-            this.txtDiaChi = new System.Windows.Forms.TextBox();
-            this.lblDiaChi = new System.Windows.Forms.Label();
+            // Dòng 1: Số phiếu & Ngày
+            this.txtSoPhieu = new System.Windows.Forms.TextBox();
+            this.lblSoPhieu = new System.Windows.Forms.Label();
+            this.dtpNgayLap = new System.Windows.Forms.DateTimePicker();
+            this.lblNgay = new System.Windows.Forms.Label();
 
-            // Hình ảnh
-            this.picAvatar = new System.Windows.Forms.PictureBox();
-            this.btnChonHinh = new System.Windows.Forms.Button();
-            this.btnXoaHinh = new System.Windows.Forms.Button();
+            // Dòng 2: Loại phiếu & Số tiền
+            this.cboLoaiPhieu = new System.Windows.Forms.ComboBox();
+            this.lblLoai = new System.Windows.Forms.Label();
+            this.txtSoTien = new System.Windows.Forms.TextBox();
+            this.lblSoTien = new System.Windows.Forms.Label();
+
+            // Dòng 3: Chọn đối tượng (KH hay NCC)
+            this.radKhachHang = new System.Windows.Forms.RadioButton();
+            this.radNhaCungCap = new System.Windows.Forms.RadioButton();
+            this.lblDoiTuong = new System.Windows.Forms.Label();
+            this.cboDoiTuong = new System.Windows.Forms.ComboBox();
+
+            // Dòng 4: Lý do
+            this.txtLyDo = new System.Windows.Forms.TextBox();
+            this.lblLyDo = new System.Windows.Forms.Label();
+
+            // Dòng 5: Tài khoản kế toán
+            this.txtTkNo = new System.Windows.Forms.TextBox();
+            this.lblTkNo = new System.Windows.Forms.Label();
+            this.txtTkCo = new System.Windows.Forms.TextBox();
+            this.lblTkCo = new System.Windows.Forms.Label();
 
             // BUTTONS
             this.pnlButtons = new System.Windows.Forms.Panel();
@@ -68,7 +77,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             ((System.ComponentModel.ISupportInitialize)(this.dgvDanhSach)).BeginInit();
             this.pnlSearch.SuspendLayout();
             this.grpDetail.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picAvatar)).BeginInit();
             this.pnlButtons.SuspendLayout();
             this.flowLayoutPanelBtn.SuspendLayout();
             this.SuspendLayout();
@@ -81,10 +89,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.pnlHeader);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F);
-            this.Name = "FormNhanVien";
-            this.Text = "Danh Mục Nhân Viên";
+            this.Name = "FormThuChi";
+            this.Text = "Quản Lý Thu Chi";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Load += new System.EventHandler(this.FormNhanVien_Load);
+            this.Load += new System.EventHandler(this.FormThuChi_Load);
 
             // Header
             this.pnlHeader.BackColor = System.Drawing.Color.White;
@@ -98,7 +106,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblTitle.Location = new System.Drawing.Point(0, 0);
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Size = new System.Drawing.Size(1100, 50);
-            this.lblTitle.Text = "QUẢN LÝ NHÂN VIÊN";
+            this.lblTitle.Text = "QUẢN LÝ PHIẾU THU - CHI";
             this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // SplitContainer
@@ -111,27 +119,29 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.splitContainer.Panel2.Controls.Add(this.pnlButtons);
             this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(10);
             this.splitContainer.Size = new System.Drawing.Size(1100, 550);
-            this.splitContainer.SplitterDistance = 450;
+            this.splitContainer.SplitterDistance = 500;
             this.splitContainer.TabIndex = 1;
 
-            // --- TRÁI: LIST ---
+            // --- TRÁI ---
             this.grpList.Controls.Add(this.dgvDanhSach);
             this.grpList.Controls.Add(this.pnlSearch);
             this.grpList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpList.Text = "Danh sách nhân viên";
+            this.grpList.Text = "Danh sách phiếu";
 
             this.pnlSearch.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSearch.Height = 50;
-            this.pnlSearch.Controls.Add(this.txtTimKiem);
-            this.pnlSearch.Controls.Add(this.lblTimKiem);
+            this.pnlSearch.Controls.Add(this.cboFilterLoai);
+            this.pnlSearch.Controls.Add(this.lblFilter);
 
-            this.lblTimKiem.AutoSize = true;
-            this.lblTimKiem.Location = new System.Drawing.Point(10, 18);
-            this.lblTimKiem.Text = "Tìm kiếm:";
+            this.lblFilter.AutoSize = true;
+            this.lblFilter.Location = new System.Drawing.Point(10, 18);
+            this.lblFilter.Text = "Lọc theo:";
 
-            this.txtTimKiem.Location = new System.Drawing.Point(80, 15);
-            this.txtTimKiem.Size = new System.Drawing.Size(320, 25);
-            this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
+            this.cboFilterLoai.Location = new System.Drawing.Point(80, 15);
+            this.cboFilterLoai.Size = new System.Drawing.Size(200, 25);
+            this.cboFilterLoai.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboFilterLoai.Items.AddRange(new object[] { "Tất cả", "Phiếu Thu", "Phiếu Chi" });
+            this.cboFilterLoai.SelectedIndexChanged += new System.EventHandler(this.cboFilterLoai_SelectedIndexChanged);
 
             this.dgvDanhSach.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvDanhSach.BackgroundColor = System.Drawing.Color.White;
@@ -150,71 +160,78 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
             this.dgvDanhSach.SelectionChanged += new System.EventHandler(this.dgvDanhSach_SelectionChanged);
 
-            // --- PHẢI: DETAIL ---
-            this.grpDetail.Controls.Add(this.btnXoaHinh);
-            this.grpDetail.Controls.Add(this.btnChonHinh);
-            this.grpDetail.Controls.Add(this.picAvatar);
-            this.grpDetail.Controls.Add(this.txtDiaChi);
-            this.grpDetail.Controls.Add(this.lblDiaChi);
-            this.grpDetail.Controls.Add(this.txtEmail);
-            this.grpDetail.Controls.Add(this.lblEmail);
-            this.grpDetail.Controls.Add(this.txtSDT);
-            this.grpDetail.Controls.Add(this.lblSDT);
-            this.grpDetail.Controls.Add(this.txtChucVu);
-            this.grpDetail.Controls.Add(this.lblChucVu);
-            this.grpDetail.Controls.Add(this.txtHoTen);
-            this.grpDetail.Controls.Add(this.lblHoTen);
-            this.grpDetail.Controls.Add(this.txtMaNV);
-            this.grpDetail.Controls.Add(this.lblMaNV);
+            // --- PHẢI ---
+            this.grpDetail.Controls.Add(this.txtTkCo);
+            this.grpDetail.Controls.Add(this.lblTkCo);
+            this.grpDetail.Controls.Add(this.txtTkNo);
+            this.grpDetail.Controls.Add(this.lblTkNo);
+            this.grpDetail.Controls.Add(this.txtLyDo);
+            this.grpDetail.Controls.Add(this.lblLyDo);
+            this.grpDetail.Controls.Add(this.cboDoiTuong);
+            this.grpDetail.Controls.Add(this.radNhaCungCap);
+            this.grpDetail.Controls.Add(this.radKhachHang);
+            this.grpDetail.Controls.Add(this.lblDoiTuong);
+            this.grpDetail.Controls.Add(this.txtSoTien);
+            this.grpDetail.Controls.Add(this.lblSoTien);
+            this.grpDetail.Controls.Add(this.cboLoaiPhieu);
+            this.grpDetail.Controls.Add(this.lblLoai);
+            this.grpDetail.Controls.Add(this.dtpNgayLap);
+            this.grpDetail.Controls.Add(this.lblNgay);
+            this.grpDetail.Controls.Add(this.txtSoPhieu);
+            this.grpDetail.Controls.Add(this.lblSoPhieu);
             this.grpDetail.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpDetail.Text = "Thông tin chi tiết";
 
-            // Control Details (Dùng số cứng tuyệt đối)
+            // Layout Controls (Dùng số cứng)
+            int x1 = 20; int x2 = 110; int x3 = 280; int x4 = 360;
+            int y = 40; int gap = 45;
 
-            // Mã NV (y=40)
-            this.lblMaNV.Location = new System.Drawing.Point(20, 40); this.lblMaNV.Text = "Mã NV:"; this.lblMaNV.AutoSize = true;
-            this.txtMaNV.Location = new System.Drawing.Point(110, 37); this.txtMaNV.Size = new System.Drawing.Size(150, 25);
+            // Dòng 1: Số Phiếu | Ngày
+            this.lblSoPhieu.Location = new System.Drawing.Point(x1, y); this.lblSoPhieu.Text = "Số Phiếu:"; this.lblSoPhieu.AutoSize = true;
+            this.txtSoPhieu.Location = new System.Drawing.Point(x2, y - 3); this.txtSoPhieu.Size = new System.Drawing.Size(150, 25);
 
-            // Họ Tên (y=85)
-            this.lblHoTen.Location = new System.Drawing.Point(20, 85); this.lblHoTen.Text = "Họ Tên:"; this.lblHoTen.AutoSize = true;
-            this.txtHoTen.Location = new System.Drawing.Point(110, 82); this.txtHoTen.Size = new System.Drawing.Size(250, 25);
+            this.lblNgay.Location = new System.Drawing.Point(x3, y); this.lblNgay.Text = "Ngày:"; this.lblNgay.AutoSize = true;
+            this.dtpNgayLap.Location = new System.Drawing.Point(x4, y - 3); this.dtpNgayLap.Size = new System.Drawing.Size(150, 25); this.dtpNgayLap.Format = System.Windows.Forms.DateTimePickerFormat.Short;
 
-            // Chức vụ (y=130)
-            this.lblChucVu.Location = new System.Drawing.Point(20, 130); this.lblChucVu.Text = "Chức vụ:"; this.lblChucVu.AutoSize = true;
-            this.txtChucVu.Location = new System.Drawing.Point(110, 127); this.txtChucVu.Size = new System.Drawing.Size(250, 25);
+            // Dòng 2: Loại | Số Tiền
+            y += gap;
+            this.lblLoai.Location = new System.Drawing.Point(x1, y); this.lblLoai.Text = "Loại Phiếu:"; this.lblLoai.AutoSize = true;
+            this.cboLoaiPhieu.Location = new System.Drawing.Point(x2, y - 3); this.cboLoaiPhieu.Size = new System.Drawing.Size(150, 25);
+            this.cboLoaiPhieu.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboLoaiPhieu.Items.AddRange(new object[] { "Phiếu Thu", "Phiếu Chi" });
+            this.cboLoaiPhieu.SelectedIndexChanged += new System.EventHandler(this.cboLoaiPhieu_SelectedIndexChanged);
 
-            // SĐT (y=175)
-            this.lblSDT.Location = new System.Drawing.Point(20, 175); this.lblSDT.Text = "Điện thoại:"; this.lblSDT.AutoSize = true;
-            this.txtSDT.Location = new System.Drawing.Point(110, 172); this.txtSDT.Size = new System.Drawing.Size(250, 25);
+            this.lblSoTien.Location = new System.Drawing.Point(x3, y); this.lblSoTien.Text = "Số Tiền:"; this.lblSoTien.AutoSize = true;
+            this.txtSoTien.Location = new System.Drawing.Point(x4, y - 3); this.txtSoTien.Size = new System.Drawing.Size(150, 25);
+            this.txtSoTien.TextAlign = System.Windows.Forms.HorizontalAlignment.Right; this.txtSoTien.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
 
-            // Email (y=220)
-            this.lblEmail.Location = new System.Drawing.Point(20, 220); this.lblEmail.Text = "Email:"; this.lblEmail.AutoSize = true;
-            this.txtEmail.Location = new System.Drawing.Point(110, 217); this.txtEmail.Size = new System.Drawing.Size(250, 25);
+            // Dòng 3: Chọn Đối Tượng
+            y += gap;
+            this.lblDoiTuong.Location = new System.Drawing.Point(x1, y); this.lblDoiTuong.Text = "Đối Tượng:"; this.lblDoiTuong.AutoSize = true;
 
-            // Địa chỉ (y=265)
-            this.lblDiaChi.Location = new System.Drawing.Point(20, 265); this.lblDiaChi.Text = "Địa chỉ:"; this.lblDiaChi.AutoSize = true;
-            this.txtDiaChi.Location = new System.Drawing.Point(110, 262); this.txtDiaChi.Size = new System.Drawing.Size(480, 25);
+            this.radKhachHang.Location = new System.Drawing.Point(x2, y); this.radKhachHang.Text = "Khách Hàng"; this.radKhachHang.AutoSize = true;
+            this.radKhachHang.CheckedChanged += new System.EventHandler(this.radDoiTuong_CheckedChanged);
 
-            // Hình ảnh (Bên phải)
-            this.picAvatar.Location = new System.Drawing.Point(400, 37);
-            this.picAvatar.Size = new System.Drawing.Size(150, 150);
-            this.picAvatar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picAvatar.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picAvatar.BackColor = System.Drawing.Color.White;
+            this.radNhaCungCap.Location = new System.Drawing.Point(x2 + 110, y); this.radNhaCungCap.Text = "Nhà Cung Cấp"; this.radNhaCungCap.AutoSize = true;
+            this.radNhaCungCap.CheckedChanged += new System.EventHandler(this.radDoiTuong_CheckedChanged);
 
-            // Nút Chọn hình
-            this.btnChonHinh.Text = "Chọn...";
-            this.btnChonHinh.Location = new System.Drawing.Point(400, 195);
-            this.btnChonHinh.Size = new System.Drawing.Size(70, 30);
-            this.btnChonHinh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnChonHinh.Click += new System.EventHandler(this.btnChonHinh_Click);
+            // Dòng 4: ComboBox Đối Tượng
+            y += 35; // Nhích xuống chút
+            this.cboDoiTuong.Location = new System.Drawing.Point(x2, y - 3); this.cboDoiTuong.Size = new System.Drawing.Size(400, 25);
+            this.cboDoiTuong.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 
-            // Nút Xóa hình
-            this.btnXoaHinh.Text = "Xóa";
-            this.btnXoaHinh.Location = new System.Drawing.Point(480, 195);
-            this.btnXoaHinh.Size = new System.Drawing.Size(70, 30);
-            this.btnXoaHinh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnXoaHinh.Click += new System.EventHandler(this.btnXoaHinh_Click);
+            // Dòng 5: Lý Do
+            y += gap;
+            this.lblLyDo.Location = new System.Drawing.Point(x1, y); this.lblLyDo.Text = "Lý Do:"; this.lblLyDo.AutoSize = true;
+            this.txtLyDo.Location = new System.Drawing.Point(x2, y - 3); this.txtLyDo.Size = new System.Drawing.Size(400, 25);
+
+            // Dòng 6: Tài khoản (Nợ/Có)
+            y += gap;
+            this.lblTkNo.Location = new System.Drawing.Point(x1, y); this.lblTkNo.Text = "TK Nợ:"; this.lblTkNo.AutoSize = true;
+            this.txtTkNo.Location = new System.Drawing.Point(x2, y - 3); this.txtTkNo.Size = new System.Drawing.Size(100, 25);
+
+            this.lblTkCo.Location = new System.Drawing.Point(x3, y); this.lblTkCo.Text = "TK Có:"; this.lblTkCo.AutoSize = true;
+            this.txtTkCo.Location = new System.Drawing.Point(x4, y - 3); this.txtTkCo.Size = new System.Drawing.Size(100, 25);
 
             // BUTTONS
             this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -231,7 +248,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.flowLayoutPanelBtn.Controls.Add(this.btnSua);
             this.flowLayoutPanelBtn.Controls.Add(this.btnThem);
 
-            // Nút bấm
+            // Style Nút
             this.btnThoat.Text = "Thoát"; this.btnThoat.Size = new System.Drawing.Size(90, 40); this.btnThoat.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnThoat.BackColor = System.Drawing.Color.Gray; this.btnThoat.ForeColor = System.Drawing.Color.White; this.btnThoat.Margin = new System.Windows.Forms.Padding(5); this.btnThoat.Click += new System.EventHandler(this.btnThoat_Click);
             this.btnHuy.Text = "Hủy"; this.btnHuy.Size = new System.Drawing.Size(90, 40); this.btnHuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnHuy.BackColor = System.Drawing.Color.Orange; this.btnHuy.ForeColor = System.Drawing.Color.White; this.btnHuy.Margin = new System.Windows.Forms.Padding(5); this.btnHuy.Click += new System.EventHandler(this.btnHuy_Click);
             this.btnLuu.Text = "Lưu"; this.btnLuu.Size = new System.Drawing.Size(90, 40); this.btnLuu.FlatStyle = System.Windows.Forms.FlatStyle.Flat; this.btnLuu.BackColor = System.Drawing.Color.FromArgb(0, 122, 204); this.btnLuu.ForeColor = System.Drawing.Color.White; this.btnLuu.Margin = new System.Windows.Forms.Padding(5); this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
@@ -250,7 +267,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.pnlSearch.PerformLayout();
             this.grpDetail.ResumeLayout(false);
             this.grpDetail.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picAvatar)).EndInit();
             this.pnlButtons.ResumeLayout(false);
             this.flowLayoutPanelBtn.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -264,17 +280,18 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private System.Windows.Forms.GroupBox grpList;
         private System.Windows.Forms.DataGridView dgvDanhSach;
         private System.Windows.Forms.Panel pnlSearch;
-        private System.Windows.Forms.TextBox txtTimKiem;
-        private System.Windows.Forms.Label lblTimKiem;
+        private System.Windows.Forms.Label lblFilter;
+        private System.Windows.Forms.ComboBox cboFilterLoai;
         private System.Windows.Forms.GroupBox grpDetail;
         private System.Windows.Forms.Panel pnlButtons;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelBtn;
 
-        private System.Windows.Forms.TextBox txtMaNV, txtHoTen, txtChucVu, txtSDT, txtEmail, txtDiaChi;
-        private System.Windows.Forms.Label lblMaNV, lblHoTen, lblNgaySinh, lblSDT, lblChucVu, lblEmail, lblDiaChi;
+        private System.Windows.Forms.TextBox txtSoPhieu, txtSoTien, txtLyDo, txtTkNo, txtTkCo;
+        private System.Windows.Forms.Label lblSoPhieu, lblNgay, lblLoai, lblSoTien, lblLyDo, lblTkNo, lblTkCo, lblDoiTuong;
+        private System.Windows.Forms.DateTimePicker dtpNgayLap;
+        private System.Windows.Forms.ComboBox cboLoaiPhieu, cboDoiTuong;
+        private System.Windows.Forms.RadioButton radKhachHang, radNhaCungCap;
 
-        private System.Windows.Forms.PictureBox picAvatar;
-        private System.Windows.Forms.Button btnChonHinh, btnXoaHinh;
         private System.Windows.Forms.Button btnThem, btnSua, btnXoa, btnLuu, btnHuy, btnThoat;
     }
 }

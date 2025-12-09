@@ -163,15 +163,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppStyle.cs" />
     <Compile Include="BaseForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DbHelper.cs" />
     <Compile Include="DesignGuard.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FormNhomHang.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SecurityHelper.cs" />
+    <Compile Include="Services\BaoCaoKhoService.cs" />
     <Compile Include="Services\NhomHangService.cs" />
     <Compile Include="Services\HangHoaService.cs" />
     <Compile Include="Services\PhieuNhapService.cs" />
     <Compile Include="Services\PhieuYeuCauService.cs" />
+    <Compile Include="Services\ThuChiService.cs" />
     <Compile Include="Services\YeuCauNhapKhoService.cs" />
     <Compile Include="Services\PhieuXuatService.cs" />
     <Compile Include="Services\KhachHangService.cs" />
@@ -295,6 +304,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormNhanVien.Designer.cs">
+      <DependentUpon>FormNhanVien.cs</DependentUpon>
     </Compile>
     <Compile Include="FormNhomHang.cs">
       <SubType>Form</SubType>
@@ -308,20 +318,17 @@
     <Compile Include="FormPhieuNhap.Designer.cs">
       <DependentUpon>FormPhieuNhap.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormPhieuThu.cs">
+    <Compile Include="FormThuChi.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormPhieuThu.Designer.cs">
-      <DependentUpon>FormPhieuThu.cs</DependentUpon>
+    <Compile Include="FormThuChi.Designer.cs">
+      <DependentUpon>FormThuChi.cs</DependentUpon>
     </Compile>
     <Compile Include="FormPhieuXuat.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormPhieuXuat.Designer.cs">
       <DependentUpon>FormPhieuXuat.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FormTimKiemHangHoa.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormQuanLyHeThong.cs">
       <SubType>Form</SubType>
@@ -359,12 +366,6 @@
     <Compile Include="FormSoNhatKyChung.Designer.cs">
       <DependentUpon>FormSoNhatKyChung.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormPhieuChi.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormPhieuChi.Designer.cs">
-      <DependentUpon>FormPhieuChi.cs</DependentUpon>
-    </Compile>
     <Compile Include="FormTamUngChamCong.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -395,11 +396,11 @@
     <Compile Include="FormYeuCauNhapKho.Designer.cs">
       <DependentUpon>FormYeuCauNhapKho.cs</DependentUpon>
     </Compile>
-    <Compile Include="FrmMain.cs">
+    <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FrmMain.Designer.cs">
-      <DependentUpon>FrmMain.cs</DependentUpon>
+    <Compile Include="FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
     <Compile Include="GeminiHelper.cs" />
     <Compile Include="Nullable\AllowNullAttribute.cs" />
@@ -436,10 +437,17 @@
     <Compile Include="Session.cs" />
     <Compile Include="UserData.cs" />
     <Compile Include="SqlServerTypes\Loader.cs" />
+    <EmbeddedResource Include="FormDangNhap.resx">
+      <DependentUpon>FormDangNhap.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormDanhMucHangHoa.resx">
       <DependentUpon>FormDanhMucHangHoa.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormDoiMatKhau.resx">
+      <DependentUpon>FormDoiMatKhau.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormKetNoiCSDL.resx">
+      <DependentUpon>FormKetNoiCSDL.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormNhanVien.resx">
       <DependentUpon>FormNhanVien.cs</DependentUpon>
@@ -448,6 +456,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <DependentUpon>FormNhomHang.cs</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -459,6 +468,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormPhieuXuat.resx">
       <DependentUpon>FormPhieuXuat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormThongTinPhanMem.resx">
+      <DependentUpon>FormThongTinPhanMem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

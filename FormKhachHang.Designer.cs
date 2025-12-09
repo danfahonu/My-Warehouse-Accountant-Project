@@ -2,315 +2,274 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     partial class FormKhachHang
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && (components != null)) components.Dispose();
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle headerStyle = new System.Windows.Forms.DataGridViewCellStyle();
+
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.lblHeaderTitle = new System.Windows.Forms.Label();
-            this.pnlInput = new System.Windows.Forms.Panel();
-            this.pnlFooter = new System.Windows.Forms.Panel();
-            this.btnHuy = new DoAnLapTrinhQuanLy.Controls.ModernButton();
-            this.btnLuu = new DoAnLapTrinhQuanLy.Controls.ModernButton();
-            this.btnXoa = new DoAnLapTrinhQuanLy.Controls.ModernButton();
-            this.btnSua = new DoAnLapTrinhQuanLy.Controls.ModernButton();
-            this.btnThem = new DoAnLapTrinhQuanLy.Controls.ModernButton();
-            this.dgvKhachHang = new DoAnLapTrinhQuanLy.Controls.ModernDataGrid();
-            this.txtMaKH = new DoAnLapTrinhQuanLy.Controls.MaterialTextBox();
-            this.txtTenKH = new DoAnLapTrinhQuanLy.Controls.MaterialTextBox();
-            this.txtSDT = new DoAnLapTrinhQuanLy.Controls.MaterialTextBox();
-            this.txtDiaChi = new DoAnLapTrinhQuanLy.Controls.MaterialTextBox();
-            this.txtEmail = new DoAnLapTrinhQuanLy.Controls.MaterialTextBox();
-            this.txtGhiChu = new DoAnLapTrinhQuanLy.Controls.MaterialTextBox();
-            this.lblMaKH = new System.Windows.Forms.Label();
-            this.lblTenKH = new System.Windows.Forms.Label();
-            this.lblSDT = new System.Windows.Forms.Label();
+            this.lblTitle = new System.Windows.Forms.Label();
+            this.splitContainer = new System.Windows.Forms.SplitContainer();
+
+            // --- TRÁI: DANH SÁCH ---
+            this.grpList = new System.Windows.Forms.GroupBox();
+            this.dgvDanhSach = new System.Windows.Forms.DataGridView();
+            this.pnlSearch = new System.Windows.Forms.Panel();
+            this.txtTimKiem = new System.Windows.Forms.TextBox();
+            this.lblTimKiem = new System.Windows.Forms.Label();
+
+            // --- PHẢI: CHI TIẾT ---
+            this.grpDetail = new System.Windows.Forms.GroupBox();
+            this.txtDiaChi = new System.Windows.Forms.TextBox();
             this.lblDiaChi = new System.Windows.Forms.Label();
-            this.lblEmail = new System.Windows.Forms.Label();
-            this.lblGhiChu = new System.Windows.Forms.Label();
+            this.txtSDT = new System.Windows.Forms.TextBox();
+            this.lblSDT = new System.Windows.Forms.Label();
+            this.txtTenKH = new System.Windows.Forms.TextBox();
+            this.lblTenKH = new System.Windows.Forms.Label();
+            this.txtMaKH = new System.Windows.Forms.TextBox();
+            this.lblMaKH = new System.Windows.Forms.Label();
+
+            // BUTTONS PANEL (Dùng FlowLayoutPanel)
+            this.pnlButtons = new System.Windows.Forms.Panel();
+            this.flowLayoutPanelBtn = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnThoat = new System.Windows.Forms.Button();
+            this.btnHuy = new System.Windows.Forms.Button();
+            this.btnLuu = new System.Windows.Forms.Button();
+            this.btnXoa = new System.Windows.Forms.Button();
+            this.btnSua = new System.Windows.Forms.Button();
+            this.btnThem = new System.Windows.Forms.Button();
 
             this.pnlHeader.SuspendLayout();
-            this.pnlInput.SuspendLayout();
-            this.pnlFooter.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvKhachHang)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
+            this.splitContainer.Panel1.SuspendLayout();
+            this.splitContainer.Panel2.SuspendLayout();
+            this.splitContainer.SuspendLayout();
+            this.grpList.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDanhSach)).BeginInit();
+            this.pnlSearch.SuspendLayout();
+            this.grpDetail.SuspendLayout();
+            this.pnlButtons.SuspendLayout();
+            this.flowLayoutPanelBtn.SuspendLayout();
             this.SuspendLayout();
 
-            // 
-            // pnlHeader
-            // 
-            this.pnlHeader.BackColor = System.Drawing.Color.White;
-            this.pnlHeader.Controls.Add(this.lblHeaderTitle);
-            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(1200, 60);
-            this.pnlHeader.TabIndex = 0;
-
-            // 
-            // lblHeaderTitle
-            // 
-            this.lblHeaderTitle.AutoSize = true;
-            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblHeaderTitle.ForeColor = System.Drawing.Color.DimGray;
-            this.lblHeaderTitle.Location = new System.Drawing.Point(20, 15);
-            this.lblHeaderTitle.Name = "lblHeaderTitle";
-            this.lblHeaderTitle.Size = new System.Drawing.Size(298, 30);
-            this.lblHeaderTitle.TabIndex = 0;
-            this.lblHeaderTitle.Text = "DANH MỤC KHÁCH HÀNG";
-
-            // 
-            // pnlInput
-            // 
-            this.pnlInput.BackColor = System.Drawing.Color.White;
-            this.pnlInput.Controls.Add(this.lblGhiChu);
-            this.pnlInput.Controls.Add(this.lblEmail);
-            this.pnlInput.Controls.Add(this.lblDiaChi);
-            this.pnlInput.Controls.Add(this.lblSDT);
-            this.pnlInput.Controls.Add(this.lblTenKH);
-            this.pnlInput.Controls.Add(this.lblMaKH);
-            this.pnlInput.Controls.Add(this.txtGhiChu);
-            this.pnlInput.Controls.Add(this.txtEmail);
-            this.pnlInput.Controls.Add(this.txtDiaChi);
-            this.pnlInput.Controls.Add(this.txtSDT);
-            this.pnlInput.Controls.Add(this.txtTenKH);
-            this.pnlInput.Controls.Add(this.txtMaKH);
-            this.pnlInput.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlInput.Location = new System.Drawing.Point(0, 60);
-            this.pnlInput.Name = "pnlInput";
-            this.pnlInput.Size = new System.Drawing.Size(1200, 160);
-            this.pnlInput.TabIndex = 1;
-
-            // Labels setup (DimGray, Segoe UI 10)
-            System.Drawing.Font labelFont = new System.Drawing.Font("Segoe UI", 10F);
-            System.Drawing.Color labelColor = System.Drawing.Color.DimGray;
-
-            this.lblMaKH.Text = "Mã KH:";
-            this.lblMaKH.Location = new System.Drawing.Point(30, 20);
-            this.lblMaKH.AutoSize = true;
-            this.lblMaKH.Font = labelFont;
-            this.lblMaKH.ForeColor = labelColor;
-
-            this.lblTenKH.Text = "Tên KH:";
-            this.lblTenKH.Location = new System.Drawing.Point(30, 65);
-            this.lblTenKH.AutoSize = true;
-            this.lblTenKH.Font = labelFont;
-            this.lblTenKH.ForeColor = labelColor;
-
-            this.lblSDT.Text = "SĐT:";
-            this.lblSDT.Location = new System.Drawing.Point(30, 110);
-            this.lblSDT.AutoSize = true;
-            this.lblSDT.Font = labelFont;
-            this.lblSDT.ForeColor = labelColor;
-
-            this.lblDiaChi.Text = "Địa Chỉ:";
-            this.lblDiaChi.Location = new System.Drawing.Point(400, 20);
-            this.lblDiaChi.AutoSize = true;
-            this.lblDiaChi.Font = labelFont;
-            this.lblDiaChi.ForeColor = labelColor;
-
-            this.lblEmail.Text = "Email:";
-            this.lblEmail.Location = new System.Drawing.Point(400, 65);
-            this.lblEmail.AutoSize = true;
-            this.lblEmail.Font = labelFont;
-            this.lblEmail.ForeColor = labelColor;
-
-            this.lblGhiChu.Text = "Ghi Chú:";
-            this.lblGhiChu.Location = new System.Drawing.Point(400, 110);
-            this.lblGhiChu.AutoSize = true;
-            this.lblGhiChu.Font = labelFont;
-            this.lblGhiChu.ForeColor = labelColor;
-
-            // Inputs setup
-            this.txtMaKH.Location = new System.Drawing.Point(100, 15);
-            this.txtMaKH.Name = "txtMaKH";
-            this.txtMaKH.Size = new System.Drawing.Size(200, 30);
-            this.txtMaKH.TabIndex = 0;
-
-            this.txtTenKH.Location = new System.Drawing.Point(100, 60);
-            this.txtTenKH.Name = "txtTenKH";
-            this.txtTenKH.Size = new System.Drawing.Size(200, 30);
-            this.txtTenKH.TabIndex = 1;
-
-            this.txtSDT.Location = new System.Drawing.Point(100, 105);
-            this.txtSDT.Name = "txtSDT";
-            this.txtSDT.Size = new System.Drawing.Size(200, 30);
-            this.txtSDT.TabIndex = 2;
-
-            this.txtDiaChi.Location = new System.Drawing.Point(480, 15);
-            this.txtDiaChi.Name = "txtDiaChi";
-            this.txtDiaChi.Size = new System.Drawing.Size(300, 30);
-            this.txtDiaChi.TabIndex = 3;
-
-            this.txtEmail.Location = new System.Drawing.Point(480, 60);
-            this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(300, 30);
-            this.txtEmail.TabIndex = 4;
-
-            this.txtGhiChu.Location = new System.Drawing.Point(480, 105);
-            this.txtGhiChu.Name = "txtGhiChu";
-            this.txtGhiChu.Size = new System.Drawing.Size(300, 30);
-            this.txtGhiChu.TabIndex = 5;
-
-            // 
-            // pnlFooter
-            // 
-            this.pnlFooter.BackColor = System.Drawing.Color.White;
-            this.pnlFooter.Controls.Add(this.btnHuy);
-            this.pnlFooter.Controls.Add(this.btnLuu);
-            this.pnlFooter.Controls.Add(this.btnXoa);
-            this.pnlFooter.Controls.Add(this.btnSua);
-            this.pnlFooter.Controls.Add(this.btnThem);
-            this.pnlFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlFooter.Location = new System.Drawing.Point(0, 620);
-            this.pnlFooter.Name = "pnlFooter";
-            this.pnlFooter.Size = new System.Drawing.Size(1200, 80);
-            this.pnlFooter.TabIndex = 3;
-
-            // Buttons (Right Aligned, Styled)
-            // Order: Them (580) -> Sua (700) -> Xoa (820) -> Luu (940) -> Huy (1060)
-            // Width 110, Spacing 10. Total 5 buttons.
-            // StartX = 1200 - (5*110 + 5*10) = 1200 - 600 = 600?
-            // Let's use:
-            // Huy: 1060 (Rightmost, keeping prev alignment)
-            // Luu: 940
-            // Xoa: 820
-            // Sua: 700
-            // Them: 580
-
-            // btnThem (Blue)
-            this.btnThem.Text = "Thêm";
-            this.btnThem.Location = new System.Drawing.Point(580, 18);
-            this.btnThem.Size = new System.Drawing.Size(110, 45);
-            this.btnThem.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnThem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.btnThem.ForeColor = System.Drawing.Color.White;
-            this.btnThem.BorderRadius = 20;
-            this.btnThem.Name = "btnThem";
-            this.btnThem.TabIndex = 0;
-
-            // btnSua (Orange - New)
-            this.btnSua.Text = "Sửa";
-            this.btnSua.Location = new System.Drawing.Point(700, 18);
-            this.btnSua.Size = new System.Drawing.Size(110, 45);
-            this.btnSua.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSua.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(193)))), ((int)(((byte)(7)))));
-            this.btnSua.ForeColor = System.Drawing.Color.White;
-            this.btnSua.BorderRadius = 20;
-            this.btnSua.Name = "btnSua";
-            this.btnSua.TabIndex = 1;
-
-            // btnXoa (Red)
-            this.btnXoa.Text = "Xóa";
-            this.btnXoa.Location = new System.Drawing.Point(820, 18);
-            this.btnXoa.Size = new System.Drawing.Size(110, 45);
-            this.btnXoa.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnXoa.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
-            this.btnXoa.ForeColor = System.Drawing.Color.White;
-            this.btnXoa.BorderRadius = 20;
-            this.btnXoa.Name = "btnXoa";
-            this.btnXoa.TabIndex = 2;
-
-            // btnLuu (Dark)
-            this.btnLuu.Text = "Lưu";
-            this.btnLuu.Location = new System.Drawing.Point(940, 18);
-            this.btnLuu.Size = new System.Drawing.Size(110, 45);
-            this.btnLuu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLuu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.btnLuu.ForeColor = System.Drawing.Color.White;
-            this.btnLuu.BorderRadius = 20;
-            this.btnLuu.Name = "btnLuu";
-            this.btnLuu.TabIndex = 3;
-
-            // btnHuy (White)
-            this.btnHuy.Text = "Hủy";
-            this.btnHuy.Location = new System.Drawing.Point(1060, 18);
-            this.btnHuy.Size = new System.Drawing.Size(110, 45);
-            this.btnHuy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnHuy.BackColor = System.Drawing.Color.White;
-            this.btnHuy.ForeColor = System.Drawing.Color.Black;
-            this.btnHuy.BorderRadius = 20;
-            this.btnHuy.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(62)))), ((int)(((byte)(66)))));
-            this.btnHuy.Name = "btnHuy";
-            this.btnHuy.TabIndex = 4;
-
-            // 
-            // dgvKhachHang
-            // 
-            this.dgvKhachHang.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvKhachHang.Location = new System.Drawing.Point(0, 220); // Top = Header(60) + Input(160)
-            this.dgvKhachHang.Name = "dgvKhachHang";
-            this.dgvKhachHang.Padding = new System.Windows.Forms.Padding(15);
-            this.dgvKhachHang.Size = new System.Drawing.Size(1200, 400);
-            this.dgvKhachHang.TabIndex = 2;
-
-            // 
-            // FormKhachHang
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            // Form
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1200, 700);
-            this.Controls.Add(this.dgvKhachHang);
-            this.Controls.Add(this.pnlFooter);
-            this.Controls.Add(this.pnlInput);
+            this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.ClientSize = new System.Drawing.Size(1000, 600);
+            this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.pnlHeader);
+            this.Font = new System.Drawing.Font("Segoe UI", 9.75F);
             this.Name = "FormKhachHang";
             this.Text = "Danh Mục Khách Hàng";
-            this.pnlHeader.ResumeLayout(false);
-            this.pnlHeader.PerformLayout();
-            this.pnlInput.ResumeLayout(false);
-            this.pnlInput.PerformLayout();
-            this.pnlFooter.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvKhachHang)).EndInit();
-            this.ResumeLayout(false);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Load += new System.EventHandler(this.FormKhachHang_Load);
 
+            // Header
+            this.pnlHeader.BackColor = System.Drawing.Color.White;
+            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlHeader.Height = 50;
+
+            this.lblTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 20F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(0, 122, 204);
+            this.lblTitle.Location = new System.Drawing.Point(0, 0);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(1000, 50);
+            this.lblTitle.Text = "QUẢN LÝ KHÁCH HÀNG";
+            this.lblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+
+            // SplitContainer
+            this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer.Location = new System.Drawing.Point(0, 50);
+            this.splitContainer.Name = "splitContainer";
+            // Panel 1
+            this.splitContainer.Panel1.Controls.Add(this.grpList);
+            this.splitContainer.Panel1.Padding = new System.Windows.Forms.Padding(10);
+            // Panel 2
+            this.splitContainer.Panel2.Controls.Add(this.grpDetail);
+            this.splitContainer.Panel2.Controls.Add(this.pnlButtons);
+            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(10);
+            this.splitContainer.Size = new System.Drawing.Size(1000, 550);
+            this.splitContainer.SplitterDistance = 450;
+            this.splitContainer.TabIndex = 1;
+
+            // --- TRÁI ---
+            this.grpList.Controls.Add(this.dgvDanhSach);
+            this.grpList.Controls.Add(this.pnlSearch);
+            this.grpList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpList.Text = "Danh sách khách hàng";
+
+            this.pnlSearch.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlSearch.Height = 50;
+            this.pnlSearch.Controls.Add(this.txtTimKiem);
+            this.pnlSearch.Controls.Add(this.lblTimKiem);
+
+            this.lblTimKiem.AutoSize = true;
+            this.lblTimKiem.Location = new System.Drawing.Point(10, 18);
+            this.lblTimKiem.Text = "Tìm kiếm:";
+
+            this.txtTimKiem.Location = new System.Drawing.Point(80, 15);
+            this.txtTimKiem.Size = new System.Drawing.Size(320, 25);
+            this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
+
+            this.dgvDanhSach.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvDanhSach.BackgroundColor = System.Drawing.Color.White;
+            this.dgvDanhSach.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvDanhSach.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvDanhSach.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvDanhSach.ReadOnly = true;
+            this.dgvDanhSach.AllowUserToAddRows = false;
+            this.dgvDanhSach.RowHeadersVisible = false;
+
+            headerStyle.BackColor = System.Drawing.Color.FromArgb(0, 122, 204);
+            headerStyle.ForeColor = System.Drawing.Color.White;
+            headerStyle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.dgvDanhSach.ColumnHeadersDefaultCellStyle = headerStyle;
+            this.dgvDanhSach.EnableHeadersVisualStyles = false;
+
+            this.dgvDanhSach.SelectionChanged += new System.EventHandler(this.dgvDanhSach_SelectionChanged);
+
+            // --- PHẢI ---
+            this.grpDetail.Controls.Add(this.txtDiaChi);
+            this.grpDetail.Controls.Add(this.lblDiaChi);
+            this.grpDetail.Controls.Add(this.txtSDT);
+            this.grpDetail.Controls.Add(this.lblSDT);
+            this.grpDetail.Controls.Add(this.txtTenKH);
+            this.grpDetail.Controls.Add(this.lblTenKH);
+            this.grpDetail.Controls.Add(this.txtMaKH);
+            this.grpDetail.Controls.Add(this.lblMaKH);
+            this.grpDetail.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpDetail.Text = "Thông tin chi tiết";
+
+            int y = 40; int gap = 50;
+            this.lblMaKH.Location = new System.Drawing.Point(20, y); this.lblMaKH.Text = "Mã KH:"; this.lblMaKH.AutoSize = true;
+            this.txtMaKH.Location = new System.Drawing.Point(100, y - 3); this.txtMaKH.Size = new System.Drawing.Size(150, 25);
+            y += gap;
+            this.lblTenKH.Location = new System.Drawing.Point(20, y); this.lblTenKH.Text = "Tên KH:"; this.lblTenKH.AutoSize = true;
+            this.txtTenKH.Location = new System.Drawing.Point(100, y - 3); this.txtTenKH.Size = new System.Drawing.Size(400, 25);
+            y += gap;
+            this.lblSDT.Location = new System.Drawing.Point(20, y); this.lblSDT.Text = "Điện thoại:"; this.lblSDT.AutoSize = true;
+            this.txtSDT.Location = new System.Drawing.Point(100, y - 3); this.txtSDT.Size = new System.Drawing.Size(200, 25);
+            y += gap;
+            this.lblDiaChi.Location = new System.Drawing.Point(20, y); this.lblDiaChi.Text = "Địa chỉ:"; this.lblDiaChi.AutoSize = true;
+            this.txtDiaChi.Location = new System.Drawing.Point(100, y - 3); this.txtDiaChi.Size = new System.Drawing.Size(400, 25);
+
+            // BUTTONS PANEL
+            this.pnlButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlButtons.Height = 70;
+            this.pnlButtons.Controls.Add(this.flowLayoutPanelBtn);
+
+            // FlowLayoutPanel
+            this.flowLayoutPanelBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanelBtn.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanelBtn.Padding = new System.Windows.Forms.Padding(10);
+            this.flowLayoutPanelBtn.Controls.Add(this.btnThoat);
+            this.flowLayoutPanelBtn.Controls.Add(this.btnHuy);
+            this.flowLayoutPanelBtn.Controls.Add(this.btnLuu);
+            this.flowLayoutPanelBtn.Controls.Add(this.btnXoa);
+            this.flowLayoutPanelBtn.Controls.Add(this.btnSua);
+            this.flowLayoutPanelBtn.Controls.Add(this.btnThem);
+
+            // --- NÚT BẤM (CẤU HÌNH THỦ CÔNG) ---
+
+            // btnThoat
+            this.btnThoat.Text = "Thoát";
+            this.btnThoat.Size = new System.Drawing.Size(90, 40);
+            this.btnThoat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnThoat.BackColor = System.Drawing.Color.Gray;
+            this.btnThoat.ForeColor = System.Drawing.Color.White;
+            this.btnThoat.Margin = new System.Windows.Forms.Padding(5);
+            this.btnThoat.Click += new System.EventHandler(this.btnThoat_Click);
+
+            // btnHuy
+            this.btnHuy.Text = "Hủy";
+            this.btnHuy.Size = new System.Drawing.Size(90, 40);
+            this.btnHuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnHuy.BackColor = System.Drawing.Color.Orange;
+            this.btnHuy.ForeColor = System.Drawing.Color.White;
+            this.btnHuy.Margin = new System.Windows.Forms.Padding(5);
+            this.btnHuy.Click += new System.EventHandler(this.btnHuy_Click);
+
+            // btnLuu
+            this.btnLuu.Text = "Lưu";
+            this.btnLuu.Size = new System.Drawing.Size(90, 40);
+            this.btnLuu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLuu.BackColor = System.Drawing.Color.FromArgb(0, 122, 204);
+            this.btnLuu.ForeColor = System.Drawing.Color.White;
+            this.btnLuu.Margin = new System.Windows.Forms.Padding(5);
+            this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
+
+            // btnXoa
+            this.btnXoa.Text = "Xóa";
+            this.btnXoa.Size = new System.Drawing.Size(90, 40);
+            this.btnXoa.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXoa.BackColor = System.Drawing.Color.FromArgb(220, 53, 69);
+            this.btnXoa.ForeColor = System.Drawing.Color.White;
+            this.btnXoa.Margin = new System.Windows.Forms.Padding(5);
+            this.btnXoa.Click += new System.EventHandler(this.btnXoa_Click);
+
+            // btnSua
+            this.btnSua.Text = "Sửa";
+            this.btnSua.Size = new System.Drawing.Size(90, 40);
+            this.btnSua.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSua.BackColor = System.Drawing.Color.Teal;
+            this.btnSua.ForeColor = System.Drawing.Color.White;
+            this.btnSua.Margin = new System.Windows.Forms.Padding(5);
+            this.btnSua.Click += new System.EventHandler(this.btnSua_Click);
+
+            // btnThem
+            this.btnThem.Text = "Thêm";
+            this.btnThem.Size = new System.Drawing.Size(90, 40);
+            this.btnThem.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnThem.BackColor = System.Drawing.Color.ForestGreen;
+            this.btnThem.ForeColor = System.Drawing.Color.White;
+            this.btnThem.Margin = new System.Windows.Forms.Padding(5);
+            this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
+
+            this.pnlHeader.ResumeLayout(false);
+            this.splitContainer.Panel1.ResumeLayout(false);
+            this.splitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
+            this.splitContainer.ResumeLayout(false);
+            this.grpList.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvDanhSach)).EndInit();
+            this.pnlSearch.ResumeLayout(false);
+            this.pnlSearch.PerformLayout();
+            this.grpDetail.ResumeLayout(false);
+            this.grpDetail.PerformLayout();
+            this.pnlButtons.ResumeLayout(false);
+            this.flowLayoutPanelBtn.ResumeLayout(false);
+            this.ResumeLayout(false);
         }
 
         #endregion
 
         private System.Windows.Forms.Panel pnlHeader;
-        private System.Windows.Forms.Label lblHeaderTitle;
-        private System.Windows.Forms.Panel pnlInput;
-        private System.Windows.Forms.Panel pnlFooter;
-        private DoAnLapTrinhQuanLy.Controls.ModernDataGrid dgvKhachHang;
-        private DoAnLapTrinhQuanLy.Controls.ModernButton btnThem;
-        private DoAnLapTrinhQuanLy.Controls.ModernButton btnSua;
-        private DoAnLapTrinhQuanLy.Controls.ModernButton btnXoa;
-        private DoAnLapTrinhQuanLy.Controls.ModernButton btnLuu;
-        private DoAnLapTrinhQuanLy.Controls.ModernButton btnHuy;
-        private DoAnLapTrinhQuanLy.Controls.MaterialTextBox txtMaKH;
-        private DoAnLapTrinhQuanLy.Controls.MaterialTextBox txtTenKH;
-        private DoAnLapTrinhQuanLy.Controls.MaterialTextBox txtSDT;
-        private DoAnLapTrinhQuanLy.Controls.MaterialTextBox txtDiaChi;
-        private DoAnLapTrinhQuanLy.Controls.MaterialTextBox txtEmail;
-        private DoAnLapTrinhQuanLy.Controls.MaterialTextBox txtGhiChu;
-        private System.Windows.Forms.Label lblMaKH;
-        private System.Windows.Forms.Label lblTenKH;
-        private System.Windows.Forms.Label lblSDT;
-        private System.Windows.Forms.Label lblDiaChi;
-        private System.Windows.Forms.Label lblEmail;
-        private System.Windows.Forms.Label lblGhiChu;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.SplitContainer splitContainer;
+        private System.Windows.Forms.GroupBox grpList;
+        private System.Windows.Forms.DataGridView dgvDanhSach;
+        private System.Windows.Forms.Panel pnlSearch;
+        private System.Windows.Forms.TextBox txtTimKiem;
+        private System.Windows.Forms.Label lblTimKiem;
+        private System.Windows.Forms.GroupBox grpDetail;
+        private System.Windows.Forms.Panel pnlButtons;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelBtn; // Thêm dòng này
+
+        private System.Windows.Forms.TextBox txtDiaChi, txtSDT, txtTenKH, txtMaKH;
+        private System.Windows.Forms.Label lblDiaChi, lblSDT, lblTenKH, lblMaKH;
+
+        private System.Windows.Forms.Button btnThem, btnSua, btnXoa, btnLuu, btnHuy, btnThoat;
     }
 }
