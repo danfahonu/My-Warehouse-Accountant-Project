@@ -1,115 +1,95 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.Data; // Đảm bảo using DbHelper và GeminiHelper
+using DoAnLapTrinhQuanLy.Data; // Nơi chứa GeminiHelper và DbHelper
 
-namespace DoAnLapTrinhQuanLy.GuiLayer
+namespace DoAnLapTrinhQuanLy
 {
-    public partial class FormHoiDap : Form
+    public partial class FormHoiDap : Form // Hoặc BaseForm nếu bà có dùng
     {
         public FormHoiDap()
         {
             InitializeComponent();
+            SetupUI();
         }
 
-        private async void btnHoi_Click(object sender, EventArgs e)
+        private void SetupUI()
+        {
+            // Trang trí chút cho đẹp (Optional)
+            this.Text = "Trợ lý ảo AI - Hỏi đáp số liệu kho";
+            this.lblTrangThai.Text = "Sẵn sàng";
+            this.lblTrangThai.ForeColor = Color.Green;
+        }
+
+        // Sự kiện khi nhấn nút Gửi
+        private async void btnGui_Click(object sender, EventArgs e)
         {
             string cauHoi = txtCauHoi.Text.Trim();
+
             if (string.IsNullOrEmpty(cauHoi))
             {
-                MessageBox.Show("Vui lòng nhập câu hỏi của bạn.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Bà ơi, nhập câu hỏi vào đã chứ!", "Nhắc nhở", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // --- Vô hiệu hóa UI để người dùng không thao tác khi đang xử lý ---
-            SetLoadingState(true);
-            lblTrangThai.Text = "Đang gửi câu hỏi đến AI...";
-
             try
             {
-                // Bước 1: Chuyển câu hỏi thành SQL
+                // 1. Hiệu ứng đang chờ (UX cực quan trọng)
+                btnGui.Enabled = false;
+                lblTrangThai.Text = "AI đang suy nghĩ...";
+                lblTrangThai.ForeColor = Color.Blue;
+                Cursor = Cursors.WaitCursor;
+
+                // 2. Gọi Gemini để lấy câu lệnh SQL
+                // (Hàm này nằm trong file GeminiHelper.cs bà đã tạo)
                 string sqlQuery = await GeminiHelper.ChuyenCauHoiThanhSQL(cauHoi);
-                lblTrangThai.Text = "Đã nhận được câu lệnh SQL, đang truy vấn CSDL...";
 
-                // --- Kiểm tra và bảo mật câu lệnh SQL ---
-                if (!IsSafeQuery(sqlQuery))
+                // 3. Kiểm tra kết quả
+                if (sqlQuery == "KHONG_THE_TRA_LOI" || string.IsNullOrEmpty(sqlQuery))
                 {
-                    MessageBox.Show("Câu hỏi của bạn có chứa từ khóa không được phép hoặc không phải là lệnh truy vấn dữ liệu.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    dgvKetQua.DataSource = null;
-                    txtSQL.Text = sqlQuery;
-                    lblTrangThai.Text = "Đã dừng lại do lỗi bảo mật.";
-                    return;
+                    MessageBox.Show("Hic, câu này khó quá tui chưa hiểu. Bà hỏi lại rõ hơn nha!", "AI Trả lời", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                else
+                {
+                    // 4. Nếu có SQL, gọi DbHelper để chạy và lấy dữ liệu
+                    // Giả sử bà có class DbHelper xử lý kết nối CSDL
+                    DataTable dt = DbHelper.Query(sqlQuery);
 
-                txtSQL.Text = sqlQuery; // Hiển thị câu SQL để kiểm tra
-
-                // Bước 2: Thực thi câu lệnh SQL
-                DataTable result = DbHelper.Query(sqlQuery);
-                dgvKetQua.DataSource = result;
-                lblTrangThai.Text = $"Hoàn tất! Tìm thấy {result.Rows.Count} kết quả.";
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        dgvKetQua.DataSource = dt;
+                        lblTrangThai.Text = $"Tìm thấy {dt.Rows.Count} kết quả.";
+                    }
+                    else
+                    {
+                        dgvKetQua.DataSource = null;
+                        lblTrangThai.Text = "Không tìm thấy dữ liệu nào.";
+                        MessageBox.Show("Câu lệnh chạy thành công nhưng không có dữ liệu trả về.", "Thông báo");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                // Bắt lỗi (từ Gemini hoặc CSDL) và hiển thị thông báo
-                MessageBox.Show($"Đã xảy ra lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                lblTrangThai.Text = "Đã xảy ra lỗi trong quá trình xử lý.";
-                dgvKetQua.DataSource = null;
+                MessageBox.Show($"Lỗi rồi bà ơi: {ex.Message}", "Lỗi Hệ Thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                // --- Kích hoạt lại UI sau khi xử lý xong ---
-                SetLoadingState(false);
+                // 5. Trả lại trạng thái ban đầu
+                btnGui.Enabled = true;
+                Cursor = Cursors.Default;
+                if (lblTrangThai.Text == "AI đang suy nghĩ...")
+                    lblTrangThai.Text = "Hoàn tất";
             }
         }
 
-        /// <summary>
-        /// Hàm kiểm tra bảo mật cơ bản cho câu lệnh SQL từ AI.
-        /// </summary>
-        private bool IsSafeQuery(string sql)
+        // Sự kiện ấn Enter để gửi luôn cho nhanh (Optional)
+        private void txtCauHoi_KeyDown(object sender, KeyEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(sql) || sql.ToUpper().Contains("KHONG_THE_TRA_LOI"))
+            if (e.KeyCode == Keys.Enter)
             {
-                return false;
-            }
-
-            // Loại bỏ các comment SQL để kiểm tra chính xác hơn
-            string cleanSql = System.Text.RegularExpressions.Regex.Replace(sql, @"--.*$", "", System.Text.RegularExpressions.RegexOptions.Multiline);
-
-            string sqlUpper = cleanSql.ToUpper().Trim();
-
-            // Chỉ cho phép câu lệnh bắt đầu bằng SELECT
-            if (!sqlUpper.StartsWith("SELECT"))
-            {
-                return false;
-            }
-
-            // Danh sách đen các từ khóa nguy hiểm
-            string[] forbiddenKeywords = { "DELETE", "UPDATE", "INSERT", "DROP", "TRUNCATE", "EXEC", "CREATE", "ALTER" };
-            if (forbiddenKeywords.Any(keyword => sqlUpper.Contains(keyword)))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Thiết lập trạng thái đang tải cho các control trên form.
-        /// </summary>
-        private void SetLoadingState(bool isLoading)
-        {
-            txtCauHoi.Enabled = !isLoading;
-            btnHoi.Enabled = !isLoading;
-            dgvKetQua.Enabled = !isLoading;
-            if (isLoading)
-            {
-                this.Cursor = Cursors.WaitCursor;
-            }
-            else
-            {
-                this.Cursor = Cursors.Default;
+                btnGui.PerformClick();
+                e.SuppressKeyPress = true; // Chặn tiếng 'ding' của Windows
             }
         }
     }

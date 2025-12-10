@@ -14,5 +14,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         public string HoTen { get; set; }
         public string TenQuyen { get; set; }
         public string MaNV { get; set; } // === THÊM DÒNG NÀY ===
+        // Thêm dòng này vào nè bà:
+        public int MaQuyen { get; set; }
     }
 }

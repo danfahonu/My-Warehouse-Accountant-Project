@@ -40,7 +40,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
             // 2. KPI: Hàng sắp hết (Giả sử định mức < 10 là báo động)
             // Lấy từ bảng DM_HANGHOA hoặc tính tổng tồn từ kho
-            string sqlSapHet = @"SELECT COUNT(*) FROM DM_HANGHOA WHERE TONKHO <= 10 AND HOATDONG = 1";
+            string sqlSapHet = @"SELECT COUNT(*) FROM DM_HANGHOA WHERE TONKHO <= 10 AND ACTIVE = 1";
             int countSapHet = Convert.ToInt32(DbHelper.ExecuteScalar(sqlSapHet));
             lblCanhBao.Text = countSapHet.ToString() + " MÃ";
 
@@ -71,9 +71,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
             // 6. GRID: Danh sách hàng sắp hết
             string sqlGrid = @"SELECT MAHH, TENHH, TONKHO, DVT 
-                               FROM DM_HANGHOA 
-                               WHERE TONKHO <= 10 AND HOATDONG = 1 
-                               ORDER BY TONKHO ASC";
+                   FROM DM_HANGHOA 
+                   WHERE TONKHO <= 10 AND ACTIVE = 1 
+                   ORDER BY TONKHO ASC";
 
             DataTable dtCanhBao = DbHelper.Query(sqlGrid);
             dgvCanhBao.DataSource = dtCanhBao;
