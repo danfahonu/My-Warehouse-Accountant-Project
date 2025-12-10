@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using DoAnLapTrinhQuanLy.Services;
+using DoAnLapTrinhQuanLy; // Quan trọng: Để gọi được ReportService
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
@@ -16,8 +17,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private readonly HangHoaService _hangHoaService = new HangHoaService();
 
         // Biến cục bộ
-        private DataTable _dtHangHoa; // Cache danh sách hàng để tra cứu nhanh trên lưới
-        private long _idYeuCau = 0;   // Lưu ID phiếu yêu cầu (nếu có)
+        private DataTable _dtHangHoa; // Cache danh sách hàng
+        private long _idYeuCau = 0;   // Lưu ID phiếu yêu cầu
 
         public FormPhieuNhap()
         {
@@ -27,8 +28,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void FormPhieuNhap_Load(object sender, EventArgs e)
         {
             LoadData();
-            // InitGrid(); // Không cần gọi nếu Designer đã làm, nhưng để chắc chắn thì cứ để
-            ClearInputs(); // Gọi hàm làm mới form
+            ClearInputs();
         }
 
         private void LoadData()
@@ -41,9 +41,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 cboNhaCungCap.ValueMember = "MA_NCC";
                 cboNhaCungCap.SelectedIndex = -1;
 
-                // 2. Load Hàng hóa vào Cache & Gán cho cột ComboBox trên lưới
+                // 2. Load Hàng hóa
                 _dtHangHoa = _hangHoaService.GetAll();
-
                 colMaHH.DataSource = _dtHangHoa;
                 colMaHH.DisplayMember = "TENHH";
                 colMaHH.ValueMember = "MAHH";
@@ -54,42 +53,35 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
-        // --- ĐÂY LÀ HÀM BỊ THIẾU NÈ BÀ ---
         private void ClearInputs()
         {
-            txtSoPhieu.Text = "";           // Mã phiếu trống (chờ sinh tự động)
-            txtGhiChu.Text = "";            // Ghi chú trống
-            dgvChiTiet.Rows.Clear();        // Xóa sạch lưới
-            lblTongTien.Text = "0 đ";       // Tổng tiền về 0
+            txtSoPhieu.Text = "";
+            txtGhiChu.Text = "";
+            dgvChiTiet.Rows.Clear();
+            lblTongTien.Text = "0 đ";
             chkThanhToan.Checked = false;
-            _idYeuCau = 0;                  // Reset ID yêu cầu
+            _idYeuCau = 0;
 
             cboNhaCungCap.SelectedIndex = -1;
             dtpNgayNhap.Value = DateTime.Now;
 
-            // Mở khóa các nút
+            // Logic nút bấm: Mới vào cho Lưu, cấm In (vì chưa có số phiếu)
             btnLuu.Enabled = true;
             btnIn.Enabled = false;
 
-            // Mở khóa lưới để nhập liệu
             dgvChiTiet.ReadOnly = false;
             dgvChiTiet.AllowUserToAddRows = true;
         }
-        // ------------------------------------
 
-        // --- XỬ LÝ SỰ KIỆN TRÊN GRID (LOGIC NHẬP LIỆU EXCEL) ---
-
+        // --- XỬ LÝ LƯỚI (GRID) ---
         private void dgvChiTiet_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            // Xử lý ComboBox: Cho phép gõ tìm kiếm (Suggest)
             if (dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colMaHH"].Index && e.Control is ComboBox comboBox)
             {
                 comboBox.DropDownStyle = ComboBoxStyle.DropDown;
                 comboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
                 comboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             }
-
-            // Xử lý ô Số: Chỉ cho nhập số
             if (dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colSoLuong"].Index ||
                 dgvChiTiet.CurrentCell.ColumnIndex == dgvChiTiet.Columns["colDonGia"].Index)
             {
@@ -106,10 +98,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void dgvChiTiet_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
-
             DataGridViewRow row = dgvChiTiet.Rows[e.RowIndex];
 
-            // 1. Khi chọn Hàng Hóa -> Tự điền ĐVT, Giá Nhập gợi ý
+            // Tự điền thông tin hàng
             if (dgvChiTiet.Columns[e.ColumnIndex].Name == "colMaHH")
             {
                 string maHH = row.Cells["colMaHH"].Value?.ToString();
@@ -119,19 +110,15 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     if (found.Length > 0)
                     {
                         row.Cells["colDVT"].Value = found[0]["DVT"];
-
-                        // Nếu chưa có giá -> Lấy giá vốn cũ
                         if (row.Cells["colDonGia"].Value == null || Convert.ToDecimal(row.Cells["colDonGia"].Value) == 0)
                             row.Cells["colDonGia"].Value = found[0]["GIAVON"];
-
-                        // Nếu chưa có SL -> Mặc định 1
                         if (row.Cells["colSoLuong"].Value == null)
                             row.Cells["colSoLuong"].Value = 1;
                     }
                 }
             }
 
-            // 2. Tính Thành Tiền = SL * Giá
+            // Tính tiền
             if (dgvChiTiet.Columns[e.ColumnIndex].Name == "colSoLuong" ||
                 dgvChiTiet.Columns[e.ColumnIndex].Name == "colDonGia" ||
                 dgvChiTiet.Columns[e.ColumnIndex].Name == "colMaHH")
@@ -147,7 +134,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void dgvChiTiet_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Xử lý nút Xóa (Cột button 'colXoa')
             if (e.RowIndex >= 0 && dgvChiTiet.Columns[e.ColumnIndex].Name == "colXoa")
             {
                 if (!dgvChiTiet.Rows[e.RowIndex].IsNewRow)
@@ -158,10 +144,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
-        private void dgvChiTiet_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        {
-            e.Cancel = true; // Chặn lỗi crash khi chọn combobox sai
-        }
+        private void dgvChiTiet_DataError(object sender, DataGridViewDataErrorEventArgs e) => e.Cancel = true;
 
         private void TinhTongCong()
         {
@@ -175,11 +158,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         }
 
         // --- CÁC NÚT CHỨC NĂNG ---
-
-        private void btnThem_Click(object sender, EventArgs e)
-        {
-            ClearInputs(); // Nút "Tạo mới" gọi hàm ClearInputs
-        }
+        private void btnThem_Click(object sender, EventArgs e) => ClearInputs();
 
         private void btnLuu_Click(object sender, EventArgs e)
         {
@@ -226,9 +205,10 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 MessageBox.Show("Lưu thành công! Số phiếu: " + soPhieu);
                 txtSoPhieu.Text = soPhieu.ToString();
 
-                // Khóa form sau khi lưu thành công
+                // Lưu xong thì cho phép In
                 btnLuu.Enabled = false;
-                btnIn.Enabled = true;
+                btnIn.Enabled = true; // Bật sáng nút In
+
                 dgvChiTiet.ReadOnly = true;
                 dgvChiTiet.AllowUserToAddRows = false;
             }
@@ -238,19 +218,29 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
+        // ==========================================================
+        // ĐÂY LÀ CHỖ QUAN TRỌNG: GỌI HÀM IN BẰNG NÚT CŨ (btnIn)
+        // ==========================================================
         private void btnIn_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(txtSoPhieu.Text))
+            if (string.IsNullOrEmpty(txtSoPhieu.Text))
             {
-                MessageBox.Show("Đang in phiếu số: " + txtSoPhieu.Text);
-                // new FormInPhieu(long.Parse(txtSoPhieu.Text)).ShowDialog();
+                MessageBox.Show("Chưa có số phiếu để in. Vui lòng lưu phiếu trước!", "Thông báo");
+                return;
+            }
+
+            try
+            {
+                // Gọi Service in phiếu tui đã viết cho bà
+                ReportService.InPhieu(txtSoPhieu.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi gọi in: " + ex.Message);
             }
         }
 
-        private void btnHuy_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+        private void btnHuy_Click(object sender, EventArgs e) => this.Close();
 
         private void btnChonPhieuYeuCau_Click(object sender, EventArgs e)
         {
@@ -285,7 +275,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                     dgvChiTiet.Rows[idx].Cells["colSoLuong"].Value = slCon;
                     dgvChiTiet.Rows[idx].Cells["colDonGia"].Value = gia;
 
-                    // Trigger tính tiền
                     dgvChiTiet_CellValueChanged(dgvChiTiet, new DataGridViewCellEventArgs(dgvChiTiet.Columns["colSoLuong"].Index, idx));
                 }
             }

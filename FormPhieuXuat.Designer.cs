@@ -15,7 +15,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.pnlHeader = new System.Windows.Forms.Panel();
@@ -216,14 +215,6 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.colDonGia,
             this.colThanhTien,
             this.colXoa});
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 10F);
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvChiTiet.DefaultCellStyle = dataGridViewCellStyle4;
             this.dgvChiTiet.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvChiTiet.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvChiTiet.EnableHeadersVisualStyles = false;
@@ -485,8 +476,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.Button btnTaoMoi;
-        private System.Windows.Forms.Button btnIn;
-        private System.Windows.Forms.Button btnHuy; // btnThoat biến thành btnHuy trong code logic
+        private System.Windows.Forms.Button btnIn; // GIỮ LẠI NÚT NÀY ĐỂ IN
+        private System.Windows.Forms.Button btnThoat;
 
         // Grid Columns
         private System.Windows.Forms.DataGridViewComboBoxColumn colMaHH;
@@ -497,6 +488,5 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private System.Windows.Forms.DataGridViewTextBoxColumn colDonGia;
         private System.Windows.Forms.DataGridViewTextBoxColumn colThanhTien;
         private System.Windows.Forms.DataGridViewButtonColumn colXoa;
-        private System.Windows.Forms.Button btnThoat; // Biến này dùng cho nút Thoát
     }
 }

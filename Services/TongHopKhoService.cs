@@ -98,9 +98,10 @@ namespace DoAnLapTrinhQuanLy.Services
         }
 
         // 4. Báo cáo THẺ KHO (Tab 3)
+        // 4. Báo cáo THẺ KHO (Tab 3)
         public DataTable GetTheKho(string maHH, DateTime tuNgay, DateTime denNgay)
         {
-            // A. Tồn đầu
+            // A. Tồn đầu (Giữ nguyên)
             string sqlTonDau = @"
                 SELECT ISNULL(SUM(CASE 
                     WHEN p.LOAI = 'N' THEN ct.SL 
@@ -117,12 +118,17 @@ namespace DoAnLapTrinhQuanLy.Services
                 DbHelper.Param("@Tu", tuNgay.Date)
             ));
 
-            // B. Giao dịch
+            // B. Giao dịch (ĐÃ SỬA: Ép kiểu SOPHIEU và DIENGIAI rộng ra)
             string sqlGiaoDich = @"
                 SELECT 
                     p.NGAYLAP, 
-                    p.SOPHIEU, 
-                    CASE WHEN p.LOAI = 'N' THEN N'Nhập kho' ELSE N'Xuất kho' END AS DIENGIAI,
+                    
+                    -- 1. Ép kiểu Số phiếu thành chữ để tí nữa gán chuỗi rỗng được
+                    CAST(p.SOPHIEU AS NVARCHAR(50)) AS SOPHIEU, 
+                    
+                    -- 2. Ép kiểu Diễn giải thành 200 ký tự để chứa được chữ 'Số dư đầu kỳ'
+                    CAST(CASE WHEN p.LOAI = 'N' THEN N'Nhập kho' ELSE N'Xuất kho' END AS NVARCHAR(200)) AS DIENGIAI,
+                    
                     CASE WHEN p.LOAI = 'N' THEN ct.SL ELSE 0 END AS NHAP,
                     CASE WHEN p.LOAI = 'X' THEN ct.SL ELSE 0 END AS XUAT
                 FROM PHIEU p 
@@ -141,15 +147,17 @@ namespace DoAnLapTrinhQuanLy.Services
             // C. Tính cột Tồn
             dt.Columns.Add("TON_LUY_KE", typeof(decimal));
 
+            // Thêm dòng Số dư đầu kỳ
             DataRow rDau = dt.NewRow();
             rDau["NGAYLAP"] = tuNgay.Date;
             rDau["SOPHIEU"] = "";
-            rDau["DIENGIAI"] = "Số dư đầu kỳ";
+            rDau["DIENGIAI"] = "Số dư đầu kỳ"; // Giờ thì thoải mái không lo lỗi MaxLength nữa!
             rDau["NHAP"] = 0;
             rDau["XUAT"] = 0;
             rDau["TON_LUY_KE"] = tonDau;
             dt.Rows.InsertAt(rDau, 0);
 
+            // Tính tồn lũy kế
             decimal runningBalance = tonDau;
             for (int i = 1; i < dt.Rows.Count; i++)
             {

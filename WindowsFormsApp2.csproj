@@ -168,6 +168,13 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DbHelper.cs" />
+    <Compile Include="ReportService.cs" />
+    <Compile Include="FormXemBaoCao.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormXemBaoCao.Designer.cs">
+      <DependentUpon>FormXemBaoCao.cs</DependentUpon>
+    </Compile>
     <Compile Include="DesignGuard.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -478,6 +485,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="rptPhieuNhap.rdlc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="rptPhieuXuat.rdlc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="rptTonKho.rdlc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

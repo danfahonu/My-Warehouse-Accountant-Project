@@ -139,14 +139,23 @@
             this.btnXemTH.BackColor = System.Drawing.Color.RoyalBlue; this.btnXemTH.ForeColor = System.Drawing.Color.White; this.btnXemTH.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnXemTH.Click += new System.EventHandler(this.btnXemTH_Click);
 
-            this.btnInTH.Text = "Xuất Excel"; this.btnInTH.Location = new System.Drawing.Point(780, 15); this.btnInTH.Size = new System.Drawing.Size(100, 30);
+            this.btnInTH.Text = "Xuất Excel"; this.btnInTH.Location = new System.Drawing.Point(890, 15); this.btnInTH.Size = new System.Drawing.Size(100, 30);
             this.btnInTH.BackColor = System.Drawing.Color.ForestGreen; this.btnInTH.ForeColor = System.Drawing.Color.White; this.btnInTH.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnInTH.Click += new System.EventHandler(this.btnInTH_Click);
+
+            this.btnInBaoCao = new System.Windows.Forms.Button();
+            this.btnInBaoCao.Text = "In Báo Cáo";
+            this.btnInBaoCao.Location = new System.Drawing.Point(780, 15);
+            this.btnInBaoCao.Size = new System.Drawing.Size(100, 30);
+            this.btnInBaoCao.BackColor = System.Drawing.Color.Teal;
+            this.btnInBaoCao.ForeColor = System.Drawing.Color.White;
+            this.btnInBaoCao.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnInBaoCao.Click += new System.EventHandler(this.btnInBaoCao_Click);
 
             this.pnlFilterTH.Controls.Add(this.lblTuTH); this.pnlFilterTH.Controls.Add(this.dtpTuTH);
             this.pnlFilterTH.Controls.Add(this.lblDenTH); this.pnlFilterTH.Controls.Add(this.dtpDenTH);
             this.pnlFilterTH.Controls.Add(this.lblNhomHang); this.pnlFilterTH.Controls.Add(this.cboNhomHang);
-            this.pnlFilterTH.Controls.Add(this.btnXemTH); this.pnlFilterTH.Controls.Add(this.btnInTH);
+            this.pnlFilterTH.Controls.Add(this.btnXemTH); this.pnlFilterTH.Controls.Add(this.btnInBaoCao); this.pnlFilterTH.Controls.Add(this.btnInTH);
 
             // Grid TH
             this.dgvTongHop.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -259,7 +268,7 @@
         private System.Windows.Forms.TabPage tabTongHop;
         private System.Windows.Forms.DataGridView dgvTongHop;
         private System.Windows.Forms.Panel pnlFilterTH;
-        private System.Windows.Forms.Button btnXemTH, btnInTH;
+        private System.Windows.Forms.Button btnXemTH, btnInTH, btnInBaoCao;
         private System.Windows.Forms.DateTimePicker dtpTuTH, dtpDenTH;
         private System.Windows.Forms.ComboBox cboNhomHang;
         private System.Windows.Forms.Label lblTuTH, lblDenTH, lblNhomHang;

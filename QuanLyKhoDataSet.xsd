@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<xs:schema id="QuanLyKhoDataSet" 
+                  targetNamespace="http://tempuri.org/QuanLyKhoDataSet.xsd"
+                  elementFormDefault="qualified"
+                  attributeFormDefault="qualified"
+                  xmlns="http://tempuri.org/QuanLyKhoDataSet.xsd"
+                  xmlns:mstns="http://tempuri.org/QuanLyKhoDataSet.xsd"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                  xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xs:element name="QuanLyKhoDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="dtPhieuNhapXuat">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="SOPHIEU" type="xs:string" minOccurs="0" />
+              <xs:element name="NGAYLAP" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="LOAI" type="xs:string" minOccurs="0" />
+              <xs:element name="TEN_DOITUONG" type="xs:string" minOccurs="0" />
+              <xs:element name="DIACHI" type="xs:string" minOccurs="0" />
+              <xs:element name="SDT" type="xs:string" minOccurs="0" />
+              <xs:element name="GHICHU" type="xs:string" minOccurs="0" />
+              <xs:element name="MAHH" type="xs:string" minOccurs="0" />
+              <xs:element name="TENHH" type="xs:string" minOccurs="0" />
+              <xs:element name="DVT" type="xs:string" minOccurs="0" />
+              <xs:element name="SL" type="xs:int" minOccurs="0" />
+              <xs:element name="DONGIA" type="xs:decimal" minOccurs="0" />
+              <xs:element name="THANHTIEN" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="dtTonKho">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="MAHH" type="xs:string" minOccurs="0" />
+              <xs:element name="TENHH" type="xs:string" minOccurs="0" />
+              <xs:element name="DVT" type="xs:string" minOccurs="0" />
+              <xs:element name="TENNHOM" type="xs:string" minOccurs="0" />
+              <xs:element name="TON_DAU" type="xs:int" minOccurs="0" />
+              <xs:element name="NHAP" type="xs:int" minOccurs="0" />
+              <xs:element name="XUAT" type="xs:int" minOccurs="0" />
+              <xs:element name="TON_CUOI" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element> <!-- End dtTonKho -->
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

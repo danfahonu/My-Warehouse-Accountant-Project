@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 using DoAnLapTrinhQuanLy.Services;
+using DoAnLapTrinhQuanLy; // Để nhận diện được ReportService
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
@@ -66,7 +67,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
             // Mở khóa nhập liệu
             btnLuu.Enabled = true;
-            btnIn.Enabled = false;
+            btnIn.Enabled = false; // Mặc định ẩn nút in, lưu xong mới hiện
             dgvChiTiet.ReadOnly = false;
             dgvChiTiet.AllowUserToAddRows = true;
         }
@@ -237,7 +238,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
                 txtSoPhieu.Text = soPhieu.ToString();
                 MessageBox.Show("Lưu phiếu xuất thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Khóa form
+                // Khóa form và mở nút In
                 btnLuu.Enabled = false;
                 btnIn.Enabled = true;
                 dgvChiTiet.ReadOnly = true;
@@ -251,9 +252,24 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             }
         }
 
+        // === ĐÂY LÀ HÀM IN ĐÃ ĐƯỢC SỬA ===
         private void btnIn_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Đang in phiếu số: " + txtSoPhieu.Text);
+            if (txtSoPhieu.Text == "(Mới)" || string.IsNullOrEmpty(txtSoPhieu.Text))
+            {
+                MessageBox.Show("Chưa có phiếu để in. Vui lòng lưu trước!");
+                return;
+            }
+
+            try
+            {
+                // Gọi ReportService để in phiếu (Code này lấy từ file ReportService.cs đã tạo)
+                ReportService.InPhieu(txtSoPhieu.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi in phiếu: " + ex.Message);
+            }
         }
 
         private void btnThem_Click(object sender, EventArgs e) => ResetForm();

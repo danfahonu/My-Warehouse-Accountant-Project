@@ -15,10 +15,11 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.pnlTop = new System.Windows.Forms.Panel();
@@ -131,7 +132,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtGhiChu.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtGhiChu.Location = new System.Drawing.Point(100, 72);
             this.txtGhiChu.Name = "txtGhiChu";
-            this.txtGhiChu.Size = new System.Drawing.Size(800, 34);
+            this.txtGhiChu.Size = new System.Drawing.Size(800, 25);
             this.txtGhiChu.TabIndex = 1;
             // 
             // lblGhiChu
@@ -140,7 +141,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblGhiChu.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblGhiChu.Location = new System.Drawing.Point(30, 75);
             this.lblGhiChu.Name = "lblGhiChu";
-            this.lblGhiChu.Size = new System.Drawing.Size(82, 28);
+            this.lblGhiChu.Size = new System.Drawing.Size(59, 19);
             this.lblGhiChu.TabIndex = 2;
             this.lblGhiChu.Text = "Ghi chú:";
             // 
@@ -149,7 +150,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.cboNhaCungCap.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboNhaCungCap.Location = new System.Drawing.Point(550, 32);
             this.cboNhaCungCap.Name = "cboNhaCungCap";
-            this.cboNhaCungCap.Size = new System.Drawing.Size(350, 36);
+            this.cboNhaCungCap.Size = new System.Drawing.Size(350, 25);
             this.cboNhaCungCap.TabIndex = 3;
             // 
             // lblNhaCungCap
@@ -158,7 +159,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblNhaCungCap.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblNhaCungCap.Location = new System.Drawing.Point(480, 35);
             this.lblNhaCungCap.Name = "lblNhaCungCap";
-            this.lblNhaCungCap.Size = new System.Drawing.Size(80, 28);
+            this.lblNhaCungCap.Size = new System.Drawing.Size(58, 19);
             this.lblNhaCungCap.TabIndex = 4;
             this.lblNhaCungCap.Text = "Nhà CC:";
             // 
@@ -167,7 +168,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.dtpNgayNhap.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpNgayNhap.Location = new System.Drawing.Point(330, 32);
             this.dtpNgayNhap.Name = "dtpNgayNhap";
-            this.dtpNgayNhap.Size = new System.Drawing.Size(120, 34);
+            this.dtpNgayNhap.Size = new System.Drawing.Size(120, 25);
             this.dtpNgayNhap.TabIndex = 5;
             // 
             // lblNgayNhap
@@ -176,7 +177,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblNgayNhap.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblNgayNhap.Location = new System.Drawing.Point(280, 35);
             this.lblNgayNhap.Name = "lblNgayNhap";
-            this.lblNgayNhap.Size = new System.Drawing.Size(63, 28);
+            this.lblNgayNhap.Size = new System.Drawing.Size(44, 19);
             this.lblNgayNhap.TabIndex = 6;
             this.lblNgayNhap.Text = "Ngày:";
             // 
@@ -185,7 +186,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.txtSoPhieu.Location = new System.Drawing.Point(100, 32);
             this.txtSoPhieu.Name = "txtSoPhieu";
             this.txtSoPhieu.ReadOnly = true;
-            this.txtSoPhieu.Size = new System.Drawing.Size(150, 34);
+            this.txtSoPhieu.Size = new System.Drawing.Size(150, 25);
             this.txtSoPhieu.TabIndex = 7;
             // 
             // lblSoPhieu
@@ -194,7 +195,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblSoPhieu.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lblSoPhieu.Location = new System.Drawing.Point(30, 35);
             this.lblSoPhieu.Name = "lblSoPhieu";
-            this.lblSoPhieu.Size = new System.Drawing.Size(92, 28);
+            this.lblSoPhieu.Size = new System.Drawing.Size(65, 19);
             this.lblSoPhieu.TabIndex = 8;
             this.lblSoPhieu.Text = "Số Phiếu:";
             // 
@@ -395,7 +396,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblTongTien.ForeColor = System.Drawing.Color.Red;
             this.lblTongTien.Location = new System.Drawing.Point(140, 25);
             this.lblTongTien.Name = "lblTongTien";
-            this.lblTongTien.Size = new System.Drawing.Size(67, 45);
+            this.lblTongTien.Size = new System.Drawing.Size(46, 30);
             this.lblTongTien.TabIndex = 11;
             this.lblTongTien.Text = "0 đ";
             // 
@@ -405,7 +406,7 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.lblTongTienLabel.Font = new System.Drawing.Font("Segoe UI", 12F);
             this.lblTongTienLabel.Location = new System.Drawing.Point(30, 30);
             this.lblTongTienLabel.Name = "lblTongTienLabel";
-            this.lblTongTienLabel.Size = new System.Drawing.Size(158, 32);
+            this.lblTongTienLabel.Size = new System.Drawing.Size(104, 21);
             this.lblTongTienLabel.TabIndex = 12;
             this.lblTongTienLabel.Text = "TỔNG CỘNG:";
             // 
@@ -415,13 +416,13 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
             this.chkThanhToan.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.chkThanhToan.Location = new System.Drawing.Point(350, 31);
             this.chkThanhToan.Name = "chkThanhToan";
-            this.chkThanhToan.Size = new System.Drawing.Size(200, 34);
+            this.chkThanhToan.Size = new System.Drawing.Size(140, 24);
             this.chkThanhToan.TabIndex = 13;
             this.chkThanhToan.Text = "Thanh toán ngay";
             // 
             // FormPhieuNhap
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 28F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
             this.ClientSize = new System.Drawing.Size(1200, 700);
@@ -467,12 +468,12 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         private System.Windows.Forms.DataGridView dgvChiTiet;
 
         private System.Windows.Forms.Panel pnlFooter;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelBtn; // MỚI
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelBtn;
         private System.Windows.Forms.Label lblTongTien;
         private System.Windows.Forms.Label lblTongTienLabel;
         private System.Windows.Forms.CheckBox chkThanhToan;
 
-        // Buttons chuẩn logic cũ
+        // Buttons chuẩn logic cũ (Đã xóa btnInPhieu dư thừa)
         private System.Windows.Forms.Button btnLuu;
         private System.Windows.Forms.Button btnThem;
         private System.Windows.Forms.Button btnIn;
