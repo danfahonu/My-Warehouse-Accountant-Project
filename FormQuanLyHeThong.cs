@@ -1,306 +1,124 @@
 ﻿using System;
 using System.Data;
-using System.Drawing;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.Data;
-using DoAnLapTrinhQuanLy.Core;
+using DoAnLapTrinhQuanLy.Services;
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
-    public partial class FormQuanLyHeThong : BaseForm
+    public partial class FormQuanLyHeThong : Form
     {
-        private bool isAdding = false;
-        private int selectedId = -1; // Dùng ID (khóa chính) để xác định người dùng đang chọn
+        private readonly HeThongService _service = new HeThongService();
+        private string _mode = "";
 
         public FormQuanLyHeThong()
         {
             InitializeComponent();
-            UseCustomTitleBar = false;
+            // 3 DÒNG THẦN THÁNH
+            this.TopLevel = false;
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.Dock = DockStyle.Fill;
         }
 
         private void FormQuanLyHeThong_Load(object sender, EventArgs e)
         {
-            try
-            {
-                // ThemeManager.Apply(this); // Handled by BaseForm
-                LoadDataNguoiDung();
-                LoadComboBoxQuyen();
-                LoadComboBoxNhanVien();
-                SetInputMode(false);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi tải form: " + ex.Message);
-            }
+            LoadData();
+            LoadCombos();
+            SetMode("view");
         }
 
-        #region Xử lý dữ liệu và ComboBox
-
-        private void LoadDataNguoiDung()
+        private void LoadData()
         {
-            try
-            {
-                string query = @"
-                    SELECT nd.ID, nd.TAIKHOAN, nd.HOTEN, qh.TENQUYEN, nd.HOATDONG 
-                    FROM NGUOIDUNG nd
-                    JOIN QUYENHAN qh ON nd.MAQUYEN = qh.MAQUYEN
-                    ORDER BY nd.TAIKHOAN";
-                DataTable dt = DbHelper.Query(query);
-                dgvNguoiDung.DataSource = dt;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải dữ liệu người dùng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            dgvUsers.DataSource = _service.GetAllUsers();
+            if (dgvUsers.Columns.Contains("PASSWORD")) dgvUsers.Columns["PASSWORD"].Visible = false;
+            if (dgvUsers.Columns.Contains("USERNAME")) dgvUsers.Columns["USERNAME"].HeaderText = "Tài Khoản";
+            if (dgvUsers.Columns.Contains("FULLNAME")) dgvUsers.Columns["FULLNAME"].HeaderText = "Họ Tên";
+            if (dgvUsers.Columns.Contains("ROLE")) dgvUsers.Columns["ROLE"].HeaderText = "Quyền";
         }
 
-        private void LoadComboBoxQuyen()
+        private void LoadCombos()
         {
-            try
-            {
-                string query = "SELECT MAQUYEN, TENQUYEN FROM QUYENHAN";
-                DataTable dt = DbHelper.Query(query);
-                cboQuyen.DataSource = dt;
-                cboQuyen.DisplayMember = "TENQUYEN";
-                cboQuyen.ValueMember = "MAQUYEN";
-                cboQuyen.SelectedIndex = -1;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải danh sách quyền: " + ex.Message);
-            }
+            cboNhanVien.DataSource = _service.GetNhanVien();
+            cboNhanVien.DisplayMember = "HOTEN";
+            cboNhanVien.ValueMember = "MANV";
+            cboNhanVien.SelectedIndex = -1;
         }
 
-        private void LoadComboBoxNhanVien()
+        private void SetMode(string mode)
         {
-            try
-            {
-                string query = "SELECT MANV, HOTEN FROM NHANVIEN";
-                DataTable dt = DbHelper.Query(query);
+            _mode = mode;
+            bool isEdit = (mode == "add" || mode == "edit");
+            grpDetail.Enabled = isEdit;
+            grpList.Enabled = !isEdit;
 
-                // Thêm dòng "Không chọn" (cho tài khoản nội bộ không liên kết nhân viên)
-                if (dt.Columns.Contains("MANV"))
-                {
-                    dt.Columns["MANV"].AllowDBNull = true;
-                }
-                DataRow dr = dt.NewRow();
-                dr["MANV"] = DBNull.Value;
-                dr["HOTEN"] = "--- Không chọn / Tài khoản nội bộ ---";
-                dt.Rows.InsertAt(dr, 0);
+            btnThem.Visible = !isEdit; btnSua.Visible = !isEdit; btnXoa.Visible = !isEdit;
+            btnLuu.Visible = isEdit; btnHuy.Visible = isEdit;
 
-                cboNhanVien.DataSource = dt;
-                cboNhanVien.DisplayMember = "HOTEN";
-                cboNhanVien.ValueMember = "MANV";
-                cboNhanVien.SelectedIndex = 0;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải danh sách nhân viên: " + ex.Message);
-            }
+            if (mode == "view" && dgvUsers.CurrentRow != null) DisplayDetail(dgvUsers.CurrentRow);
+            else if (mode == "add") ClearInputs();
         }
 
         private void ClearInputs()
         {
-            txtTaiKhoan.Text = "";
-            txtHoTen.Text = "";
-            txtMatKhau.Text = "";
-            cboQuyen.SelectedIndex = -1;
-            cboNhanVien.SelectedIndex = 0; // Mặc định về "Không chọn"
-            chkHoatDong.Checked = true;
-            selectedId = -1;
+            txtTaiKhoan.Text = ""; txtMatKhau.Text = ""; txtHoTen.Text = "";
+            cboQuyen.SelectedIndex = 1;
+            cboNhanVien.SelectedIndex = -1;
+            chkActive.Checked = true;
         }
 
-        private void SetInputMode(bool enable)
-        {
-            txtTaiKhoan.ReadOnly = !isAdding;
-            txtHoTen.ReadOnly = !enable;
-            txtMatKhau.ReadOnly = !enable;
-            cboQuyen.Enabled = enable;
-            cboNhanVien.Enabled = enable;
-            chkHoatDong.Enabled = enable;
-
-            btnLuu.Enabled = enable;
-            btnHuy.Enabled = enable;
-            btnThem.Enabled = !enable;
-            btnSua.Enabled = !enable;
-            btnXoa.Enabled = !enable;
-        }
-
-        #endregion
-
-        #region Sự kiện
-
-        private void DgvNguoiDung_SelectionChanged(object sender, EventArgs e)
-        {
-            if (!isAdding && dgvNguoiDung.SelectedRows.Count > 0)
-            {
-                try
-                {
-                    selectedId = Convert.ToInt32(dgvNguoiDung.SelectedRows[0].Cells["ID"].Value);
-
-                    var dt = DbHelper.Query("SELECT * FROM NGUOIDUNG WHERE ID = @ID", DbHelper.Param("@ID", selectedId));
-                    if (dt.Rows.Count > 0)
-                    {
-                        var row = dt.Rows[0];
-                        txtTaiKhoan.Text = row["TAIKHOAN"].ToString();
-                        txtHoTen.Text = row["HOTEN"].ToString();
-                        txtMatKhau.Text = ""; // Luôn xóa trắng ô mật khẩu khi chọn để bảo mật
-                        cboQuyen.SelectedValue = row["MAQUYEN"];
-                        cboNhanVien.SelectedValue = row["MANV"] == DBNull.Value ? DBNull.Value : row["MANV"];
-                        chkHoatDong.Checked = (bool)row["HOATDONG"];
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi khi chọn người dùng: " + ex.Message);
-                }
-            }
-        }
-
-        private void BtnThem_Click(object sender, EventArgs e)
-        {
-            isAdding = true;
-            ClearInputs();
-            SetInputMode(true);
-            txtTaiKhoan.Focus();
-        }
-
-        private void BtnSua_Click(object sender, EventArgs e)
-        {
-            if (selectedId == -1)
-            {
-                MessageBox.Show("Vui lòng chọn một người dùng để sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            if (txtTaiKhoan.Text.ToLower() == "admin")
-            {
-                MessageBox.Show("Không thể sửa tài khoản admin gốc.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            isAdding = false;
-            SetInputMode(true);
-            txtHoTen.Focus();
-        }
-
-        private void BtnXoa_Click(object sender, EventArgs e)
-        {
-            if (selectedId == -1)
-            {
-                MessageBox.Show("Vui lòng chọn một người dùng để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            if (txtTaiKhoan.Text.ToLower() == "admin")
-            {
-                MessageBox.Show("Không thể xóa tài khoản admin gốc.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (MessageBox.Show("Bạn có chắc chắn muốn xóa người dùng này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
-                try
-                {
-                    string query = "DELETE FROM NGUOIDUNG WHERE ID = @ID";
-                    DbHelper.Execute(query, DbHelper.Param("@ID", selectedId));
-
-                    LoadDataNguoiDung();
-                    ClearInputs();
-                    MessageBox.Show("Xóa người dùng thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi khi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void BtnLuu_Click(object sender, EventArgs e)
+        private void DisplayDetail(DataGridViewRow row)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(txtTaiKhoan.Text) || string.IsNullOrWhiteSpace(txtHoTen.Text) || cboQuyen.SelectedValue == null)
-                {
-                    MessageBox.Show("Vui lòng điền đầy đủ Tên tài khoản, Họ tên và Quyền.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (isAdding)
-                {
-                    if (string.IsNullOrWhiteSpace(txtMatKhau.Text))
-                    {
-                        MessageBox.Show("Vui lòng nhập mật khẩu cho tài khoản mới.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                    string query = @"
-                        INSERT INTO NGUOIDUNG (TAIKHOAN, MATKHAU, MAQUYEN, HOTEN, HOATDONG, MANV)
-                        VALUES (@TaiKhoan, @MatKhau, @MaQuyen, @HoTen, @HoatDong, @MaNV)";
-                    DbHelper.Execute(query,
-                        DbHelper.Param("@TaiKhoan", txtTaiKhoan.Text),
-                        DbHelper.Param("@MatKhau", txtMatKhau.Text),
-                        DbHelper.Param("@MaQuyen", cboQuyen.SelectedValue),
-                        DbHelper.Param("@HoTen", txtHoTen.Text),
-                        DbHelper.Param("@HoatDong", chkHoatDong.Checked),
-                        DbHelper.Param("@MaNV", cboNhanVien.SelectedValue)
-                    );
-                }
-                else
-                {
-                    string query;
-                    if (!string.IsNullOrWhiteSpace(txtMatKhau.Text))
-                    {
-                        query = @"
-                            UPDATE NGUOIDUNG SET
-                                HOTEN = @HoTen, MAQUYEN = @MaQuyen, HOATDONG = @HoatDong, 
-                                MANV = @MaNV, MATKHAU = @MatKhau
-                            WHERE ID = @ID";
-                        DbHelper.Execute(query,
-                           DbHelper.Param("@HoTen", txtHoTen.Text),
-                           DbHelper.Param("@MaQuyen", cboQuyen.SelectedValue),
-                           DbHelper.Param("@HoatDong", chkHoatDong.Checked),
-                           DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
-                           DbHelper.Param("@MatKhau", txtMatKhau.Text),
-                           DbHelper.Param("@ID", selectedId)
-                       );
-                    }
-                    else
-                    {
-                        query = @"
-                            UPDATE NGUOIDUNG SET
-                                HOTEN = @HoTen, MAQUYEN = @MaQuyen, HOATDONG = @HoatDong, MANV = @MaNV
-                            WHERE ID = @ID";
-                        DbHelper.Execute(query,
-                           DbHelper.Param("@HoTen", txtHoTen.Text),
-                           DbHelper.Param("@MaQuyen", cboQuyen.SelectedValue),
-                           DbHelper.Param("@HoatDong", chkHoatDong.Checked),
-                           DbHelper.Param("@MaNV", cboNhanVien.SelectedValue),
-                           DbHelper.Param("@ID", selectedId)
-                       );
-                    }
-                }
-                MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadDataNguoiDung();
-                SetInputMode(false);
-                isAdding = false;
+                txtTaiKhoan.Text = row.Cells["USERNAME"].Value.ToString();
+                txtMatKhau.Text = ""; // Không hiện pass
+                txtHoTen.Text = row.Cells["FULLNAME"].Value.ToString();
+                cboQuyen.SelectedItem = row.Cells["ROLE"].Value.ToString();
+                cboNhanVien.SelectedValue = row.Cells["MANV"].Value;
+                chkActive.Checked = Convert.ToBoolean(row.Cells["ACTIVE"].Value);
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            catch { }
         }
 
-        private void BtnHuy_Click(object sender, EventArgs e)
+        private void btnThem_Click(object sender, EventArgs e) { SetMode("add"); txtTaiKhoan.Focus(); }
+
+        private void btnSua_Click(object sender, EventArgs e)
         {
-            if (!isAdding && dgvNguoiDung.SelectedRows.Count > 0)
-            {
-                DgvNguoiDung_SelectionChanged(null, null);
-            }
-            else
-            {
-                ClearInputs();
-            }
-            SetInputMode(false);
-            isAdding = false;
+            SetMode("edit");
+            txtTaiKhoan.ReadOnly = true;
+            //txtMatKhau.PlaceholderText = "Để trống nếu không đổi";
         }
 
-        #endregion
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Xóa tài khoản này?", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                try { _service.DeleteUser(txtTaiKhoan.Text); LoadData(); SetMode("view"); }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            }
+        }
+
+        private void btnLuu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string manv = cboNhanVien.SelectedValue?.ToString();
+                _service.SaveUser(txtTaiKhoan.Text, txtMatKhau.Text, txtHoTen.Text,
+                    cboQuyen.Text, manv, chkActive.Checked, _mode == "add");
+
+                MessageBox.Show("Lưu thành công!");
+                LoadData();
+                SetMode("view");
+            }
+            catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
+        }
+
+        private void btnHuy_Click(object sender, EventArgs e) => SetMode("view");
+        private void dgvUsers_SelectionChanged(object sender, EventArgs e) { if (_mode == "view" && dgvUsers.CurrentRow != null) DisplayDetail(dgvUsers.CurrentRow); }
+
+
+        private void btnThoat_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

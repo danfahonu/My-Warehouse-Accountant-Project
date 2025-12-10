@@ -7,8 +7,8 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 {
     public partial class FormChonPhieuYeuCau : Form
     {
-        private readonly PhieuYeuCauService _service = new PhieuYeuCauService();
-        public long SelectedYeuCauID { get; private set; }
+        private readonly YeuCauNhapKhoService _service = new YeuCauNhapKhoService();
+        public long SelectedYeuCauID { get; private set; } = 0; // Biến trả về ID
 
         public FormChonPhieuYeuCau()
         {
@@ -17,10 +17,9 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
 
         private void FormChonPhieuYeuCau_Load(object sender, EventArgs e)
         {
-            // Default Date Range: Last 30 Days
+            // Mặc định load 30 ngày gần đây
             dtpTuNgay.Value = DateTime.Now.AddDays(-30);
             dtpDenNgay.Value = DateTime.Now;
-
             LoadData();
         }
 
@@ -28,89 +27,64 @@ namespace DoAnLapTrinhQuanLy.GuiLayer
         {
             try
             {
-                // Ensure End Date includes the whole day
-                DateTime tuNgay = dtpTuNgay.Value.Date;
-                DateTime denNgay = dtpDenNgay.Value.Date.AddDays(1).AddSeconds(-1);
+                // Gọi hàm lấy danh sách phiếu ĐANG CHỜ NHẬP (TRANGTHAI = 1 hoặc 2)
+                DataTable dt = _service.GetListPhieuYeuCauChoNhap();
 
-                DataTable dt = _service.GetDanhSachDaDuyet(tuNgay, denNgay);
-                dgvDanhSach.DataSource = dt;
+                // Lọc theo ngày (trên giao diện)
+                // Lưu ý: Nếu muốn lọc từ SQL thì truyền tham số vào Service, ở đây tui lọc trên View cho nhanh
+                if (dt != null)
+                {
+                    dt.DefaultView.RowFilter = $"NGAY_YEUCAU >= '{dtpTuNgay.Value:yyyy-MM-dd}' AND NGAY_YEUCAU <= '{dtpDenNgay.Value:yyyy-MM-dd 23:59:59}'";
+                    dgvDanhSach.DataSource = dt.DefaultView;
+                }
 
                 SetupGrid();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
         private void SetupGrid()
         {
+            // Format tên cột cho đẹp
             if (dgvDanhSach.Columns.Contains("ID"))
             {
-                dgvDanhSach.Columns["ID"].HeaderText = "Số Phiếu";
+                dgvDanhSach.Columns["ID"].HeaderText = "Mã Phiếu";
                 dgvDanhSach.Columns["ID"].Width = 100;
             }
             if (dgvDanhSach.Columns.Contains("NGAY_YEUCAU"))
             {
                 dgvDanhSach.Columns["NGAY_YEUCAU"].HeaderText = "Ngày Yêu Cầu";
-                dgvDanhSach.Columns["NGAY_YEUCAU"].Width = 150;
                 dgvDanhSach.Columns["NGAY_YEUCAU"].DefaultCellStyle.Format = "dd/MM/yyyy";
             }
-            if (dgvDanhSach.Columns.Contains("NGUOI_YEU_CAU"))
-            {
-                dgvDanhSach.Columns["NGUOI_YEU_CAU"].HeaderText = "Người Yêu Cầu";
-                dgvDanhSach.Columns["NGUOI_YEU_CAU"].Width = 200;
-            }
-            if (dgvDanhSach.Columns.Contains("LYDO"))
-            {
-                dgvDanhSach.Columns["LYDO"].HeaderText = "Lý Do";
-                dgvDanhSach.Columns["LYDO"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            }
-            if (dgvDanhSach.Columns.Contains("TRANGTHAI_TEXT"))
-            {
-                dgvDanhSach.Columns["TRANGTHAI_TEXT"].HeaderText = "Trạng Thái";
-                dgvDanhSach.Columns["TRANGTHAI_TEXT"].Width = 120;
-            }
-        }
+            if (dgvDanhSach.Columns.Contains("NGUOI_YEUCAU"))
+                dgvDanhSach.Columns["NGUOI_YEUCAU"].HeaderText = "Người Yêu Cầu";
 
-        private void btnTimKiem_Click(object sender, EventArgs e)
-        {
-            LoadData();
+            if (dgvDanhSach.Columns.Contains("LYDO"))
+                dgvDanhSach.Columns["LYDO"].Visible = false; // Ẩn bớt cho gọn
         }
 
         private void ConfirmSelection()
         {
-            if (dgvDanhSach.CurrentRow != null && dgvDanhSach.CurrentRow.Selected)
+            if (dgvDanhSach.CurrentRow != null)
             {
-                // Must verify the cell is not null
-                var cell = dgvDanhSach.CurrentRow.Cells["ID"].Value;
-                if (cell != null && long.TryParse(cell.ToString(), out long id))
-                {
-                    SelectedYeuCauID = id;
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
+                // Lấy ID trả về
+                SelectedYeuCauID = Convert.ToInt64(dgvDanhSach.CurrentRow.Cells["ID"].Value);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn một phiếu yêu cầu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Vui lòng chọn một phiếu.");
             }
         }
 
-        private void btnChon_Click(object sender, EventArgs e)
-        {
-            ConfirmSelection();
-        }
-
-        private void dgvDanhSach_DoubleClick(object sender, EventArgs e)
-        {
-            ConfirmSelection();
-        }
-
-        private void btnHuy_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
-        }
+        // Sự kiện nút bấm
+        private void btnTimKiem_Click(object sender, EventArgs e) => LoadData();
+        private void btnChon_Click(object sender, EventArgs e) => ConfirmSelection();
+        private void dgvDanhSach_DoubleClick(object sender, EventArgs e) => ConfirmSelection();
+        private void btnHuy_Click(object sender, EventArgs e) { this.DialogResult = DialogResult.Cancel; this.Close(); }
     }
 }

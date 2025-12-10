@@ -176,6 +176,9 @@
     </Compile>
     <Compile Include="SecurityHelper.cs" />
     <Compile Include="Services\BaoCaoKhoService.cs" />
+    <Compile Include="Services\CongNoService.cs" />
+    <Compile Include="Services\HeThongService.cs" />
+    <Compile Include="Services\TongHopKhoService.cs" />
     <Compile Include="Services\NhomHangService.cs" />
     <Compile Include="Services\HangHoaService.cs" />
     <Compile Include="Services\PhieuNhapService.cs" />
@@ -198,12 +201,6 @@
     <Compile Include="FormAttach.Designer.cs">
       <DependentUpon>FormAttach.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormBangBaoGia.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FormBangBaoGia.Designer.cs">
-      <DependentUpon>FormBangBaoGia.cs</DependentUpon>
-    </Compile>
     <Compile Include="FormBaoCaoKho.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -216,11 +213,11 @@
     <Compile Include="FormBaoCaoQuy.Designer.cs">
       <DependentUpon>FormBaoCaoQuy.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormBaoCaoTonKho.cs">
+    <Compile Include="FormTongHopKho.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormBaoCaoTonKho.Designer.cs">
-      <DependentUpon>FormBaoCaoTonKho.cs</DependentUpon>
+    <Compile Include="FormTongHopKho.Designer.cs">
+      <DependentUpon>FormTongHopKho.cs</DependentUpon>
     </Compile>
     <Compile Include="FormCaiDatHeThong.cs">
       <SubType>Form</SubType>
@@ -383,12 +380,6 @@
     </Compile>
     <Compile Include="FormTinhLuong.Designer.cs">
       <DependentUpon>FormTinhLuong.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FormTroLyAo.Designer.cs">
-      <DependentUpon>FormTroLyAo.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FormTroLyAo.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="FormYeuCauNhapKho.cs">
       <SubType>Form</SubType>

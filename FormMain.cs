@@ -1,109 +1,88 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.Core;
-// Lưu ý: Nếu các Form của bà nằm trong namespace khác (ví dụ DoAnLapTrinhQuanLy.GuiLayer.DanhMuc),
-// bà hãy thêm "using" tương ứng vào đây.
 
 namespace DoAnLapTrinhQuanLy.GuiLayer
 {
-    public partial class FrmMain : Form
+    public partial class FormMain : Form
     {
-        private Form _activeForm = null;
+        private Form _currentChildForm;
+        private Button _currentButton;
 
-        public FrmMain()
+        public FormMain()
         {
             InitializeComponent();
-            SetupEvents();
-        }
-        private void FrmMain_Load(object sender, EventArgs e)
-        {
-            // Mở cái này lên đầu tiên để lấp trống cái màn hình
-            OpenForm(new FormDashboard());
-        }
-        private void SetupEvents()
-        {
-            // --- 1. SỰ KIỆN MENU CHÍNH ---
-            btnHeThong.Click += (s, e) => ToggleMenu(pnlSubHeThong);
-            btnDanhMuc.Click += (s, e) => ToggleMenu(pnlSubDanhMuc);
-            btnNghiepVu.Click += (s, e) => ToggleMenu(pnlSubNghiepVu);
-            btnBaoCao.Click += (s, e) => ToggleMenu(pnlSubBaoCao);
-            btnLogout.Click += (s, e) => Application.Exit();
-
-            // --- 2. SỰ KIỆN MỞ FORM (NỐI DÂY ĐIỆN) ---
-
-            // == HỆ THỐNG ==
-            btnSubDoiMatKhau.Click += (s, e) => OpenForm(new FormDoiMatKhau());
-            btnSubQuanLyHeThong.Click += (s, e) => OpenForm(new FormQuanLyHeThong());
-            btnSubCaiDat.Click += (s, e) => OpenForm(new FormCaiDatHeThong());
-            // Form kết nối và Thông tin thường là Dialog, nên dùng ShowDialog() thay vì OpenForm
-            btnSubKetNoi.Click += (s, e) => new FormKetNoiCSDL().ShowDialog();
-            btnSubThongTin.Click += (s, e) => new FormThongTinPhanMem().ShowDialog();
-            btnSubTroLyAo.Click += (s, e) => OpenForm(new FormTroLyAo());
-
-            // == DANH MỤC ==
-            btnSubKhachHang.Click += (s, e) => OpenForm(new FormKhachHang());
-            btnSubHangHoa.Click += (s, e) => OpenForm(new FormDanhMucHangHoa());
-            btnSubNhanVien.Click += (s, e) => OpenForm(new FormNhanVien());
-            btnSubNhomHang.Click += (s, e) => OpenForm(new FormNhomHang());
-            btnSubNhaCungCap.Click += (s, e) => OpenForm(new FormNhaCungCap());
-            // Có 2 form ngân hàng, tui ưu tiên form Quản Lý
-            btnSubNganHang.Click += (s, e) => OpenForm(new FormQuanLyTaiKhoanNganHang());
-            btnSubTaiKhoanKeToan.Click += (s, e) => OpenForm(new FormHeThongTaiKhoanKeToan());
-
-            // == NGHIỆP VỤ ==
-            btnSubNhapHang.Click += (s, e) => OpenForm(new FormPhieuNhap());
-            btnSubBanHang.Click += (s, e) => OpenForm(new FormPhieuXuat());
-            btnSubYeuCauNhap.Click += (s, e) => OpenForm(new FormYeuCauNhapKho());
-            btnSubBaoGia.Click += (s, e) => OpenForm(new FormBangBaoGia());
-            btnSubChamCong.Click += (s, e) => OpenForm(new FormTamUngChamCong());
-            btnSubThuChi.Click += (s, e) => OpenForm(new FormThuChi());
-
-            // == BÁO CÁO ==
-            btnSubBaoCaoTon.Click += (s, e) => OpenForm(new FormBaoCaoTonKho());
-            btnSubBaoCaoLuong.Click += (s, e) => OpenForm(new FormTinhLuong());
-            btnSubBaoCaoQuy.Click += (s, e) => OpenForm(new FormBaoCaoQuy());
-            btnSubCongNo.Click += (s, e) => OpenForm(new FormReportCongNo());
-            btnSubNhatKyChung.Click += (s, e) => OpenForm(new FormSoNhatKyChung());
-            btnSubSoChiTiet.Click += (s, e) => OpenForm(new FormSoChiTietTaiKhoan());
         }
 
-        private void ToggleMenu(Panel subMenu)
+        private void FormMain_Load(object sender, EventArgs e)
         {
-            if (subMenu.Visible)
+            // Mở Dashboard đầu tiên
+            OpenChildForm(new FormDashboard(), btnDashboard);
+        }
+
+        private void OpenChildForm(Form childForm, object btnSender)
+        {
+            if (_currentChildForm != null)
             {
-                subMenu.Visible = false;
+                _currentChildForm.Close();
             }
-            else
-            {
-                pnlSubHeThong.Visible = false;
-                pnlSubDanhMuc.Visible = false;
-                pnlSubNghiepVu.Visible = false;
-                pnlSubBaoCao.Visible = false;
-                subMenu.Visible = true;
-            }
-        }
 
-        private void OpenForm(Form childForm)
-        {
-            if (_activeForm != null) _activeForm.Close();
+            ActivateButton(btnSender);
 
-            _activeForm = childForm;
+            _currentChildForm = childForm;
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
 
-            pnlContent.Controls.Add(childForm);
-            pnlContent.Tag = childForm;
+            pnlBody.Controls.Add(childForm);
+            pnlBody.Tag = childForm;
             childForm.BringToFront();
             childForm.Show();
 
-            lblTitle.Text = childForm.Text;
+            lblTitle.Text = childForm.Text.ToUpper();
         }
 
-        public void SetLoggedInUser(UserData user)
+        private void ActivateButton(object btnSender)
         {
-            // Logic phân quyền (ẩn hiện nút) bà thêm vào đây sau nhé
+            if (btnSender != null)
+            {
+                if (_currentButton != null)
+                {
+                    // Trả lại màu cũ cho nút trước đó
+                    _currentButton.BackColor = Color.FromArgb(26, 32, 40);
+                }
+
+                _currentButton = (Button)btnSender;
+                // Highlight nút đang chọn
+                _currentButton.BackColor = Color.FromArgb(0, 102, 204);
+            }
+        }
+
+        // --- EVENTS MENU ---
+        private void btnDashboard_Click(object sender, EventArgs e) => OpenChildForm(new FormDashboard(), sender);
+
+        // Nhóm Danh Mục (Nếu bà muốn làm menu con thì tính sau, giờ mở Form Hàng Hóa đại diện)
+        private void btnHangHoa_Click(object sender, EventArgs e) => OpenChildForm(new FormDanhMucHangHoa(), sender);
+
+        // Nhóm Kho
+        private void btnYeuCau_Click(object sender, EventArgs e) => OpenChildForm(new FormYeuCauNhapKho(), sender);
+        private void btnNhapKho_Click(object sender, EventArgs e) => OpenChildForm(new FormPhieuNhap(), sender);
+        private void btnXuatKho_Click(object sender, EventArgs e) => OpenChildForm(new FormPhieuXuat(), sender);
+        private void btnTonKho_Click(object sender, EventArgs e) => OpenChildForm(new FormTongHopKho(), sender); // Form Tổng Hợp Kho
+
+        // Nhóm Tiền
+        private void btnThuChi_Click(object sender, EventArgs e) => OpenChildForm(new FormThuChi(), sender);
+        private void btnCongNo_Click(object sender, EventArgs e) => OpenChildForm(new FormReportCongNo(), sender);
+
+        // Nhóm Hệ Thống
+        private void btnTaiKhoan_Click(object sender, EventArgs e) => OpenChildForm(new FormQuanLyHeThong(), sender);
+
+        private void btnDangXuat_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Bạn muốn đăng xuất?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                this.Close(); // Đóng Main để Program.cs mở lại Login
+            }
         }
     }
 }

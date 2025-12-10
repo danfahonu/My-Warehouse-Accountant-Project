@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Windows.Forms;
-using DoAnLapTrinhQuanLy.GuiLayer;
-using DoAnLapTrinhQuanLy.Data; // Để dùng Session nếu cần
+using DoAnLapTrinhQuanLy.Data;
+using DoAnLapTrinhQuanLy.GuiLayer; // <--- QUAN TRỌNG: Phải có dòng này để thấy FormMain
 
 namespace DoAnLapTrinhQuanLy
 {
@@ -13,18 +14,44 @@ namespace DoAnLapTrinhQuanLy
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            FormDangNhap frmLogin = new FormDangNhap();
+            // 1. Kiểm tra kết nối CSDL trước tiên
+            if (!CheckDatabaseConnection())
+            {
+                FormKetNoiCSDL frmConfig = new FormKetNoiCSDL();
+                if (frmConfig.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+            }
 
-            // Nếu đăng nhập thành công
+            // 2. Mở Form Đăng Nhập
+            FormDangNhap frmLogin = new FormDangNhap();
             if (frmLogin.ShowDialog() == DialogResult.OK)
             {
-                // KHÔNG CẦN TRUYỀN USER NỮA (Vì FormDangNhap đã lưu vào Session rồi)
-                // Sửa dòng này lại thành:
-                Application.Run(new FrmMain());
+                // 3. Đăng nhập thành công -> Mở Form Main
+                // SỬA LỖI Ở ĐÂY: FormMain chứ không phải FromMain
+                Application.Run(new FormMain());
             }
             else
             {
                 Application.Exit();
+            }
+        }
+
+        static bool CheckDatabaseConnection()
+        {
+            try
+            {
+                DbHelper.ReloadConnectionString();
+                using (var conn = new SqlConnection(DbHelper.ConnectionString))
+                {
+                    conn.Open();
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
     }
